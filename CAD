@@ -1,0 +1,22 @@
+{
+    "version": 1,
+    "revision": 0,
+    "rules": [
+        {
+            "primary-output": "CAD Bane\\x64\\Release\\glad.obj",
+            "outputs": [
+                "CAD",
+                "CAD Bane\\x64\\Release\\glad.h_764E17BC317D2D35.ifc.dt.d.json",
+                "CAD Bane\\x64\\Release\\glad.h.ifc"
+            ],
+            "provides": [
+                {
+                    "logical-name": "C:\\Users\\filip\\Studia\\mgr1\\Modelowanie Geometryczne 1\\CAD Bane\\external\\include\\glad\\glad.h",
+                    "source-path": "c:\\users\\filip\\studia\\mgr1\\modelowanie geometryczne 1\\cad bane\\external\\include\\glad\\glad.h",
+                    "lookup-method": "absolute"
+                }
+            ],
+            "requires": []
+        }
+    ]
+}
