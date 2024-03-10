@@ -167,12 +167,17 @@
     <ClCompile Include="external\include\imgui\imgui\imgui_widgets.cpp" />
     <ClCompile Include="src\application.ixx" />
     <ClCompile Include="src\config.ixx" />
+    <ClCompile Include="src\objects\checkergrid.ixx" />
     <ClCompile Include="src\objects\cube.ixx" />
+    <ClCompile Include="src\objects\texturedobject.ixx" />
+    <ClCompile Include="src\objects\torus.ixx" />
     <ClCompile Include="src\raycasting\raycastingop.ixx" />
     <ClCompile Include="src\raycasting\strategy\cpuraycasting.ixx" />
     <ClCompile Include="src\raycasting\strategy\gpuraycasting.ixx" />
     <ClCompile Include="src\raycasting\strategy\raycastingstrategy.ixx" />
     <ClCompile Include="src\ui\components\ellipsoidcomp.ixx" />
+    <ClCompile Include="src\ui\components\objectlistcomp.ixx" />
+    <ClCompile Include="src\ui\components\torusconfigcomp.ixx" />
     <ClCompile Include="src\ui\guicontroller.ixx" />
     <ClCompile Include="src\ui\inputhandler.ixx" />
     <ClCompile Include="src\objects\canvas.ixx" />
@@ -635,10 +640,12 @@
     <None Include="external\include\glm\gtx\wrap.inl" />
     <None Include="shaders\flattexture.frag" />
     <None Include="shaders\flattexture.vert" />
-    <None Include="shaders\ground.frag" />
-    <None Include="shaders\ground.vert" />
+    <None Include="shaders\grid.frag" />
+    <None Include="shaders\grid.vert" />
     <None Include="shaders\raycasting.frag" />
     <None Include="shaders\raycasting.vert" />
+    <None Include="shaders\solidcolor.frag" />
+    <None Include="shaders\solidcolor.vert" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="external\lib\glfw3.lib" />

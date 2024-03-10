@@ -114,6 +114,21 @@
     <ClCompile Include="src\raycasting\strategy\gpuraycasting.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\objects\texturedobject.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\objects\torus.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\objects\checkergrid.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ui\components\objectlistcomp.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ui\components\torusconfigcomp.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external\include\KHR\khrplatform.h">
@@ -1437,10 +1452,12 @@
     </None>
     <None Include="shaders\flattexture.vert" />
     <None Include="shaders\flattexture.frag" />
-    <None Include="shaders\ground.vert" />
-    <None Include="shaders\ground.frag" />
+    <None Include="shaders\grid.vert" />
+    <None Include="shaders\grid.frag" />
     <None Include="shaders\raycasting.vert" />
     <None Include="shaders\raycasting.frag" />
+    <None Include="shaders\solidcolor.vert" />
+    <None Include="shaders\solidcolor.frag" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="external\lib\glfw3.lib" />

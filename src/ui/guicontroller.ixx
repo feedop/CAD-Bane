@@ -1,5 +1,6 @@
 export module gui.controller;
 
+import <vector>;
 import <imgui.h>;
 import <imgui/backend/imgui_impl_glfw.h>;
 import <imgui/backend/imgui_impl_opengl3.h>;
@@ -9,9 +10,11 @@ import <glm/vec2.hpp>;
 import <glm/vec3.hpp>;
 
 import ellipsoid;
+import objectrepository;
 import raycaster;
 import renderer;
 import theme;
+import torus;
 
 ImGuiIO& createImguiContext()
 {
@@ -26,11 +29,12 @@ ImGuiIO& createImguiContext()
 export class GuiController
 {
 public:
-    GuiController(GLFWwindow* window, Raycaster& raycaster, Renderer& renderer, Ellipsoid& ellipsoid) : io(createImguiContext()), raycaster(raycaster), renderer(renderer), ellipsoid(ellipsoid)
+    GuiController(GLFWwindow* window, ObjectRepository& repository, Raycaster& raycaster, Renderer& renderer, Ellipsoid& ellipsoid) :
+        io(createImguiContext()), repository(repository), raycaster(raycaster), renderer(renderer), ellipsoid(ellipsoid)
     {
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;       // Enable Keyboard Controls
         //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-        io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
+        //io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
         io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // Enable Multi-Viewport / Platform Windows
         //io.ConfigViewportsNoAutoMerge = true;
         //io.ConfigViewportsNoTaskBarIcon = true;
@@ -53,43 +57,50 @@ public:
         ImGui::NewFrame();
 
         // imgui debug
-        bool show = false;
-        if (show)
+        bool showDemo = false;
+        if (showDemo)
         {
-            ImGui::ShowDemoWindow(&show);
+            ImGui::ShowDemoWindow(&showDemo);
             render();
             return;
         }
 
-        ImGuiWindowFlags windowFlags = 0;
-        windowFlags |= ImGuiWindowFlags_MenuBar;
-
-        ImGui::Begin("Configuration window", nullptr, windowFlags); // Create a window and append into it.
+        ImGui::Begin("Configuration window", nullptr, 0); // Create a window and append into it.
 
         static bool fpsLimit = true;
-        if (ImGui::Checkbox("Limit fps to screen frequency", &fpsLimit));
+        if (ImGui::Checkbox("Limit fps to screen frequency", &fpsLimit))
         {
             glfwSwapInterval(fpsLimit);
         }
 
         ImGui::Checkbox("Render grid", &renderer.drawGrid);
 
-        ImGui::Checkbox("Render ellipsoid", &raycaster.enabled);
+        if (ImGui::Checkbox("Render ellipsoid", &raycaster.enabled) && raycaster.enabled)
+        {
+            raycaster.enqueueUpdate();
+        }
         if (raycaster.enabled)
         {
             renderEllipsoid();
-        }        
+        }
+
+        renderTorusConfig();
 
         ImGui::End();
+
+        // Render other windows
+        renderObjectList();
+
         render();
     }
 private:
     ImGuiIO& io;
+    ObjectRepository& repository;
     Raycaster& raycaster;
     Renderer& renderer;
     Ellipsoid& ellipsoid;
 
-    void renderEllipsoid();
+    static std::vector<Torus*> selectedTori;
 
     void render()
     {
@@ -99,7 +110,6 @@ private:
 
         // Update and Render additional Platform Windows
         // (Platform functions may change the current OpenGL context, so we save/restore it to make it easier to paste this code elsewhere.
-        //  For this specific demo app we could also call glfwMakeContextCurrent(window) directly)
         if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
         {
             GLFWwindow* backup_current_context = glfwGetCurrentContext();
@@ -108,4 +118,9 @@ private:
             glfwMakeContextCurrent(backup_current_context);
         }
     }
+
+    // Components
+    void renderEllipsoid();
+    void renderObjectList();
+    void renderTorusConfig();
 };

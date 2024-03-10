@@ -38,11 +38,11 @@ int main()
     // Create a graphics controller
     Renderer renderer(cfg::initialWidth, cfg::initialHeight, camera, repository, raycaster);
 
-    // Create a GUI controller
-    GuiController guiController(window, raycaster, renderer, ellipsoid);
-
     // Setup input handling
     InputHandler inputHandler(window, camera, raycaster, renderer);
+
+    // Create a GUI controller
+    GuiController guiController(window, repository, raycaster, renderer, ellipsoid);    
 
     // MAIN LOOP HERE - dictated by glfw
     double lastTime = glfwGetTime();

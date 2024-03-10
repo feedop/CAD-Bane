@@ -35,7 +35,7 @@ public:
         glfwMakeContextCurrent(window);
 
         // Set fps lock
-        glfwSwapInterval(0);
+        glfwSwapInterval(1);
 
         // Load GL and set the viewport to match window size
         gladLoadGL();

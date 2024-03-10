@@ -3,6 +3,7 @@ export module inputhandler;
 import <iostream>;
 import <glm/gtc/constants.hpp>;
 import <GLFW/glfw3.h>;
+import <imgui/imgui/imgui.h>;
 
 import camera;
 import raycaster;
@@ -32,6 +33,9 @@ public:
 
 	static void mouseCallback(GLFWwindow* window, int button, int action, int mods)
 	{
+		if (ImGui::GetIO().WantCaptureMouse)
+			return;
+
 		auto* handler = static_cast<InputHandler*>(glfwGetWindowUserPointer(window));
 		handler->handleMouseInput(window, button, action);
 	}

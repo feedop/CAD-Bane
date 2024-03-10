@@ -146,14 +146,20 @@ public:
     FlatTextureShader() : Shader("shaders/flattexture.vert", "shaders/flattexture.frag") {}
 };
 
-export class GroundShader : public Shader
+export class GridShader : public Shader
 {
 public:
-    GroundShader() : Shader("shaders/ground.vert", "shaders/ground.frag") {}
+    GridShader() : Shader("shaders/grid.vert", "shaders/grid.frag") {}
 };
 
 export class RaycastingShader : public Shader
 {
 public:
     RaycastingShader() : Shader("shaders/raycasting.vert", "shaders/raycasting.frag") {}
+};
+
+export class SolidColorShader : public Shader
+{
+public:
+    SolidColorShader() : Shader("shaders/solidcolor.vert", "shaders/solidcolor.frag") {}
 };

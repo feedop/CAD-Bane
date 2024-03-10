@@ -28,7 +28,7 @@ export namespace math
 	glm::mat4 translate(const glm::vec3& vector)
 	{
 		glm::mat4 result{ 1.0f };
-		result[3] = { vector[0],vector[1],vector[2],vector[3] };
+		result[3] = { vector[0],vector[1],vector[2], 1.0f };
 		return result;
 	}
 

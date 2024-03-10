@@ -81,7 +81,7 @@ public:
 	}
 
 private:
-	bool enabled = true;
+	bool enabled = false;
 
 	const Canvas canvas;
 	const Camera& camera;
