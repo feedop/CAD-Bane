@@ -8,19 +8,18 @@ import <vector>;
 import <glm/vec4.hpp>;
 
 import math;
-import object;
+import selectableobject;
 import shader;
 
-export class Torus : public Object
+export class Torus : public SelectableObject
 {
-protected:
 	struct Vertex
 	{
-		glm::vec3 position;
+		glm::vec3 translation;
 	};
 
 public:
-	Torus(const glm::vec3& position = glm::vec3{ 0.0f, 0.0f, 0.0f }) : Object(position)
+	Torus(const glm::vec3& translation = glm::vec3{ 0.0f, 0.0f, 0.0f }) : SelectableObject(translation)
 	{
 		name = std::format("Torus {}", instanceCount++);
 		glGenVertexArrays(1, &VAO);
@@ -30,30 +29,29 @@ public:
 		calculateTorus();
 	}
 
-	virtual ~Torus()
-	{
-		instanceCount--;
-	}
-
 	virtual void draw(const Shader* shader) const override
 	{
-		Object::draw(shader);
-		shader->setVector("color", color);
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		SelectableObject::draw(shader);
 		glBindVertexArray(VAO);
 		glDrawElements(GL_LINES, static_cast<GLsizei>(indices.size()), GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	}
+
+	virtual bool isCoordInObject(const glm::vec3& coord) const override
+	{
+		auto diff = coord - position;
+		// From torus equation
+		float left = std::powf(R - std::sqrtf(diff.x * diff.x + diff.y * diff.y), 2) + coord.z * coord.z;
+		return (left <= r * r);
 	}
 
 private:
 	friend class GuiController;
-	static unsigned int instanceCount;
+	inline static unsigned int instanceCount = 0;
 
 	std::vector<Vertex> vertices;
 	std::vector<unsigned int> indices;
 
-	glm::vec4 color = { 0.0f, 1.0f, 0.0f, 1.0f };
 	float R = 0.5f;
 	float r = 0.1f;
 	int majorPoints = 30;
@@ -111,5 +109,3 @@ private:
 		glBindVertexArray(0);
 	}
 };
-
-unsigned int Torus::instanceCount = 0;

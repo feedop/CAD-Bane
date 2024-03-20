@@ -10,6 +10,7 @@ import ellipsoid;
 import gui;
 import inputhandler;
 import objectrepository;
+import pointrenderer;
 import raycaster;
 import renderer;
 
@@ -33,13 +34,15 @@ int main()
     Ellipsoid ellipsoid{ 1.0f, 1.0f, 1.0f };
     Raycaster raycaster(camera, ellipsoid);
 
-    ObjectRepository repository;
+    PointRenderer pointRenderer;
+
+    ObjectRepository repository(camera, pointRenderer);
 
     // Create a graphics controller
-    Renderer renderer(cfg::initialWidth, cfg::initialHeight, camera, repository, raycaster);
+    Renderer renderer(cfg::initialWidth, cfg::initialHeight, camera, pointRenderer, repository, raycaster);
 
     // Setup input handling
-    InputHandler inputHandler(window, camera, raycaster, renderer);
+    InputHandler inputHandler(window, camera, repository, raycaster, renderer);
 
     // Create a GUI controller
     GuiController guiController(window, repository, raycaster, renderer, ellipsoid);    

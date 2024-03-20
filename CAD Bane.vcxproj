@@ -167,14 +167,19 @@
     <ClCompile Include="external\include\imgui\imgui\imgui_widgets.cpp" />
     <ClCompile Include="src\application.ixx" />
     <ClCompile Include="src\config.ixx" />
-    <ClCompile Include="src\objects\checkergrid.ixx" />
     <ClCompile Include="src\objects\cube.ixx" />
+    <ClCompile Include="src\objects\cursor.ixx" />
+    <ClCompile Include="src\objects\grid.ixx" />
+    <ClCompile Include="src\objects\middlepoint.ixx" />
+    <ClCompile Include="src\objects\point.ixx" />
+    <ClCompile Include="src\objects\selectableobject.ixx" />
     <ClCompile Include="src\objects\texturedobject.ixx" />
     <ClCompile Include="src\objects\torus.ixx" />
     <ClCompile Include="src\raycasting\raycastingop.ixx" />
     <ClCompile Include="src\raycasting\strategy\cpuraycasting.ixx" />
     <ClCompile Include="src\raycasting\strategy\gpuraycasting.ixx" />
     <ClCompile Include="src\raycasting\strategy\raycastingstrategy.ixx" />
+    <ClCompile Include="src\rendering\pointrenderer.ixx" />
     <ClCompile Include="src\ui\components\ellipsoidcomp.ixx" />
     <ClCompile Include="src\ui\components\objectlistcomp.ixx" />
     <ClCompile Include="src\ui\components\torusconfigcomp.ixx" />
@@ -640,12 +645,18 @@
     <None Include="external\include\glm\gtx\wrap.inl" />
     <None Include="shaders\flattexture.frag" />
     <None Include="shaders\flattexture.vert" />
-    <None Include="shaders\grid.frag" />
-    <None Include="shaders\grid.vert" />
+    <None Include="shaders\checkergrid.frag" />
+    <None Include="shaders\checkergrid.vert" />
+    <None Include="shaders\infinitegrid.frag" />
+    <None Include="shaders\infinitegrid.vert" />
+    <None Include="shaders\multicolor.frag" />
+    <None Include="shaders\multicolor.vert" />
+    <None Include="shaders\point.frag" />
+    <None Include="shaders\point.vert" />
     <None Include="shaders\raycasting.frag" />
     <None Include="shaders\raycasting.vert" />
-    <None Include="shaders\solidcolor.frag" />
-    <None Include="shaders\solidcolor.vert" />
+    <None Include="shaders\uniformcolor.frag" />
+    <None Include="shaders\uniformcolor.vert" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="external\lib\glfw3.lib" />

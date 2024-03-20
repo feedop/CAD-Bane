@@ -1,26 +1,24 @@
-export module texturedobject;
+export module cursor;
 
 import <glad/glad.h>;
-import <vector>;
+import <array>;
 
-import <glm/vec2.hpp>;
 import <glm/vec3.hpp>;
 
 import object;
 import shader;
+import math;
 
-export class TexturedObject : public Object
+export class Cursor : public Object
 {
-protected:
 	struct Vertex
 	{
 		glm::vec3 translation;
-		glm::vec2 texCoords;
+		glm::vec3 color;
 	};
 
 public:
-	TexturedObject(const std::vector<Vertex>& vertices, const std::vector<unsigned int> indices) :
-		vertices(vertices), indices(indices)
+	Cursor()
 	{
 		glGenVertexArrays(1, &VAO);
 		glGenBuffers(1, &VBO);
@@ -38,22 +36,54 @@ public:
 		// vertex positions
 		glEnableVertexAttribArray(0);
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
-		// texture coordinates
+		// colors
 		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, texCoords));
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, color));
 
 		glBindVertexArray(0);
+
+		localScale = { 0.1f, 0.1f, 0.1f };
+		update();
 	}
 
 	virtual void draw(const Shader* shader) const override
 	{
 		Object::draw(shader);
 		glBindVertexArray(VAO);
-		glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices.size()), GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_LINES, static_cast<GLsizei>(indices.size()), GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
 	}
 
 private:
-	std::vector<Vertex> vertices;
-	std::vector<unsigned int> indices;
+	inline static constexpr std::array<Vertex, 6> vertices{ {
+		{
+			{0.0f, 0.0f, 0.0f},
+			{1.0f, 0.0f, 0.0f}
+		},
+		{
+			{1.0f, 0.0f, 0.0f},
+			{1.0f, 0.0f, 0.0f}
+		},
+		{
+			{0.0f, 0.0f, 0.0f},
+			{0.0f, 1.0f, 0.0f}
+		},
+		{
+			{0.0f, 1.0f, 0.0f},
+			{0.0f, 1.0f, 0.0f}
+		},
+		{
+			{0.0f, 0.0f, 0.0f},
+			{0.0f, 0.0f, 1.0f}
+		},
+		{
+			{0.0f, 0.0f, 1.0f},
+			{0.0f, 0.0f, 1.0f}
+		}
+	} };
+	inline static constexpr std::array<unsigned int, 6> indices{ {
+		0, 1,
+		2, 3,
+		4, 5
+	} };
 };

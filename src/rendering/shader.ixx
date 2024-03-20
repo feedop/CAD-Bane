@@ -146,10 +146,16 @@ public:
     FlatTextureShader() : Shader("shaders/flattexture.vert", "shaders/flattexture.frag") {}
 };
 
-export class GridShader : public Shader
+export class CheckerGridShader : public Shader
 {
 public:
-    GridShader() : Shader("shaders/grid.vert", "shaders/grid.frag") {}
+    CheckerGridShader() : Shader("shaders/checkergrid.vert", "shaders/checkergrid.frag") {}
+};
+
+export class InfiniteGridShader : public Shader
+{
+public:
+    InfiniteGridShader() : Shader("shaders/infinitegrid.vert", "shaders/infinitegrid.frag") {}
 };
 
 export class RaycastingShader : public Shader
@@ -158,8 +164,20 @@ public:
     RaycastingShader() : Shader("shaders/raycasting.vert", "shaders/raycasting.frag") {}
 };
 
-export class SolidColorShader : public Shader
+export class UniformColorShader : public Shader
 {
 public:
-    SolidColorShader() : Shader("shaders/solidcolor.vert", "shaders/solidcolor.frag") {}
+    UniformColorShader() : Shader("shaders/uniformcolor.vert", "shaders/uniformcolor.frag") {}
+};
+
+export class MultiColorShader : public Shader
+{
+public:
+    MultiColorShader() : Shader("shaders/multicolor.vert", "shaders/multicolor.frag") {}
+};
+
+export class PointShader : public Shader
+{
+public:
+    PointShader() : Shader("shaders/point.vert", "shaders/point.frag") {}
 };

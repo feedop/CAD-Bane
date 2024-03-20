@@ -6,6 +6,7 @@ import <GLFW/glfw3.h>;
 import <imgui/imgui/imgui.h>;
 
 import camera;
+import objectrepository;
 import raycaster;
 import renderer;
 import math;
@@ -13,8 +14,8 @@ import math;
 export class InputHandler
 {
 public:
-	InputHandler(GLFWwindow* window, Camera& camera, Raycaster& raycaster, Renderer& renderer) :
-		camera(camera), raycaster(raycaster), renderer(renderer)
+	InputHandler(GLFWwindow* window, Camera& camera, ObjectRepository& repository, Raycaster& raycaster, Renderer& renderer) :
+		camera(camera), repository(repository), raycaster(raycaster), renderer(renderer)
 	{
 		glfwSetWindowUserPointer(window, this);
 
@@ -55,6 +56,21 @@ public:
 			{
 			case GLFW_KEY_LEFT_SHIFT:
 				handler->pressedKeys.SHIFT = true;
+				break;
+			case GLFW_KEY_LEFT_CONTROL:
+				handler->pressedKeys.CTRL = true;
+				break;
+			case GLFW_KEY_LEFT_ALT:
+				handler->pressedKeys.ALT = true;
+				break;
+			case GLFW_KEY_Z:
+				handler->pressedKeys.Z = true;
+				break;
+			case GLFW_KEY_DELETE:
+			case GLFW_KEY_BACKSPACE:
+				handler->repository.removeTori();
+				handler->repository.removePoints();
+				break;
 			}
 		}
 		else if (action == GLFW_RELEASE)
@@ -63,29 +79,53 @@ public:
 			{
 			case GLFW_KEY_LEFT_SHIFT:
 				handler->pressedKeys.SHIFT = false;
+				break;
+			case GLFW_KEY_LEFT_CONTROL:
+				handler->pressedKeys.CTRL = false;
+				break;
+			case GLFW_KEY_LEFT_ALT:
+				handler->pressedKeys.ALT = false;
+				break;
+			case GLFW_KEY_Z:
+				handler->pressedKeys.Z = false;
+				break;
 			}
 		}
 	}
 
 	void handleMouseInput(GLFWwindow* window, int button, int action)
 	{
-		if (button != GLFW_MOUSE_BUTTON_LEFT)
-			return;
-
 		if(action == GLFW_PRESS)
-		{	
-			cameraMovingMode = true;
-			glfwGetCursorPos(window, &lastX, &lastY);
+		{
+			switch (button)
+			{
+			case GLFW_MOUSE_BUTTON_RIGHT:
+				mouseMovingMode = true;
+				glfwGetCursorPos(window, &lastX, &lastY);
+				initialX = lastX;
+				initialY = lastY;
+				break;
+			case GLFW_MOUSE_BUTTON_LEFT:
+				double x, y;
+				glfwGetCursorPos(window, &x, &y);
+				renderer.selectObjectFromScreen(x, y, pressedKeys.CTRL);
+				break;
+			}		
 		}
 		else if (action == GLFW_RELEASE)
 		{
-			cameraMovingMode = false;
+			switch (button)
+			{
+			case GLFW_MOUSE_BUTTON_RIGHT:
+				mouseMovingMode = false;
+				break;
+			}
 		}
 	}
 
 	void handleMouseMovement(GLFWwindow* window)
 	{
-		if (!cameraMovingMode)
+		if (!mouseMovingMode)
 			return;
 
 		double x, y;
@@ -102,14 +142,44 @@ public:
 		float xDiff = dx / windowWidth * math::pi;
 		float yDiff = dy / windowHeight * math::pi;
 
-		if (pressedKeys.SHIFT)
+		// Cursor movement
+		if (pressedKeys.ALT)
 		{
-			camera.move(xDiff, yDiff);
+			repository.moveCursor(xDiff, yDiff);
 		}
+		// Object movement and rotation
+		else if (pressedKeys.CTRL)
+		{
+			if (pressedKeys.SHIFT)
+			{
+				repository.moveObjects(xDiff, yDiff);
+			}
+			else if (pressedKeys.Z)
+			{
+				if (initialX < windowWidth / 2)
+					xDiff *= -1;
+				if (initialY < windowHeight / 2)
+					yDiff *= -1;
+				repository.scaleObjects(xDiff, yDiff);
+			}
+			else
+			{
+				repository.rotateObjects(xDiff, yDiff);
+			}
+		}
+		// Camera movement and rotation
 		else
 		{
-			camera.rotate(xDiff, yDiff);
+			if (pressedKeys.SHIFT)
+			{
+				camera.move(xDiff, yDiff);
+			}
+			else
+			{
+				camera.rotate(xDiff, yDiff);
+			}
 		}
+			
 		raycaster.enqueueUpdate();
 		lastX = x;
 		lastY = y;
@@ -117,17 +187,23 @@ public:
 
 private:
 	Camera& camera;
+	ObjectRepository& repository;
 	Raycaster& raycaster;
 	Renderer& renderer;
 
 	double lastX = 0;
 	double lastY = 0;
+	double initialX = 0;
+	double initialY = 0;
 
-	bool cameraMovingMode = false;
+	bool mouseMovingMode = false;
 
 	struct PressedKeys
 	{
 		bool SHIFT = false;
+		bool CTRL = false;
+		bool ALT = false;
+		bool Z = false;
 	} pressedKeys;
 };
 
