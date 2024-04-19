@@ -9,8 +9,8 @@ import torus;
 
 export void GuiController::renderTorusConfig()
 {
-	const auto& tori = repository.getTori();
-	const auto& selectedTori = repository.getSelectedTori();
+	const auto& tori = scene.getTori();
+	const auto& selectedTori = scene.getSelectedTori();
 	for (auto&& torus : selectedTori)
 	{
 		ImGui::Text(torus->getName().c_str());

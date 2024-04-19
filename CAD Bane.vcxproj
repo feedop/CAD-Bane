@@ -167,14 +167,24 @@
     <ClCompile Include="external\include\imgui\imgui\imgui_widgets.cpp" />
     <ClCompile Include="src\application.ixx" />
     <ClCompile Include="src\config.ixx" />
-    <ClCompile Include="src\objects\cube.ixx" />
-    <ClCompile Include="src\objects\cursor.ixx" />
-    <ClCompile Include="src\objects\grid.ixx" />
-    <ClCompile Include="src\objects\middlepoint.ixx" />
-    <ClCompile Include="src\objects\point.ixx" />
-    <ClCompile Include="src\objects\selectableobject.ixx" />
-    <ClCompile Include="src\objects\texturedobject.ixx" />
-    <ClCompile Include="src\objects\torus.ixx" />
+    <ClCompile Include="src\math\quat.ixx" />
+    <ClCompile Include="src\objects\curves\c0bezier.ixx" />
+    <ClCompile Include="src\objects\curves\c2bezier.ixx" />
+    <ClCompile Include="src\objects\curves\curveupdate.ixx" />
+    <ClCompile Include="src\objects\mixins\clickable.ixx" />
+    <ClCompile Include="src\objects\mixins\drawable.ixx" />
+    <ClCompile Include="src\objects\mixins\selectable.ixx" />
+    <ClCompile Include="src\objects\scene.ixx" />
+    <ClCompile Include="src\objects\solids\cube.ixx" />
+    <ClCompile Include="src\objects\solids\cursor.ixx" />
+    <ClCompile Include="src\objects\curves\curve.ixx" />
+    <ClCompile Include="src\objects\solids\grid.ixx" />
+    <ClCompile Include="src\objects\solids\middlepoint.ixx" />
+    <ClCompile Include="src\objects\solids\point.ixx" />
+    <ClCompile Include="src\objects\solids\solidobject.ixx" />
+    <ClCompile Include="src\objects\solids\texturedobject.ixx" />
+    <ClCompile Include="src\objects\solids\torus.ixx" />
+    <ClCompile Include="src\objects\solids\virtualpoint.ixx" />
     <ClCompile Include="src\raycasting\raycastingop.ixx" />
     <ClCompile Include="src\raycasting\strategy\cpuraycasting.ixx" />
     <ClCompile Include="src\raycasting\strategy\gpuraycasting.ixx" />
@@ -185,9 +195,7 @@
     <ClCompile Include="src\ui\components\torusconfigcomp.ixx" />
     <ClCompile Include="src\ui\guicontroller.ixx" />
     <ClCompile Include="src\ui\inputhandler.ixx" />
-    <ClCompile Include="src\objects\canvas.ixx" />
-    <ClCompile Include="src\objects\object.ixx" />
-    <ClCompile Include="src\objects\objectrepository.ixx" />
+    <ClCompile Include="src\objects\solids\canvas.ixx" />
     <ClCompile Include="src\rendering\camera.ixx" />
     <ClCompile Include="src\math\math.ixx" />
     <ClCompile Include="src\math\matrix.ixx" />
@@ -200,6 +208,10 @@
     <ClCompile Include="src\rendering\renderer.ixx" />
     <ClCompile Include="src\rendering\shader.ixx" />
     <ClCompile Include="src\ui\theme.ixx" />
+    <ClCompile Include="src\utils\colors.ixx" />
+    <ClCompile Include="src\utils\glutils.ixx" />
+    <ClCompile Include="src\utils\scopedbindarray.ixx" />
+    <ClCompile Include="src\utils\scopedlinewidth.ixx" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external\include\glad\glad.h" />
@@ -643,6 +655,10 @@
     <None Include="external\include\glm\gtx\vector_angle.inl" />
     <None Include="external\include\glm\gtx\vector_query.inl" />
     <None Include="external\include\glm\gtx\wrap.inl" />
+    <None Include="shaders\bezier2.tese" />
+    <None Include="shaders\curve.tesc" />
+    <None Include="shaders\bezier3.tese" />
+    <None Include="shaders\curve.vert" />
     <None Include="shaders\flattexture.frag" />
     <None Include="shaders\flattexture.vert" />
     <None Include="shaders\checkergrid.frag" />

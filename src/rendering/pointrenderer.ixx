@@ -7,11 +7,13 @@ import <vector>;
 import <glm/vec3.hpp>;
 import <glm/mat4x4.hpp>;
 
+import drawable;
+import glutils;
 import middlepoint;
 import point;
 import shader;
 
-export class PointRenderer
+export class PointRenderer : public Drawable
 {
 public:
 	PointRenderer()
@@ -19,15 +21,16 @@ public:
 		glGenVertexArrays(1, &VAO);
 		glGenBuffers(1, &VBO);
 	}
-	~PointRenderer()
+
+	void updateSoft(const std::vector<std::unique_ptr<Point>>& points)
 	{
-		glBindVertexArray(VAO);
+		positions.clear();
+		for (auto&& point : points)
+		{
+			positions.push_back(point.get()->toVertex());
+		}
 
-		glBindBuffer(GL_ARRAY_BUFFER, VBO);
-		glDeleteBuffers(1, &VBO);
-
-		glDeleteVertexArrays(1, &VAO);
-		glBindVertexArray(0);
+		uploadPositions();
 	}
 
 	void update(const std::vector<std::unique_ptr<Point>>& points)
@@ -41,10 +44,25 @@ public:
 			positions.push_back(point->toVertex());
 		}
 
+		uploadPositions();
+	}
+
+	virtual void draw(const Shader* shader) const override
+	{
+		ScopedBindArray ba(VAO);
+		glDrawArrays(GL_POINTS, 0, positions.size());
+	}
+
+private:
+
+	std::vector<Point::Vertex> positions;
+
+	void uploadPositions()
+	{
 		if (positions.size() == 0)
 			return;
 
-		glBindVertexArray(VAO);
+		ScopedBindArray ba(VAO);
 		glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
 		glBufferData(GL_ARRAY_BUFFER, positions.size() * sizeof(Point::Vertex), &positions[0], GL_DYNAMIC_DRAW);
@@ -55,19 +73,5 @@ public:
 		// colors
 		glEnableVertexAttribArray(1);
 		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Point::Vertex), (void*)offsetof(Point::Vertex, color));
-
-		glBindVertexArray(0);
 	}
-
-	void draw()
-	{
-		glBindVertexArray(VAO);
-		glDrawArrays(GL_POINTS, 0, positions.size());
-		glBindVertexArray(0);
-	}
-
-private:
-	unsigned int VAO = 0, VBO = 0;
-
-	std::vector<Point::Vertex> positions;
 };

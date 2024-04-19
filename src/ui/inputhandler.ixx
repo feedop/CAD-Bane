@@ -6,7 +6,7 @@ import <GLFW/glfw3.h>;
 import <imgui/imgui/imgui.h>;
 
 import camera;
-import objectrepository;
+import scene;
 import raycaster;
 import renderer;
 import math;
@@ -14,8 +14,8 @@ import math;
 export class InputHandler
 {
 public:
-	InputHandler(GLFWwindow* window, Camera& camera, ObjectRepository& repository, Raycaster& raycaster, Renderer& renderer) :
-		camera(camera), repository(repository), raycaster(raycaster), renderer(renderer)
+	InputHandler(GLFWwindow* window, Camera& camera, Scene& scene, Raycaster& raycaster, Renderer& renderer) :
+		camera(camera), scene(scene), raycaster(raycaster), renderer(renderer)
 	{
 		glfwSetWindowUserPointer(window, this);
 
@@ -66,10 +66,15 @@ public:
 			case GLFW_KEY_Z:
 				handler->pressedKeys.Z = true;
 				break;
+			case GLFW_KEY_A:
+				handler->scene.addToCurves();
+				break;
+			case GLFW_KEY_R:
+				handler->scene.removeFromCurves();
+				break;	
 			case GLFW_KEY_DELETE:
 			case GLFW_KEY_BACKSPACE:
-				handler->repository.removeTori();
-				handler->repository.removePoints();
+				handler->scene.removeObjects();
 				break;
 			}
 		}
@@ -145,14 +150,14 @@ public:
 		// Cursor movement
 		if (pressedKeys.ALT)
 		{
-			repository.moveCursor(xDiff, yDiff);
+			scene.moveCursor(xDiff, yDiff);
 		}
 		// Object movement and rotation
 		else if (pressedKeys.CTRL)
 		{
 			if (pressedKeys.SHIFT)
 			{
-				repository.moveObjects(xDiff, yDiff);
+				scene.moveObjects(xDiff, yDiff);
 			}
 			else if (pressedKeys.Z)
 			{
@@ -160,11 +165,11 @@ public:
 					xDiff *= -1;
 				if (initialY < windowHeight / 2)
 					yDiff *= -1;
-				repository.scaleObjects(xDiff, yDiff);
+				scene.scaleObjects(xDiff, yDiff);
 			}
 			else
 			{
-				repository.rotateObjects(xDiff, yDiff);
+				scene.rotateObjects(xDiff, yDiff);
 			}
 		}
 		// Camera movement and rotation
@@ -187,7 +192,7 @@ public:
 
 private:
 	Camera& camera;
-	ObjectRepository& repository;
+	Scene& scene;
 	Raycaster& raycaster;
 	Renderer& renderer;
 

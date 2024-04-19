@@ -78,13 +78,7 @@
     <ClCompile Include="src\application.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\objects\canvas.ixx">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\objects\object.ixx">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\objects\objectrepository.ixx">
+    <ClCompile Include="src\objects\solids\canvas.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\ui\theme.ixx">
@@ -96,7 +90,7 @@
     <ClCompile Include="src\ui\guicontroller.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\objects\cube.ixx">
+    <ClCompile Include="src\objects\solids\cube.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\raycasting\raycastingop.ixx">
@@ -114,10 +108,10 @@
     <ClCompile Include="src\raycasting\strategy\gpuraycasting.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\objects\texturedobject.ixx">
+    <ClCompile Include="src\objects\solids\texturedobject.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\objects\torus.ixx">
+    <ClCompile Include="src\objects\solids\torus.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\ui\components\objectlistcomp.ixx">
@@ -126,22 +120,64 @@
     <ClCompile Include="src\ui\components\torusconfigcomp.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\objects\cursor.ixx">
+    <ClCompile Include="src\objects\solids\cursor.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\objects\selectableobject.ixx">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\objects\point.ixx">
+    <ClCompile Include="src\objects\solids\point.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\rendering\pointrenderer.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\objects\grid.ixx">
+    <ClCompile Include="src\objects\solids\grid.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\objects\middlepoint.ixx">
+    <ClCompile Include="src\objects\solids\middlepoint.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\math\quat.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\objects\curves\curve.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\objects\solids\solidobject.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\objects\curves\c0bezier.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\objects\mixins\selectable.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\objects\mixins\clickable.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\objects\scene.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\objects\curves\curveupdate.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utils\scopedbindarray.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utils\scopedlinewidth.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utils\glutils.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\objects\curves\c2bezier.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\objects\mixins\drawable.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utils\colors.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\objects\solids\virtualpoint.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -1479,6 +1515,10 @@
     <None Include="shaders\uniformcolor.vert" />
     <None Include="shaders\point.vert" />
     <None Include="shaders\point.frag" />
+    <None Include="shaders\curve.vert" />
+    <None Include="shaders\curve.tesc" />
+    <None Include="shaders\bezier3.tese" />
+    <None Include="shaders\bezier2.tese" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="external\lib\glfw3.lib" />

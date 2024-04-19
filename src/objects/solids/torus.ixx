@@ -7,11 +7,14 @@ import <vector>;
 
 import <glm/vec4.hpp>;
 
+import glutils;
+import clickable;
 import math;
-import selectableobject;
+import selectable;
+import solidobject;
 import shader;
 
-export class Torus : public SelectableObject
+export class Torus : public SolidObject, public Selectable, public Clickable
 {
 	struct Vertex
 	{
@@ -19,9 +22,8 @@ export class Torus : public SelectableObject
 	};
 
 public:
-	Torus(const glm::vec3& translation = glm::vec3{ 0.0f, 0.0f, 0.0f }) : SelectableObject(translation)
+	Torus(const glm::vec3& translation = glm::vec3{ 0.0f, 0.0f, 0.0f }) : SolidObject(translation), Selectable(std::format("Torus {}", instanceCount++))
 	{
-		name = std::format("Torus {}", instanceCount++);
 		glGenVertexArrays(1, &VAO);
 		glGenBuffers(1, &VBO);
 		glGenBuffers(1, &EBO);
@@ -31,10 +33,10 @@ public:
 
 	virtual void draw(const Shader* shader) const override
 	{
-		SelectableObject::draw(shader);
-		glBindVertexArray(VAO);
+		ScopedBindArray ba(VAO);
+		setColor(shader);
+		SolidObject::draw(shader);
 		glDrawElements(GL_LINES, static_cast<GLsizei>(indices.size()), GL_UNSIGNED_INT, 0);
-		glBindVertexArray(0);
 	}
 
 	virtual bool isCoordInObject(const glm::vec3& coord) const override
@@ -52,9 +54,9 @@ private:
 	std::vector<Vertex> vertices;
 	std::vector<unsigned int> indices;
 
-	float R = 0.5f;
-	float r = 0.1f;
-	int majorPoints = 30;
+	float R = 1.0f;
+	float r = 0.2f;
+	int majorPoints = 40;
 	int minorPoints = 20;
 
 	void calculateTorus()
@@ -94,7 +96,7 @@ private:
 		}
 
 		// Copy data to gpu
-		glBindVertexArray(VAO);
+		ScopedBindArray ba(VAO);
 		glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
 		glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0], GL_DYNAMIC_DRAW);
@@ -105,7 +107,5 @@ private:
 
 		glEnableVertexAttribArray(0);
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
-
-		glBindVertexArray(0);
 	}
 };

@@ -9,7 +9,7 @@ import config;
 import ellipsoid;
 import gui;
 import inputhandler;
-import objectrepository;
+import scene;
 import pointrenderer;
 import raycaster;
 import renderer;
@@ -36,16 +36,16 @@ int main()
 
     PointRenderer pointRenderer;
 
-    ObjectRepository repository(camera, pointRenderer);
+    Scene scene(camera, pointRenderer);
 
     // Create a graphics controller
-    Renderer renderer(cfg::initialWidth, cfg::initialHeight, camera, pointRenderer, repository, raycaster);
+    Renderer renderer(cfg::initialWidth, cfg::initialHeight, camera, pointRenderer, scene, raycaster);
 
     // Setup input handling
-    InputHandler inputHandler(window, camera, repository, raycaster, renderer);
+    InputHandler inputHandler(window, camera, scene, raycaster, renderer);
 
     // Create a GUI controller
-    GuiController guiController(window, repository, raycaster, renderer, ellipsoid);    
+    GuiController guiController(window, scene, raycaster, renderer, ellipsoid);
 
     // MAIN LOOP HERE - dictated by glfw
     double lastTime = glfwGetTime();
@@ -53,6 +53,9 @@ int main()
 
     while (!glfwWindowShouldClose(window))
     {
+        // Update curves if necessary
+        scene.updateCurves();
+        
         // OpenGL render
         renderer.draw();
 

@@ -14,7 +14,7 @@ import <glm/glm.hpp>;
 import <glm/gtc/type_ptr.hpp>;
 
 
-export std::string getShaderCode(const char* filePath)
+std::string getShaderCode(const std::string& filePath)
 {
     std::string shaderCode;
     std::ifstream shaderFile;
@@ -40,7 +40,7 @@ export std::string getShaderCode(const char* filePath)
     return shaderCode;
 }
 
-export GLuint compileShader(GLuint type, const char* shaderCode)
+GLuint compileShader(GLuint type, const char* shaderCode)
 {
     int success;
     char infoLog[512];
@@ -66,7 +66,7 @@ export class Shader
 {
 public:
     // the program ID
-    unsigned int id;
+    unsigned int id = 0;
     // use/activate the shader
     virtual ~Shader() = default;
 
@@ -107,8 +107,25 @@ public:
     }
 
 protected:
-    // constructor reads and builds the shader
-    Shader(const char* vertexPath, const char* fragmentPath)
+    void checkShaderErrors()
+    {
+        // print linking errors if any
+        int success;
+        char infoLog[512];
+
+        glGetProgramiv(id, GL_LINK_STATUS, &success);
+        if (!success)
+        {
+            glGetProgramInfoLog(id, 512, NULL, infoLog);
+            std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
+        }
+    }
+};
+
+export class VertFragShader : public Shader
+{
+public:
+    VertFragShader(const std::string& vertexPath, const std::string& fragmentPath)
     {
         // 1. retrieve the vertex/fragment source code from filePath
         std::string vertexCode = getShaderCode(vertexPath);
@@ -123,16 +140,8 @@ protected:
         glAttachShader(id, vertex);
         glAttachShader(id, fragment);
         glLinkProgram(id);
-        // print linking errors if any
-        int success;
-        char infoLog[512];
 
-        glGetProgramiv(id, GL_LINK_STATUS, &success);
-        if (!success)
-        {
-            glGetProgramInfoLog(id, 512, NULL, infoLog);
-            std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
-        }
+        checkShaderErrors();
 
         // 4. delete the shaders as they're linked into our program now and no longer necessary
         glDeleteShader(vertex);
@@ -140,44 +149,91 @@ protected:
     }
 };
 
-export class FlatTextureShader : public Shader
+export class VertFragTessShader : public Shader
 {
 public:
-    FlatTextureShader() : Shader("shaders/flattexture.vert", "shaders/flattexture.frag") {}
+    VertFragTessShader(const std::string& vertexPath, const std::string& fragmentPath, const std::string& tescPath, const std::string& tesePath)
+    {
+        // 1. retrieve the vertex/fragment source code from filePath
+        std::string vertexCode = getShaderCode(vertexPath);
+        std::string fragmentCode = getShaderCode(fragmentPath);
+        std::string tescCode = getShaderCode(tescPath);
+        std::string teseCode = getShaderCode(tesePath);
+
+        // 2. compile shaders
+        GLuint vertex = compileShader(GL_VERTEX_SHADER, vertexCode.c_str());
+        GLuint fragment = compileShader(GL_FRAGMENT_SHADER, fragmentCode.c_str());
+        GLuint tesc = compileShader(GL_TESS_CONTROL_SHADER, tescCode.c_str());
+        GLuint tese = compileShader(GL_TESS_EVALUATION_SHADER, teseCode.c_str());
+
+        // 3. shader Program
+        id = glCreateProgram();
+        glAttachShader(id, vertex);
+        glAttachShader(id, fragment);
+        glAttachShader(id, tesc);
+        glAttachShader(id, tese);
+        glLinkProgram(id);
+
+        checkShaderErrors();
+
+        // 4. delete the shaders as they're linked into our program now and no longer necessary
+        glDeleteShader(vertex);
+        glDeleteShader(fragment);
+        glDeleteShader(tesc);
+        glDeleteShader(tese);
+    }
 };
 
-export class CheckerGridShader : public Shader
+export class FlatTextureShader : public VertFragShader
 {
 public:
-    CheckerGridShader() : Shader("shaders/checkergrid.vert", "shaders/checkergrid.frag") {}
+    FlatTextureShader() : VertFragShader("shaders/flattexture.vert", "shaders/flattexture.frag") {}
 };
 
-export class InfiniteGridShader : public Shader
+export class CheckerGridShader : public VertFragShader
 {
 public:
-    InfiniteGridShader() : Shader("shaders/infinitegrid.vert", "shaders/infinitegrid.frag") {}
+    CheckerGridShader() : VertFragShader("shaders/checkergrid.vert", "shaders/checkergrid.frag") {}
 };
 
-export class RaycastingShader : public Shader
+export class InfiniteGridShader : public VertFragShader
 {
 public:
-    RaycastingShader() : Shader("shaders/raycasting.vert", "shaders/raycasting.frag") {}
+    InfiniteGridShader() : VertFragShader("shaders/infinitegrid.vert", "shaders/infinitegrid.frag") {}
 };
 
-export class UniformColorShader : public Shader
+export class RaycastingShader : public VertFragShader
 {
 public:
-    UniformColorShader() : Shader("shaders/uniformcolor.vert", "shaders/uniformcolor.frag") {}
+    RaycastingShader() : VertFragShader("shaders/raycasting.vert", "shaders/raycasting.frag") {}
 };
 
-export class MultiColorShader : public Shader
+export class UniformColorShader : public VertFragShader
 {
 public:
-    MultiColorShader() : Shader("shaders/multicolor.vert", "shaders/multicolor.frag") {}
+    UniformColorShader() : VertFragShader("shaders/uniformcolor.vert", "shaders/uniformcolor.frag") {}
 };
 
-export class PointShader : public Shader
+export class MultiColorShader : public VertFragShader
 {
 public:
-    PointShader() : Shader("shaders/point.vert", "shaders/point.frag") {}
+    MultiColorShader() : VertFragShader("shaders/multicolor.vert", "shaders/multicolor.frag") {}
+};
+
+export class PointShader : public VertFragShader
+{
+public:
+    PointShader() : VertFragShader("shaders/point.vert", "shaders/point.frag") {}
+};
+
+export class BezierCubicShader : public VertFragTessShader
+{
+public:
+    BezierCubicShader() : VertFragTessShader("shaders/curve.vert", "shaders/uniformcolor.frag", "shaders/curve.tesc", "shaders/bezier3.tese") {}
+};
+
+export class BezierQuadraticShader : public VertFragTessShader
+{
+public:
+    BezierQuadraticShader() : VertFragTessShader("shaders/curve.vert", "shaders/uniformcolor.frag", "shaders/curve.tesc", "shaders/bezier2.tese") {}
 };

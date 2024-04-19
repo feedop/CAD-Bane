@@ -9,7 +9,8 @@ import <glm/vec4.hpp>;
 import <glm/gtc/matrix_transform.hpp>;
 
 import camera;
-import objectrepository;
+import solidobject;
+import scene;
 import pointrenderer;
 import raycaster;
 import shader;
@@ -24,9 +25,9 @@ public:
 	friend class GuiController;
 
 	Renderer(int windowWidth, int windowHeight, const Camera& camera, PointRenderer& pointRenderer,
-			ObjectRepository& repository, Raycaster& raycaster) :
+			Scene& scene, Raycaster& raycaster) :
 		windowWidth(windowWidth), windowHeight(windowHeight),
-		camera(camera), pointRenderer(pointRenderer), repository(repository), raycaster(raycaster)
+		camera(camera), pointRenderer(pointRenderer), scene(scene), raycaster(raycaster)
 	{
 		glViewport(0, 0, windowWidth, windowHeight);
 
@@ -51,14 +52,54 @@ public:
 
 		glEnable(GL_DEPTH_TEST);
 
-		// Tori
+		// Curves
+		static constexpr float baseSegmentCount = 128.0f;
+
+		bezierCubicShader->use();
+		bezierCubicShader->setMatrix("view", camera.getView());
+		bezierCubicShader->setMatrix("projection", camera.getProjection());
+		for (auto&& curve : scene.getCurves())
+		{
+			auto segmentCount = std::min(64.0f, baseSegmentCount / glm::length(camera.getPosition() - curve->getCenter()));
+			bezierCubicShader->setFloat("segmentCount", segmentCount);
+			curve->draw(bezierCubicShader.get());
+		}
+
+		bezierQuadraticShader->use();
+		bezierQuadraticShader->setMatrix("view", camera.getView());
+		bezierQuadraticShader->setMatrix("projection", camera.getProjection());
+		
+		for (auto&& curve : scene.getCurves())
+		{
+			auto segmentCount = std::min(64.0f, baseSegmentCount / glm::length(camera.getPosition() - curve->getCenter()));
+			bezierQuadraticShader->setFloat("segmentCount", segmentCount);
+			curve->drawQuadratic(bezierQuadraticShader.get());
+		}
+
 		uniformColorShader->use();
+		uniformColorShader->setMatrix("model", glm::mat4{1.0f});
 		uniformColorShader->setMatrix("view", camera.getView());
 		uniformColorShader->setMatrix("projection", camera.getProjection());
 
-		for (auto&& torus: repository.getTori())
+		for (auto&& curve : scene.getCurves())
+		{
+			curve->drawLines(uniformColorShader.get());
+		}
+
+		// Tori
+
+		for (auto&& torus: scene.getTori())
 		{
 			torus->draw(uniformColorShader.get());
+		}
+
+		// Curve polygons if enabled
+		if (drawCurvePolygons)
+		{
+			for (auto&& curve : scene.getCurves())
+			{
+				curve->drawPolygon(uniformColorShader.get());
+			}
 		}
 
 		// Points
@@ -66,7 +107,13 @@ public:
 		pointShader->setMatrix("view", camera.getView());
 		pointShader->setMatrix("projection", camera.getProjection());
 		pointShader->setVector("cameraPosition", camera.getPosition());
-		pointRenderer.draw();
+		pointRenderer.draw(pointShader.get());
+
+		// Additional points from curves (if needed)
+		for (auto&& curve : scene.getCurves())
+		{
+			curve->drawAdditionalPoints(pointShader.get());
+		}
 		
 		// Grid
 		if (drawGrid)
@@ -74,7 +121,7 @@ public:
 			gridShader->use();
 			gridShader->setMatrix("view", camera.getView());
 			gridShader->setMatrix("projection", camera.getProjection());
-			repository.getGrid()->draw(gridShader.get());
+			scene.getGrid()->draw(gridShader.get());
 		}
 
 		glDisable(GL_DEPTH_TEST);
@@ -83,7 +130,7 @@ public:
 		multiColorShader->use();
 		multiColorShader->setMatrix("view", camera.getView());
 		multiColorShader->setMatrix("projection", camera.getProjection());
-		repository.getCursor()->draw(multiColorShader.get());
+		scene.getCursor()->draw(multiColorShader.get());
 
 		// Raycasting
 		raycaster.draw(flatTextureShader.get());
@@ -106,12 +153,12 @@ public:
 		glm::vec4 viewport = glm::vec4(0, 0, windowWidth, windowHeight);
 		glm::vec3 wincoord = glm::vec3(x, windowHeight - y - 1, depth);
 		glm::vec3 objcoord = glm::unProject(wincoord, camera.getView(), camera.getProjection(), viewport);
-		repository.selectObjectFromScreen(objcoord, selectMultiple);
+		scene.selectObjectFromScreen(objcoord, selectMultiple);
 	}
 
 private:
 	const Camera& camera;
-	ObjectRepository& repository;
+	Scene& scene;
 	Raycaster& raycaster;
 	PointRenderer& pointRenderer;
 
@@ -121,13 +168,16 @@ private:
 	std::unique_ptr<Shader> uniformColorShader = std::make_unique<UniformColorShader>();
 	std::unique_ptr<Shader> multiColorShader = std::make_unique<MultiColorShader>();
 	std::unique_ptr<Shader> pointShader = std::make_unique<PointShader>();
+	std::unique_ptr<Shader> bezierCubicShader = std::make_unique<BezierCubicShader>();
+	std::unique_ptr<Shader> bezierQuadraticShader = std::make_unique<BezierQuadraticShader>();
 
 	int windowWidth;
 	int windowHeight;
 
 	bool drawGrid = true;
+	bool drawCurvePolygons = false;
 
-	// Fill depth buffer with only torus an point data without actually rendering
+	// Fill depth buffer with only torus and point data without actually rendering
 	void fillDepthBuffer()
 	{
 		glEnable(GL_DEPTH_TEST);
@@ -139,18 +189,24 @@ private:
 		uniformColorShader->setMatrix("view", camera.getView());
 		uniformColorShader->setMatrix("projection", camera.getProjection());
 
-		for (auto&& torus : repository.getTori())
+		for (auto&& torus : scene.getTori())
 		{
 			torus->draw(uniformColorShader.get());
 		}
 
-		// Points
+		// Curves' virtual points
 		pointShader->use();
 		pointShader->setMatrix("view", camera.getView());
 		pointShader->setMatrix("projection", camera.getProjection());
-		pointShader->setVector("cameraPosition", camera.getPosition());
-		pointRenderer.draw();
+		pointShader->setVector("segmentCount", camera.getPosition());
+		for (auto&& curve : scene.getCurves())
+		{
+			curve->drawAdditionalPoints(pointShader.get());
+		}
 
+		// Points
+		
+		pointRenderer.draw(pointShader.get());
 		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 	}
 };

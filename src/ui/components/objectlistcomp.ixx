@@ -3,12 +3,34 @@ export module gui:objectlistcomp;
 import <vector>;
 import <imgui/imgui/imgui.h>;
 
+import c0bezier;
+import c2bezier;
 import gui.controller;
-import objectrepository;
+import scene;
 import point;
 import torus;
 
 static char name[31]{ 0 };
+
+void renderRenamePopup(auto& object)
+{
+    if (ImGui::BeginPopupContextItem())
+    {
+
+        ImGui::Text("Rename ");
+        ImGui::InputText("##Rename", name, 30);
+        if (ImGui::Button("Accept"))
+        {
+            if (name[0] != 0)
+                object->setName(name);
+            ImGui::CloseCurrentPopup();
+        }
+
+        if (ImGui::Button("Cancel"))
+            ImGui::CloseCurrentPopup();
+        ImGui::EndPopup();
+    }
+}
 
 export void GuiController::renderObjectList()
 {
@@ -17,7 +39,7 @@ export void GuiController::renderObjectList()
         // Tori
         ImGui::Text("Tori");
 
-        const auto& tori = repository.getTori();
+        const auto& tori = scene.getTori();
 
         
         if (ImGui::BeginListBox("##Tori"))
@@ -27,39 +49,24 @@ export void GuiController::renderObjectList()
                 if (ImGui::Selectable(torus->getName().c_str(), &torus->isSelected))
                 {
                     if (torus->isSelected)
-                        repository.selectTorus(torus.get());
+                        scene.selectTorus(torus.get());
                     else
-                        repository.deselectTorus(torus.get());
+                        scene.deselectTorus(torus.get());
                 }
 
-                if (ImGui::BeginPopupContextItem())
-                {
-           
-                    ImGui::Text("Rename ");
-                    ImGui::InputText("##Rename", name, 30);
-                    if (ImGui::Button("Accept"))
-                    {
-                        if (name[0] != 0)
-                            torus->setName(name);
-                        ImGui::CloseCurrentPopup();
-                    }
-                        
-                    if (ImGui::Button("Cancel"))
-                        ImGui::CloseCurrentPopup();
-                    ImGui::EndPopup();
-                }
+                renderRenamePopup(torus);
             }
 
             if (ImGui::Button("New##newtorus"))
             {
-                repository.addTorus();
+                scene.addTorus();
             }
 
             ImGui::EndListBox();
         }
 
         // Points
-        const auto& points = repository.getPoints();
+        const auto& points = scene.getPoints();
 
         ImGui::Text("Points");
         if (ImGui::BeginListBox("##Points"))
@@ -69,39 +76,52 @@ export void GuiController::renderObjectList()
                 if (ImGui::Selectable(point->getName().c_str(), &point->isSelected))
                 {
                     if (point->isSelected)
-                        repository.selectPoint(point.get());
+                        scene.selectPoint(point.get());
                     else
-                        repository.deselectPoint(point.get());
+                        scene.deselectPoint(point.get());
                 }
 
-                if (ImGui::BeginPopupContextItem())
-                {
-
-                    ImGui::Text("Rename ");
-                    ImGui::InputText("##Rename", name, 30);
-                    if (ImGui::Button("Accept"))
-                    {
-                        if (name[0] != 0)
-                            point->setName(name);
-                        ImGui::CloseCurrentPopup();
-                    }
-
-                    if (ImGui::Button("Cancel"))
-                        ImGui::CloseCurrentPopup();
-                    ImGui::EndPopup();
-                }
+                renderRenamePopup(point);
             }
 
             if (ImGui::Button("New##newpoint"))
             {
-                repository.addPoint();
+                scene.addPoint();
             }
 
             ImGui::EndListBox();
         }
 
+        // Curves
+        const auto& curves = scene.getCurves();
+
         ImGui::Text("Curves");
-        ImGui::Text("<empty>");
+        if (ImGui::BeginListBox("##Curves"))
+        {
+            for (auto& curve : curves)
+            {
+                if (ImGui::Selectable(curve->getName().c_str(), &curve->isSelected))
+                {
+                    if (curve->isSelected)
+                        scene.selectCurve(curve.get());
+                    else
+                        scene.deselectCurve(curve.get());
+                }
+
+                renderRenamePopup(curve);
+            }
+
+            if (ImGui::Button("New C0 Bezier curve ##newc0bezier"))
+            {
+                scene.addCurve<C0Bezier>();
+            }
+            if (ImGui::Button("New C2 Bezier curve ##newc2bezier"))
+            {
+                scene.addCurve<C2Bezier>();
+            }
+
+            ImGui::EndListBox();
+        }
 
         ImGui::End(); 
     }    

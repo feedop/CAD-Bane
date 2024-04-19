@@ -5,11 +5,12 @@ import <array>;
 
 import <glm/vec3.hpp>;
 
-import object;
+import glutils;
+import solidobject;
 import shader;
 import math;
 
-export class Cursor : public Object
+export class Cursor : public SolidObject
 {
 	struct Vertex
 	{
@@ -24,7 +25,7 @@ public:
 		glGenBuffers(1, &VBO);
 		glGenBuffers(1, &EBO);
 
-		glBindVertexArray(VAO);
+		ScopedBindArray ba(VAO);
 		glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
 		glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);
@@ -40,18 +41,15 @@ public:
 		glEnableVertexAttribArray(1);
 		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, color));
 
-		glBindVertexArray(0);
-
-		localScale = { 0.1f, 0.1f, 0.1f };
+		scale = { 0.1f, 0.1f, 0.1f };
 		update();
 	}
 
 	virtual void draw(const Shader* shader) const override
 	{
-		Object::draw(shader);
-		glBindVertexArray(VAO);
+		ScopedBindArray ba(VAO);
+		SolidObject::draw(shader);
 		glDrawElements(GL_LINES, static_cast<GLsizei>(indices.size()), GL_UNSIGNED_INT, 0);
-		glBindVertexArray(0);
 	}
 
 private:

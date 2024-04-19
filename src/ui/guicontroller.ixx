@@ -10,7 +10,7 @@ import <glm/vec2.hpp>;
 import <glm/vec3.hpp>;
 
 import ellipsoid;
-import objectrepository;
+import scene;
 import raycaster;
 import renderer;
 import theme;
@@ -29,8 +29,8 @@ ImGuiIO& createImguiContext()
 export class GuiController
 {
 public:
-    GuiController(GLFWwindow* window, ObjectRepository& repository, Raycaster& raycaster, Renderer& renderer, Ellipsoid& ellipsoid) :
-        io(createImguiContext()), repository(repository), raycaster(raycaster), renderer(renderer), ellipsoid(ellipsoid)
+    GuiController(GLFWwindow* window, Scene& scene, Raycaster& raycaster, Renderer& renderer, Ellipsoid& ellipsoid) :
+        io(createImguiContext()), scene(scene), raycaster(raycaster), renderer(renderer), ellipsoid(ellipsoid)
     {
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;       // Enable Keyboard Controls
         //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
@@ -84,6 +84,8 @@ public:
             renderEllipsoid();
         }
 
+        ImGui::Checkbox("Render curve polygons", &renderer.drawCurvePolygons);
+
         renderTorusConfig();
 
         ImGui::End();
@@ -95,7 +97,7 @@ public:
     }
 private:
     ImGuiIO& io;
-    ObjectRepository& repository;
+    Scene& scene;
     Raycaster& raycaster;
     Renderer& renderer;
     Ellipsoid& ellipsoid;

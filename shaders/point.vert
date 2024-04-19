@@ -14,6 +14,6 @@ void main()
     gl_Position = projection * view * vec4(aPos, 1.0);
 
     float scale = length(aPos - cameraPosition);
-    gl_PointSize = 20 / scale;
+    gl_PointSize = 40 / scale;
     color = aColor;
 }
