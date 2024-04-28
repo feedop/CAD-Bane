@@ -18,6 +18,13 @@ import selectable;
 export class Curve : public Drawable, public Selectable
 {
 public:
+	virtual ~Curve()
+	{
+		for (auto&& point : points)
+		{
+			point->removeFromCurve(this);
+		}
+	}
 
 	virtual void draw(const Shader* shader) const override
 	{
@@ -31,30 +38,19 @@ public:
 		glDrawArrays(GL_PATCHES, 0, positions.size());
 	}
 
-	void drawQuadratic(const Shader* shader) const
+	virtual void drawQuadratic(const Shader* shader) const
 	{
-		if (positionsQuadratic.size() == 0)
-			return;
-
-		ScopedBindArray ba(quadraticVAO);
-		setColor(shader);
-		glPatchParameteri(GL_PATCH_VERTICES, 3);
-		glDrawArrays(GL_PATCHES, 0, positionsQuadratic.size());
+		
 	}
 
-	void drawLines(const Shader* shader) const
+	virtual void drawLines(const Shader* shader) const
 	{
-		if (positionsLine.size() == 0)
-			return;
-
-		ScopedBindArray ba(linesVAO);
-		setColor(shader);
-		glDrawArrays(GL_LINES, 0, positionsLine.size());
+		
 	}
 
 	virtual inline void drawAdditionalPoints(const Shader* shader) const
 	{
-		// Unnecessary in base implementation
+
 	}
 
 	virtual void drawPolygon(const Shader* shader) const
@@ -65,12 +61,26 @@ public:
 		glDrawArrays(GL_LINE_STRIP, 0, positions.size());
 	}
 
-	virtual ~Curve()
+	virtual void update()
 	{
-		for (auto&& point : points)
-		{
-			point->removeFromCurve(this);
-		}
+		// Nothing happens without any connectivity constraints
+		scheduledToUpdate = false;
+	}
+
+	virtual inline const std::vector<std::unique_ptr<Point>>& getVirtualPoints() const
+	{
+		static const std::vector<std::unique_ptr<Point>> empty;
+		return empty;
+	}
+
+	virtual inline void updateRenderer()
+	{
+
+	}
+
+	virtual bool isInterpolating() const
+	{
+		return false;
 	}
 
 	void addPoints(Point* toAdd)
@@ -108,23 +118,6 @@ public:
 			updateInvoker = invoker;
 	}
 
-	virtual void update()
-	{
-		// Nothing happens without any connectivity constraints
-		scheduledToUpdate = true;
-	}
-
-	virtual inline const std::vector<std::unique_ptr<Point>>& getVirtualPoints() const
-	{
-		static const std::vector<std::unique_ptr<Point>> empty;
-		return empty;
-	}
-
-	virtual inline void updateRenderer()
-	{
-
-	}
-
 	glm::vec3 getCenter()
 	{
 		return std::accumulate(positions.begin(), positions.end(), glm::vec3{ 0.0f, 0.0f, 0.0f }) * (1.0f / positions.size());
@@ -149,67 +142,34 @@ protected:
 		attachPointsToCurve();
 		glGenVertexArrays(1, &VAO);
 		glGenBuffers(1, &VBO);
-		glGenVertexArrays(1, &quadraticVAO);
-		glGenBuffers(1, &quadraticVBO);
-		glGenVertexArrays(1, &linesVAO);
-		glGenBuffers(1, &linesVBO);
-
-		update();
 	}
 
 	inline virtual std::string getCurveName() const = 0;
 
+	virtual void genBuffers()
+	{
+		// Empty default
+	}
+
 	virtual void fillPositions() = 0;
 
-	void uploadPositions()
+	virtual void uploadPositions()
 	{
+		ScopedBindArray ba(VAO);
+		glBindBuffer(GL_ARRAY_BUFFER, VBO);
+		if (positions.size() > 0)
 		{
-			ScopedBindArray ba(VAO);
-			glBindBuffer(GL_ARRAY_BUFFER, VBO);
-			if (positions.size() > 0)
-			{
-				glBufferData(GL_ARRAY_BUFFER, positions.size() * sizeof(glm::vec3), &positions[0], GL_DYNAMIC_DRAW);
-				glEnableVertexAttribArray(0);
-				glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
-			}
-			else
-			{
-				glBufferData(GL_ARRAY_BUFFER, 0, nullptr, GL_DYNAMIC_DRAW);
-			}
+			glBufferData(GL_ARRAY_BUFFER, positions.size() * sizeof(glm::vec3), &positions[0], GL_DYNAMIC_DRAW);
+			glEnableVertexAttribArray(0);
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
 		}
+		else
 		{
-			ScopedBindArray ba(quadraticVAO);
-			glBindBuffer(GL_ARRAY_BUFFER, quadraticVBO);
-			if (positionsQuadratic.size() > 0)
-			{
-				glBufferData(GL_ARRAY_BUFFER, positionsQuadratic.size() * sizeof(glm::vec3), &positionsQuadratic[0], GL_DYNAMIC_DRAW);
-				glEnableVertexAttribArray(0);
-				glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
-			}
-			else
-			{
-				glBufferData(GL_ARRAY_BUFFER, 0, nullptr, GL_DYNAMIC_DRAW);
-			}
-		}
-		{
-			ScopedBindArray ba(linesVAO);
-			glBindBuffer(GL_ARRAY_BUFFER, linesVBO);
-			if (positionsLine.size() > 0)
-			{
-				glBufferData(GL_ARRAY_BUFFER, positionsLine.size() * sizeof(glm::vec3), &positionsLine[0], GL_DYNAMIC_DRAW);
-				glEnableVertexAttribArray(0);
-				glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
-			}
-			else
-			{
-				glBufferData(GL_ARRAY_BUFFER, 0, nullptr, GL_DYNAMIC_DRAW);
-			}
+			glBufferData(GL_ARRAY_BUFFER, 0, nullptr, GL_DYNAMIC_DRAW);
 		}
 	}
 
 private:
-	unsigned int quadraticVAO, linesVAO = 0;
-	unsigned int quadraticVBO, linesVBO = 0;
 
 	void attachPointsToCurve()
 	{

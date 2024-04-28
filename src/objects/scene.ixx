@@ -2,6 +2,7 @@ export module scene;
 
 import <cmath>;
 import <memory>;
+import <ranges>;
 import <vector>;
 
 import <glm/vec3.hpp>;
@@ -14,12 +15,14 @@ import cube;
 import cursor;
 import curve;
 import grid;
+import interpolatingspline;
 import math;
 import middlepoint;
 import solidobject;
 import point;
 import pointrenderer;
 import torus;
+
 
 export class Scene
 {
@@ -30,14 +33,16 @@ public:
 		cursor = std::make_unique<Cursor>();
 
 		// Initial objects
-		points.emplace_back(new Point(glm::vec3{ 0.5f, 0, 0 }));
-		points.emplace_back(new Point(glm::vec3{ 1, 0, 0 }));
-		points.emplace_back(new Point(glm::vec3{ 1, 1, 0 }));
-		points.emplace_back(new Point(glm::vec3{ -1, 1, 0 }));
 		points.emplace_back(new Point(glm::vec3{ -1, 0, 0 }));
-		points.emplace_back(new Point(glm::vec3{ -0.5f, 0, 0 }));
+		points.emplace_back(new Point(glm::vec3{ -1, 1, 0 }));
+		points.emplace_back(new Point(glm::vec3{ 1, 1, 0 }));
+		points.emplace_back(new Point(glm::vec3{ 1, 0, 0 }));
+		//points.emplace_back(new Point(glm::vec3{ -1, 0, 0 }));
+		//points.emplace_back(new Point(glm::vec3{ -0.5f, 0, 0 }));
 
-		curves.emplace_back(new C2Bezier{ points[0].get(), points[1].get(), points[2].get(), points[3].get(), points[4].get(), points[5].get() });
+		//curves.emplace_back(new C2Bezier{ points[0].get(), points[1].get(), points[2].get(), points[3].get(), points[4].get(), points[5].get() });
+
+		curves.emplace_back(new InterpolatingSpline{ points[0].get(), points[1].get(), points[2].get(), points[3].get() });
 
 		pointRenderer.update(points);
 	}
@@ -67,9 +72,19 @@ public:
 		return points;
 	}
 
-	inline const std::vector<std::unique_ptr<Curve>>& getCurves() const
+	inline const auto& getCurves() const
 	{
 		return curves;
+	}
+
+	inline auto getApproximatingCurves() const
+	{
+		return std::ranges::views::filter(curves, [](auto& curve) { return !(curve->isInterpolating()); });
+	}
+
+	inline auto getInterpolatingCurves() const
+	{
+		return std::ranges::views::filter(curves, [](auto& curve) { return curve->isInterpolating(); });
 	}
 
 	void moveCursor(float xDiff, float yDiff)
@@ -370,6 +385,7 @@ private:
 	std::vector<std::unique_ptr<Torus>> tori;
 	std::vector<std::unique_ptr<Point>> points;
 	std::vector<std::unique_ptr<Curve>> curves;
+	std::vector<std::unique_ptr<Curve>> interpolatingCurves;
 	std::unique_ptr<SolidObject> cursor;
 
 	std::vector<Torus*> selectedTori;

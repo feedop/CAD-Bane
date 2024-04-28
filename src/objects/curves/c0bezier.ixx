@@ -1,8 +1,11 @@
 export module c0bezier;
 
+import <glad/glad.h>;
 import <vector>;
 
+import colors;
 import curve;
+import glutils;
 import point;
 import shader;
 
@@ -10,10 +13,55 @@ export class C0Bezier : public Curve
 {
 public:
 	C0Bezier(const std::vector<Point*>& points) : Curve(getCurveName(), points)
-	{}
+	{
+		genBuffers();
+	}
 
 	C0Bezier(std::initializer_list<Point*> points) : Curve(getCurveName(), points)
-	{}
+	{
+		genBuffers();
+	}
+
+	virtual ~C0Bezier()
+	{
+		{
+			ScopedBindArray ba(quadraticVAO);
+
+			glBindBuffer(GL_ARRAY_BUFFER, quadraticVBO);
+			glDeleteBuffers(1, &quadraticVBO);
+
+			glDeleteVertexArrays(1, &quadraticVAO);
+		}
+		{
+			ScopedBindArray ba(linesVAO);
+
+			glBindBuffer(GL_ARRAY_BUFFER, linesVBO);
+			glDeleteBuffers(1, &linesVBO);
+
+			glDeleteVertexArrays(1, &linesVAO);
+		}
+	}
+
+	virtual void drawQuadratic(const Shader* shader) const override
+	{
+		if (positionsQuadratic.size() == 0)
+			return;
+
+		ScopedBindArray ba(quadraticVAO);
+		setColor(shader);
+		glPatchParameteri(GL_PATCH_VERTICES, 3);
+		glDrawArrays(GL_PATCHES, 0, positionsQuadratic.size());
+	}
+
+	virtual void drawLines(const Shader* shader) const override
+	{
+		if (positionsLine.size() == 0)
+			return;
+
+		ScopedBindArray ba(linesVAO);
+		setColor(shader);
+		glDrawArrays(GL_LINES, 0, positionsLine.size());
+	}
 
 	virtual void update() override
 	{
@@ -27,9 +75,20 @@ public:
 	}
 
 private:
+	unsigned int quadraticVAO, linesVAO = 0;
+	unsigned int quadraticVBO, linesVBO = 0;
+
 	inline virtual std::string getCurveName() const override
 	{
 		return "C0 Bezier";
+	}
+
+	virtual void genBuffers() override
+	{
+		glGenVertexArrays(1, &quadraticVAO);
+		glGenBuffers(1, &quadraticVBO);
+		glGenVertexArrays(1, &linesVAO);
+		glGenBuffers(1, &linesVBO);
 	}
 
 	virtual void fillPositions() override
@@ -91,6 +150,40 @@ private:
 				positions.push_back(points[pointsProcessed]->getPosition());
 				positions.push_back(points[pointsProcessed + 1]->getPosition());
 				break;
+			}
+		}
+	}
+
+	virtual void uploadPositions() override
+	{
+		Curve::uploadPositions();
+
+		{
+			ScopedBindArray ba(quadraticVAO);
+			glBindBuffer(GL_ARRAY_BUFFER, quadraticVBO);
+			if (positionsQuadratic.size() > 0)
+			{
+				glBufferData(GL_ARRAY_BUFFER, positionsQuadratic.size() * sizeof(glm::vec3), &positionsQuadratic[0], GL_DYNAMIC_DRAW);
+				glEnableVertexAttribArray(0);
+				glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
+			}
+			else
+			{
+				glBufferData(GL_ARRAY_BUFFER, 0, nullptr, GL_DYNAMIC_DRAW);
+			}
+		}
+		{
+			ScopedBindArray ba(linesVAO);
+			glBindBuffer(GL_ARRAY_BUFFER, linesVBO);
+			if (positionsLine.size() > 0)
+			{
+				glBufferData(GL_ARRAY_BUFFER, positionsLine.size() * sizeof(glm::vec3), &positionsLine[0], GL_DYNAMIC_DRAW);
+				glEnableVertexAttribArray(0);
+				glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
+			}
+			else
+			{
+				glBufferData(GL_ARRAY_BUFFER, 0, nullptr, GL_DYNAMIC_DRAW);
 			}
 		}
 	}

@@ -171,6 +171,7 @@
     <ClCompile Include="src\objects\curves\c0bezier.ixx" />
     <ClCompile Include="src\objects\curves\c2bezier.ixx" />
     <ClCompile Include="src\objects\curves\curveupdate.ixx" />
+    <ClCompile Include="src\objects\curves\interpolatingspline.ixx" />
     <ClCompile Include="src\objects\mixins\clickable.ixx" />
     <ClCompile Include="src\objects\mixins\drawable.ixx" />
     <ClCompile Include="src\objects\mixins\selectable.ixx" />
@@ -665,6 +666,8 @@
     <None Include="shaders\checkergrid.vert" />
     <None Include="shaders\infinitegrid.frag" />
     <None Include="shaders\infinitegrid.vert" />
+    <None Include="shaders\interpolating.tesc" />
+    <None Include="shaders\interpolating.tese" />
     <None Include="shaders\multicolor.frag" />
     <None Include="shaders\multicolor.vert" />
     <None Include="shaders\point.frag" />

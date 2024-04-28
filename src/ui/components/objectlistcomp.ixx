@@ -6,6 +6,7 @@ import <imgui/imgui/imgui.h>;
 import c0bezier;
 import c2bezier;
 import gui.controller;
+import interpolatingspline;
 import scene;
 import point;
 import torus;
@@ -118,6 +119,10 @@ export void GuiController::renderObjectList()
             if (ImGui::Button("New C2 Bezier curve ##newc2bezier"))
             {
                 scene.addCurve<C2Bezier>();
+            }
+            if (ImGui::Button("New C2 interpolating spline ##newinterpolatingspline"))
+            {
+                scene.addCurve<InterpolatingSpline>();
             }
 
             ImGui::EndListBox();

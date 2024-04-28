@@ -24,10 +24,14 @@ public:
 		genBuffers();
 	}
 
-	void genBuffers()
+	virtual ~C2Bezier()
 	{
-		glGenVertexArrays(1, &bSplineVAO);
-		glGenBuffers(1, &bSplineVBO);
+		ScopedBindArray ba(bSplineVAO);
+
+		glBindBuffer(GL_ARRAY_BUFFER, bSplineVBO);
+		glDeleteBuffers(1, &bSplineVBO);
+
+		glDeleteVertexArrays(1, &bSplineVAO);
 	}
 
 	virtual inline void drawAdditionalPoints(const Shader* shader) const override
@@ -89,6 +93,11 @@ private:
 		return "C2 Bezier";
 	}
 
+	virtual void genBuffers() override
+	{
+		glGenVertexArrays(1, &bSplineVAO);
+		glGenBuffers(1, &bSplineVBO);
+	}
 
 	virtual void fillPositions() override
 	{

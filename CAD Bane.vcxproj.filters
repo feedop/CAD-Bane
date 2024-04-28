@@ -180,6 +180,9 @@
     <ClCompile Include="src\objects\solids\virtualpoint.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\objects\curves\interpolatingspline.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external\include\KHR\khrplatform.h">
@@ -1519,6 +1522,8 @@
     <None Include="shaders\curve.tesc" />
     <None Include="shaders\bezier3.tese" />
     <None Include="shaders\bezier2.tese" />
+    <None Include="shaders\interpolating.tesc" />
+    <None Include="shaders\interpolating.tese" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="external\lib\glfw3.lib" />

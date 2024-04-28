@@ -237,3 +237,9 @@ export class BezierQuadraticShader : public VertFragTessShader
 public:
     BezierQuadraticShader() : VertFragTessShader("shaders/curve.vert", "shaders/uniformcolor.frag", "shaders/curve.tesc", "shaders/bezier2.tese") {}
 };
+
+export class InterpolatingSplineShader : public VertFragTessShader
+{
+public:
+    InterpolatingSplineShader() : VertFragTessShader("shaders/curve.vert", "shaders/uniformcolor.frag", "shaders/interpolating.tesc", "shaders/interpolating.tese") {}
+};
