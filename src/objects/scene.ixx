@@ -10,6 +10,7 @@ import <glm/gtc/constants.hpp>;
 
 import c0bezier;
 import c2bezier;
+import c0surface;
 import camera;
 import cube;
 import cursor;
@@ -18,7 +19,9 @@ import grid;
 import interpolatingspline;
 import math;
 import middlepoint;
+import shape;
 import solidobject;
+import surface;
 import point;
 import pointrenderer;
 import torus;
@@ -33,16 +36,7 @@ public:
 		cursor = std::make_unique<Cursor>();
 
 		// Initial objects
-		points.emplace_back(new Point(glm::vec3{ -1, 0, 0 }));
-		points.emplace_back(new Point(glm::vec3{ -1, 1, 0 }));
-		points.emplace_back(new Point(glm::vec3{ 1, 1, 0 }));
-		points.emplace_back(new Point(glm::vec3{ 1, 0, 0 }));
-		//points.emplace_back(new Point(glm::vec3{ -1, 0, 0 }));
-		//points.emplace_back(new Point(glm::vec3{ -0.5f, 0, 0 }));
-
-		//curves.emplace_back(new C2Bezier{ points[0].get(), points[1].get(), points[2].get(), points[3].get(), points[4].get(), points[5].get() });
-
-		curves.emplace_back(new InterpolatingSpline{ points[0].get(), points[1].get(), points[2].get(), points[3].get() });
+		addSurface<C0Surface>(1, 1);
 
 		pointRenderer.update(points);
 	}
@@ -67,6 +61,11 @@ public:
 		return selectedTori;
 	}
 
+	inline const std::vector<Surface*>& getSelectedSurfaces() const
+	{
+		return selectedSurfaces;
+	}
+
 	inline const std::vector<std::unique_ptr<Point>>& getPoints() const
 	{
 		return points;
@@ -87,6 +86,11 @@ public:
 		return std::ranges::views::filter(curves, [](auto& curve) { return curve->isInterpolating(); });
 	}
 
+	inline const auto& getSurfaces() const
+	{
+		return surfaces;
+	}
+
 	void moveCursor(float xDiff, float yDiff)
 	{
 		cursor->translate(getTranslationFromMouse(xDiff, yDiff));
@@ -94,23 +98,30 @@ public:
 
 	void moveObjects(float xDiff, float yDiff)
 	{
+		auto translation = getTranslationFromMouse(xDiff, yDiff);
+
+		for (auto&& surface : selectedSurfaces)
+		{
+			surface->translate(translation);
+		}
+
 		for (auto&& torus : selectedTori)
 		{
-			torus->translate(getTranslationFromMouse(xDiff, yDiff));
+			torus->translate(translation);
 		}
 
 		if (selectedPoints.size() > 0)
 		{
 			for (auto&& point : selectedPoints)
 			{
-				point->translate(getTranslationFromMouse(xDiff, yDiff));
+				point->translate(translation);
 			}
 			pointRenderer.update(points);
 		}
 
 		if (selectedVirtualPoint)
 		{
-			selectedVirtualPoint->translate(getTranslationFromMouse(xDiff, yDiff));
+			selectedVirtualPoint->translate(translation);
 		}
 
 		MiddlePoint::getInstance().calculateMiddlePoint(selectedTori, selectedPoints);
@@ -202,13 +213,27 @@ public:
 		selectedCurves.clear();
 		std::erase_if(curves, [](auto&& curve) { return curve->isSelected; });
 
+		// Surfaces
+		for (auto&& surfaces : selectedSurfaces)
+		{
+			if (surfaces == selectedVirtualPointOwner)
+			{
+				// Clear selections attached to the removed curve
+				selectedVirtualPointOwner = nullptr;
+				selectedVirtualPoint = nullptr;
+				break;
+			}
+		}
+		selectedSurfaces.clear();
+		std::erase_if(surfaces, [](auto&& surface) { return surface->isSelected; });
+
 		// Tori
 		selectedTori.clear();
 		std::erase_if(tori, [](auto&& torus) { return torus->isSelected; });
 
 		// Points
-		std::erase_if(selectedPoints, [](auto&& point) { return !point->isInCurve(); });
-		std::erase_if(points, [](auto&& point) { return point->isSelected && !point->isInCurve(); });
+		std::erase_if(selectedPoints, [](auto&& point) { return !point->isAttached(); });
+		std::erase_if(points, [](auto&& point) { return point->isSelected && !point->isAttached(); });
 		pointRenderer.update(points);
 	}
 
@@ -251,21 +276,43 @@ public:
 		pointRenderer.update(points);
 	}
 
-	template <typename T>
+	template <class T>
 	requires std::is_base_of<Curve, T>::value
 	void addCurve()
 	{
 		curves.emplace_back(new T(selectedPoints));
 	}
 
-	void selectCurve(Curve* torus)
+	template <class T, class... Us>
+	requires std::is_base_of<Surface, T>::value
+	void addSurface(Us... args)
 	{
-		selectedCurves.push_back(torus);
+		surfaces.emplace_back(new T(cursor->getPosition(), args...));
+		for (auto&& point : surfaces[surfaces.size() - 1]->getPoints())
+		{
+			points.emplace_back(point);
+		}
+		pointRenderer.update(points);
 	}
 
-	void deselectCurve(const Curve* torus)
+	void selectCurve(Curve* curve)
 	{
-		selectedCurves.erase(std::find(selectedCurves.begin(), selectedCurves.end(), torus));
+		selectedCurves.push_back(curve);
+	}
+
+	void selectSurface(Surface* surface)
+	{
+		selectedSurfaces.push_back(surface);
+	}
+
+	void deselectCurve(const Curve* curve)
+	{
+		selectedCurves.erase(std::find(selectedCurves.begin(), selectedCurves.end(), curve));
+	}
+
+	void deselectSurface(const Surface* surface)
+	{
+		selectedSurfaces.erase(std::find(selectedSurfaces.begin(), selectedSurfaces.end(), surface));
 	}
 
 	void addToCurves()
@@ -369,11 +416,17 @@ public:
 		pointRenderer.update(points);
 	}
 
-	void updateCurves()
+	void updateObjects()
 	{
+		// returns immediately unless the curve needs to be recalculated;
 		for (auto&& curve : curves)
 		{
-			curve->update(); // returns immediately unless the curve needs to be recalculated;
+			curve->update();
+		}
+
+		for (auto&& surface : surfaces)
+		{
+			surface->update();
 		}
 	}
 
@@ -386,12 +439,16 @@ private:
 	std::vector<std::unique_ptr<Point>> points;
 	std::vector<std::unique_ptr<Curve>> curves;
 	std::vector<std::unique_ptr<Curve>> interpolatingCurves;
+
+	std::vector<std::unique_ptr<Surface>> surfaces;
+
 	std::unique_ptr<SolidObject> cursor;
 
 	std::vector<Torus*> selectedTori;
 	std::vector<Point*> selectedPoints;
 	std::vector<Curve*> selectedCurves;
-	Curve* selectedVirtualPointOwner = nullptr;
+	std::vector<Surface*> selectedSurfaces;
+	Shape* selectedVirtualPointOwner = nullptr;
 	Point* selectedVirtualPoint = nullptr;
 
 	inline glm::vec3 getTranslationFromMouse(float xDiff, float yDiff) const

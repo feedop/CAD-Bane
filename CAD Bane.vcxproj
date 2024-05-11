@@ -170,22 +170,28 @@
     <ClCompile Include="src\math\quat.ixx" />
     <ClCompile Include="src\objects\curves\c0bezier.ixx" />
     <ClCompile Include="src\objects\curves\c2bezier.ixx" />
-    <ClCompile Include="src\objects\curves\curveupdate.ixx" />
     <ClCompile Include="src\objects\curves\interpolatingspline.ixx" />
     <ClCompile Include="src\objects\mixins\clickable.ixx" />
     <ClCompile Include="src\objects\mixins\drawable.ixx" />
+    <ClCompile Include="src\objects\mixins\pointowner.ixx" />
     <ClCompile Include="src\objects\mixins\selectable.ixx" />
+    <ClCompile Include="src\objects\mixins\updatable.ixx" />
+    <ClCompile Include="src\objects\points\chainedupdate.ixx" />
     <ClCompile Include="src\objects\scene.ixx" />
+    <ClCompile Include="src\objects\shape.ixx" />
     <ClCompile Include="src\objects\solids\cube.ixx" />
     <ClCompile Include="src\objects\solids\cursor.ixx" />
     <ClCompile Include="src\objects\curves\curve.ixx" />
     <ClCompile Include="src\objects\solids\grid.ixx" />
-    <ClCompile Include="src\objects\solids\middlepoint.ixx" />
-    <ClCompile Include="src\objects\solids\point.ixx" />
+    <ClCompile Include="src\objects\points\middlepoint.ixx" />
+    <ClCompile Include="src\objects\points\point.ixx" />
     <ClCompile Include="src\objects\solids\solidobject.ixx" />
     <ClCompile Include="src\objects\solids\texturedobject.ixx" />
     <ClCompile Include="src\objects\solids\torus.ixx" />
-    <ClCompile Include="src\objects\solids\virtualpoint.ixx" />
+    <ClCompile Include="src\objects\points\virtualpoint.ixx" />
+    <ClCompile Include="src\objects\surfaces\c0surface.ixx" />
+    <ClCompile Include="src\objects\surfaces\patch.ixx" />
+    <ClCompile Include="src\objects\surfaces\surface.ixx" />
     <ClCompile Include="src\raycasting\raycastingop.ixx" />
     <ClCompile Include="src\raycasting\strategy\cpuraycasting.ixx" />
     <ClCompile Include="src\raycasting\strategy\gpuraycasting.ixx" />
@@ -193,6 +199,7 @@
     <ClCompile Include="src\rendering\pointrenderer.ixx" />
     <ClCompile Include="src\ui\components\ellipsoidcomp.ixx" />
     <ClCompile Include="src\ui\components\objectlistcomp.ixx" />
+    <ClCompile Include="src\ui\components\surfaceconfigcomp.ixx" />
     <ClCompile Include="src\ui\components\torusconfigcomp.ixx" />
     <ClCompile Include="src\ui\guicontroller.ixx" />
     <ClCompile Include="src\ui\inputhandler.ixx" />
@@ -211,6 +218,7 @@
     <ClCompile Include="src\ui\theme.ixx" />
     <ClCompile Include="src\utils\colors.ixx" />
     <ClCompile Include="src\utils\glutils.ixx" />
+    <ClCompile Include="src\utils\imguiext.ixx" />
     <ClCompile Include="src\utils\scopedbindarray.ixx" />
     <ClCompile Include="src\utils\scopedlinewidth.ixx" />
   </ItemGroup>
@@ -657,6 +665,7 @@
     <None Include="external\include\glm\gtx\vector_query.inl" />
     <None Include="external\include\glm\gtx\wrap.inl" />
     <None Include="shaders\bezier2.tese" />
+    <None Include="shaders\c0surface.tese" />
     <None Include="shaders\curve.tesc" />
     <None Include="shaders\bezier3.tese" />
     <None Include="shaders\curve.vert" />
@@ -674,6 +683,7 @@
     <None Include="shaders\point.vert" />
     <None Include="shaders\raycasting.frag" />
     <None Include="shaders\raycasting.vert" />
+    <None Include="shaders\surface.tesc" />
     <None Include="shaders\uniformcolor.frag" />
     <None Include="shaders\uniformcolor.vert" />
   </ItemGroup>

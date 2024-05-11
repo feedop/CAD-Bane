@@ -12,6 +12,7 @@ import camera;
 import solidobject;
 import scene;
 import pointrenderer;
+import surface;
 import raycaster;
 import shader;
 
@@ -51,6 +52,25 @@ public:
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glEnable(GL_DEPTH_TEST);
+
+		// Surfaces
+		surfaceShader->use();
+		surfaceShader->setMatrix("view", camera.getView());
+		surfaceShader->setMatrix("projection", camera.getProjection());
+
+		surfaceShader->setInt("reverse", false);
+		for (auto&& surface : scene.getSurfaces())
+		{
+			surfaceShader->setFloat("segmentCount", surface->getDensityZ());
+			surface->draw(surfaceShader.get());
+		}
+
+		surfaceShader->setInt("reverse", true);
+		for (auto&& surface : scene.getSurfaces())
+		{
+			surfaceShader->setFloat("segmentCount", surface->getDensityX());
+			surface->draw(surfaceShader.get());
+		}
 
 		// Curves
 		static constexpr float baseSegmentCount = 128.0f;
@@ -108,12 +128,17 @@ public:
 			torus->draw(uniformColorShader.get());
 		}
 
-		// Curve polygons if enabled
-		if (drawCurvePolygons)
+		// Curve and surface polygons if enabled
+		if (drawPolygons)
 		{
 			for (auto&& curve : scene.getCurves())
 			{
 				curve->drawPolygon(uniformColorShader.get());
+			}
+
+			for (auto&& surface : scene.getSurfaces())
+			{
+				surface->drawPolygon(uniformColorShader.get());
 			}
 		}
 
@@ -124,7 +149,7 @@ public:
 		pointShader->setVector("cameraPosition", camera.getPosition());
 		pointRenderer.draw(pointShader.get());
 
-		// Additional points from curves (if needed)
+		// Additional points from curves
 		for (auto&& curve : scene.getCurves())
 		{
 			curve->drawAdditionalPoints(pointShader.get());
@@ -186,12 +211,13 @@ private:
 	std::unique_ptr<Shader> bezierCubicShader = std::make_unique<BezierCubicShader>();
 	std::unique_ptr<Shader> bezierQuadraticShader = std::make_unique<BezierQuadraticShader>();
 	std::unique_ptr<Shader> interpolatingSplineShader = std::make_unique<InterpolatingSplineShader>();
+	std::unique_ptr<Shader> surfaceShader = std::make_unique<SurfaceShader>();
 
 	int windowWidth;
 	int windowHeight;
 
 	bool drawGrid = true;
-	bool drawCurvePolygons = false;
+	bool drawPolygons = false;
 
 	// Fill depth buffer with only torus and point data without actually rendering
 	void fillDepthBuffer()
@@ -214,7 +240,6 @@ private:
 		pointShader->use();
 		pointShader->setMatrix("view", camera.getView());
 		pointShader->setMatrix("projection", camera.getProjection());
-		pointShader->setVector("segmentCount", camera.getPosition());
 		for (auto&& curve : scene.getCurves())
 		{
 			curve->drawAdditionalPoints(pointShader.get());

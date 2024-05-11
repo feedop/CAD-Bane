@@ -11,7 +11,7 @@ import selectable;
 import solidobject;
 import math;
 
-export class Curve;
+export class Updatable;
 
 export class Point : public SolidObject, public Selectable, public Clickable
 {
@@ -73,19 +73,19 @@ public:
 		update();
 	}
 
-	inline void addToCurve(Curve* curve)
+	inline void attach(Updatable* updatable)
 	{
-		inCurves.insert(curve);
+		attachedTo.insert(updatable);
 	}
 
-	inline void removeFromCurve(Curve* curve)
+	inline void detach(Updatable* updatable)
 	{
-		inCurves.erase(curve);
+		attachedTo.erase(updatable);
 	}
 
-	inline bool isInCurve() const
+	inline bool isAttached() const
 	{
-		return inCurves.size() > 0;
+		return attachedTo.size() > 0;
 	}
 
 	inline const glm::vec3& getLastTranslation() const
@@ -94,7 +94,7 @@ public:
 	}
 
 protected:
-	std::unordered_set<Curve*> inCurves;
+	std::unordered_set<Updatable*> attachedTo;
 	glm::vec3 lastPosition{ 0.0f, 0.0f, 0.0f };
 
 	virtual void update() override;

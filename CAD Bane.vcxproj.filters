@@ -123,16 +123,10 @@
     <ClCompile Include="src\objects\solids\cursor.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\objects\solids\point.ixx">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\rendering\pointrenderer.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\objects\solids\grid.ixx">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\objects\solids\middlepoint.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\math\quat.ixx">
@@ -156,9 +150,6 @@
     <ClCompile Include="src\objects\scene.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\objects\curves\curveupdate.ixx">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\utils\scopedbindarray.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -177,10 +168,43 @@
     <ClCompile Include="src\utils\colors.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\objects\solids\virtualpoint.ixx">
+    <ClCompile Include="src\objects\curves\interpolatingspline.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\objects\curves\interpolatingspline.ixx">
+    <ClCompile Include="src\objects\mixins\updatable.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\objects\points\chainedupdate.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\objects\points\middlepoint.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\objects\points\point.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\objects\points\virtualpoint.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\objects\surfaces\patch.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\objects\surfaces\surface.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\objects\surfaces\c0surface.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\objects\mixins\pointowner.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\objects\shape.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ui\components\surfaceconfigcomp.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utils\imguiext.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -1524,6 +1548,8 @@
     <None Include="shaders\bezier2.tese" />
     <None Include="shaders\interpolating.tesc" />
     <None Include="shaders\interpolating.tese" />
+    <None Include="shaders\surface.tesc" />
+    <None Include="shaders\c0surface.tese" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="external\lib\glfw3.lib" />

@@ -84,9 +84,10 @@ public:
             renderEllipsoid();
         }
 
-        ImGui::Checkbox("Render curve polygons", &renderer.drawCurvePolygons);
+        ImGui::Checkbox("Render curve polygons", &renderer.drawPolygons);
 
         renderTorusConfig();
+        renderSurfaceConfig();
 
         ImGui::End();
 
@@ -125,4 +126,5 @@ private:
     void renderEllipsoid();
     void renderObjectList();
     void renderTorusConfig();
+    void renderSurfaceConfig();
 };

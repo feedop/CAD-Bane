@@ -22,9 +22,11 @@ public:
 		name = newName;
 	}
 
+	virtual ~Selectable() {}
+
 protected:
-	glm::vec4 color = colors::white();
-	glm::vec4 selectedColor = colors::yellow();
+	glm::vec4 color = colors::white;
+	glm::vec4 selectedColor = colors::yellow;
 
 	Selectable(const std::string& name) : name(name)
 	{}

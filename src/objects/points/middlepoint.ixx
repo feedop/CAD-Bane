@@ -43,7 +43,7 @@ private:
 
 	MiddlePoint() : Point({ 0.0f, 0.0f, 0.0f })
 	{
-		color = colors::transparent();
-		selectedColor = colors::red();
+		color = colors::transparent;
+		selectedColor = colors::red;
 	}
 };

@@ -54,7 +54,7 @@ int main()
     while (!glfwWindowShouldClose(window))
     {
         // Update curves if necessary
-        scene.updateCurves();
+        scene.updateObjects();
         
         // OpenGL render
         renderer.draw();

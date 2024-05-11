@@ -75,12 +75,14 @@ public:
 	}
 
 private:
+	inline static unsigned int instanceCount = 0;
+
 	unsigned int quadraticVAO, linesVAO = 0;
 	unsigned int quadraticVBO, linesVBO = 0;
 
-	inline virtual std::string getCurveName() const override
+	virtual std::string getCurveName() const override
 	{
-		return "C0 Bezier";
+		return std::format("{} {}", "C0 Bezier", instanceCount++);
 	}
 
 	virtual void genBuffers() override

@@ -1,15 +1,15 @@
 export module virtualpoint;
 
 import colors;
-import curve;
 import point;
+import updatable;
 
 export class VirtualPoint : public Point
 {
 public:
 	VirtualPoint(const glm::vec3& translation = glm::vec3{ 0.0f, 0.0f, 0.0f }) : Point(translation, true)
 	{
-		color = colors::orange();
+		color = colors::orange;
 	}
 
 	virtual void translate(const glm::vec3& positionChange) override
@@ -21,9 +21,9 @@ public:
 
 	virtual void update() override
 	{
-		for (auto&& curve : inCurves)
+		for (auto&& updatable : attachedTo)
 		{
-			curve->scheduleToUpdate(this);
+			updatable->scheduleToUpdate(this);
 		}
 	}
 };

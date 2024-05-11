@@ -10,19 +10,19 @@ import <vector>;
 import <glm/vec3.hpp>;
 
 import colors;
-import drawable;
 import glutils;
 import point;
-import selectable;
+import pointowner;
+import shape;
 
-export class Curve : public Drawable, public Selectable
+export class Curve : public PointOwner, public Shape
 {
 public:
 	virtual ~Curve()
 	{
 		for (auto&& point : points)
 		{
-			point->removeFromCurve(this);
+			point->detach(this);
 		}
 	}
 
@@ -48,34 +48,12 @@ public:
 		
 	}
 
-	virtual inline void drawAdditionalPoints(const Shader* shader) const
-	{
-
-	}
-
 	virtual void drawPolygon(const Shader* shader) const
 	{
 		shader->setVector("color", polygonColor);
 		shader->setMatrix("model", glm::mat4{1.0f});
 		ScopedBindArray ba(VAO);
 		glDrawArrays(GL_LINE_STRIP, 0, positions.size());
-	}
-
-	virtual void update()
-	{
-		// Nothing happens without any connectivity constraints
-		scheduledToUpdate = false;
-	}
-
-	virtual inline const std::vector<std::unique_ptr<Point>>& getVirtualPoints() const
-	{
-		static const std::vector<std::unique_ptr<Point>> empty;
-		return empty;
-	}
-
-	virtual inline void updateRenderer()
-	{
-
 	}
 
 	virtual bool isInterpolating() const
@@ -86,7 +64,7 @@ public:
 	void addPoints(Point* toAdd)
 	{
 		points.push_back(toAdd);
-		toAdd->addToCurve(this);
+		toAdd->attach(this);
 		scheduleToUpdate();
 	}
 
@@ -95,7 +73,7 @@ public:
 		for (auto&& point : toAdd)
 		{
 			points.push_back(point);
-			point->addToCurve(this);
+			point->attach(this);
 		}
 		scheduleToUpdate();
 	}
@@ -105,17 +83,10 @@ public:
 		for (auto&& point : points)
 		{
 			if (point->isSelected)
-				point->removeFromCurve(this);
+				point->detach(this);
 		}
 		std::erase_if(points, [](auto&& point) { return point->isSelected; });
 		scheduleToUpdate();
-	}
-
-	void scheduleToUpdate(const Point* invoker = nullptr)
-	{
-		scheduledToUpdate = true;
-		if (invoker)
-			updateInvoker = invoker;
 	}
 
 	glm::vec3 getCenter()
@@ -126,25 +97,21 @@ public:
 protected:
 	static constexpr int degree = 3;
 
-	inline static unsigned int instanceCount = 0;
-	inline static const glm::vec4 polygonColor = colors::orange();
+	inline static const glm::vec4 polygonColor = colors::orange;
 
 	std::vector<Point*> points;
 	std::vector<glm::vec3> positions;
 	std::vector<glm::vec3> positionsQuadratic;
 	std::vector<glm::vec3> positionsLine;
 
-	bool scheduledToUpdate = true;
-	const Point* updateInvoker = nullptr;
-
-	Curve(const std::string& curveName, const std::vector<Point*>& points) : Selectable(std::format("{} {}", curveName, instanceCount++)), points(points)
+	Curve(const std::string& curveName, const std::vector<Point*>& points) : Shape(curveName), points(points)
 	{
 		attachPointsToCurve();
 		glGenVertexArrays(1, &VAO);
 		glGenBuffers(1, &VBO);
 	}
 
-	inline virtual std::string getCurveName() const = 0;
+	virtual std::string getCurveName() const = 0;
 
 	virtual void genBuffers()
 	{
@@ -175,7 +142,7 @@ private:
 	{
 		for (auto&& point : points)
 		{
-			point->addToCurve(this);
+			point->attach(this);
 		}
 	}
 };

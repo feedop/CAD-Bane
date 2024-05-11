@@ -79,7 +79,9 @@ public:
 	}
 
 private:
-	inline static const glm::vec4 bSplineColor = colors::navy();
+	inline static unsigned int instanceCount = 0;
+
+	inline static const glm::vec4 bSplineColor = colors::navy;
 
 	std::vector<std::unique_ptr<Point>> virtualPoints;
 	PointRenderer pointRenderer;
@@ -88,9 +90,9 @@ private:
 	unsigned int bSplineVAO = 0, bSplineVBO = 0;
 	std::vector<glm::vec3> bSplinePosiitons;
 
-	inline virtual std::string getCurveName() const override
+	virtual std::string getCurveName() const override
 	{
-		return "C2 Bezier";
+		return std::format("{} {}", "C2 Bezier", instanceCount++);
 	}
 
 	virtual void genBuffers() override
@@ -186,7 +188,7 @@ private:
 		{
 			for (auto& point : virtualPoints)
 			{
-				point->addToCurve(this);
+				point->attach(this);
 			}
 		}
 

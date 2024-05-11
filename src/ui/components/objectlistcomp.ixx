@@ -6,12 +6,53 @@ import <imgui/imgui/imgui.h>;
 import c0bezier;
 import c2bezier;
 import gui.controller;
+import imguiext;
 import interpolatingspline;
 import scene;
+import surface;
+import c0surface;
 import point;
 import torus;
 
 static char name[31]{ 0 };
+
+template <class T>
+void renderAddSurfacePopup(Scene& scene, const char* popupName)
+{
+    static bool cylinder = false;
+    static int sizeX = 1;
+    static int sizeZ = 1;
+    static float radius = 0.5f;
+
+    if (ImGui::BeginPopupContextItem(popupName))
+    {
+        ImGui::Checkbox("Render as cylinder", &cylinder);
+
+        ext::InputClampedInt("Length", &sizeX, 1, 100);
+        if (cylinder)
+        {
+            ext::InputClampedFloat("Radius", &radius, 0.1f, 100.0F);            
+        }
+        else
+        {
+            ext::InputClampedInt("Width", &sizeZ, 1, 100);
+        }
+
+        if (ImGui::Button("Add to scene##addSurface"))
+        {
+            if (cylinder)
+            {
+                scene.addSurface<T>(sizeX, radius);
+            }
+            else
+            {
+                scene.addSurface<T>(sizeX, sizeZ);
+            }
+        }
+
+        ImGui::EndPopup();
+    }  
+}
 
 void renderRenamePopup(auto& object)
 {
@@ -124,6 +165,35 @@ export void GuiController::renderObjectList()
             {
                 scene.addCurve<InterpolatingSpline>();
             }
+
+            ImGui::EndListBox();
+        }
+
+        // Surfaces
+        const auto& surfaces = scene.getSurfaces();
+
+        ImGui::Text("Surfaces");
+        if (ImGui::BeginListBox("##Surfaces"))
+        {
+            for (auto& surface : surfaces)
+            {
+                if (ImGui::Selectable(surface->getName().c_str(), &surface->isSelected))
+                {
+                    if (surface->isSelected)
+                        scene.selectSurface(surface.get());
+                    else
+                        scene.deselectSurface(surface.get());
+                }
+
+                renderRenamePopup(surface);
+            }
+
+            if (ImGui::Button("New C0 Surface ##newc0surface"))
+            {
+                ImGui::OpenPopup("Add C0 Surface");   
+            }
+
+            renderAddSurfacePopup<C0Surface>(scene, "Add C0 Surface");
 
             ImGui::EndListBox();
         }

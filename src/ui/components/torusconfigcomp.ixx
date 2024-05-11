@@ -9,7 +9,6 @@ import torus;
 
 export void GuiController::renderTorusConfig()
 {
-	const auto& tori = scene.getTori();
 	const auto& selectedTori = scene.getSelectedTori();
 	for (auto&& torus : selectedTori)
 	{

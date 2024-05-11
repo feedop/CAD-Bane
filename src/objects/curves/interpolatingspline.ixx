@@ -78,6 +78,8 @@ protected:
 	}
 
 private:
+	inline static unsigned int instanceCount = 0;
+
 	std::vector<glm::vec3> b;
 	std::vector<glm::vec3> c;
 	std::vector<glm::vec3> d;
@@ -88,11 +90,9 @@ private:
 	std::vector<float> beta;
 	std::vector<float> scratch;
 
-	float maxT = 0;
-
-	inline virtual std::string getCurveName() const override
+	virtual std::string getCurveName() const override
 	{
-		return "Interpolating spline";
+		return std::format("{} {}", "Interpolating spline", instanceCount++);
 	}
 
 	void calculateCoefficients()
@@ -150,11 +150,11 @@ private:
 		solve(segments - 1);
 
 		// Fill remaining polynomial coefficients
-		for (int i = 1; i <= N; i++)
+		for (int i = 1; i < N; i++)
 		{
 			d[i - 1] = (c[i] - c[i - 1]) / (3 * dist[i - 1]);
 		}
-		for (int i = 1; i <= N; i++)
+		for (int i = 1; i < N; i++)
 		{
 			auto di = dist[i - 1];
 			b[i-1] = (positions[i] - positions[i-1] - c[i-1] *di * di - d[i-1] * di * di *di) / di;
