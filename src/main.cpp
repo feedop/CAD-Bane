@@ -1,3 +1,5 @@
+#include <Serializer/Models/Point.h>
+
 import <glad/glad.h>;
 import <iostream>;
 import <sstream>;
@@ -13,6 +15,8 @@ import scene;
 import pointrenderer;
 import raycaster;
 import renderer;
+
+import c2surface;
 
 #ifdef _WIN32
 // Select an NVIDIA GPU if possible
@@ -46,6 +50,10 @@ int main()
 
     // Create a GUI controller
     GuiController guiController(window, scene, raycaster, renderer, ellipsoid);
+
+    // Initial objects
+    scene.addSurface<C2Surface>(4, 0.2f);
+    MG1::Point p;
 
     // MAIN LOOP HERE - dictated by glfw
     double lastTime = glfwGetTime();

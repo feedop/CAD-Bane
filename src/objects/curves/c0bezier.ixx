@@ -74,6 +74,17 @@ public:
 		scheduledToUpdate = false;
 	}
 
+	virtual void addToMGScene(MG1::Scene& mgscene, const std::vector<unsigned int>& indices) const override
+	{
+		MG1::BezierC0 curve;
+		curve.name = getName();
+		for (auto i : indices)
+		{
+			curve.controlPoints.emplace_back(i + 1);	
+		}
+		mgscene.bezierC0.push_back(curve);
+	}
+
 private:
 	inline static unsigned int instanceCount = 0;
 

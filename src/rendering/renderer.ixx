@@ -13,6 +13,8 @@ import solidobject;
 import scene;
 import pointrenderer;
 import surface;
+import c0surface;
+import c2surface;
 import raycaster;
 import shader;
 
@@ -38,6 +40,10 @@ public:
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glEnable(GL_PROGRAM_POINT_SIZE);
 
+		// Set surface shaders
+		C0Surface::setPreferredShader(c0SurfaceShader.get());
+		C2Surface::setPreferredShader(c2SurfaceShader.get());
+
 		// First raycasting
 		raycaster.setTextureSize(windowWidth, windowHeight);
 	}
@@ -54,22 +60,16 @@ public:
 		glEnable(GL_DEPTH_TEST);
 
 		// Surfaces
-		surfaceShader->use();
-		surfaceShader->setMatrix("view", camera.getView());
-		surfaceShader->setMatrix("projection", camera.getProjection());
-
-		surfaceShader->setInt("reverse", false);
-		for (auto&& surface : scene.getSurfaces())
+		
+		for (auto&& [shader, surfaces] : scene.getSurfaceTypes())
 		{
-			surfaceShader->setFloat("segmentCount", surface->getDensityZ());
-			surface->draw(surfaceShader.get());
-		}
-
-		surfaceShader->setInt("reverse", true);
-		for (auto&& surface : scene.getSurfaces())
-		{
-			surfaceShader->setFloat("segmentCount", surface->getDensityX());
-			surface->draw(surfaceShader.get());
+			shader->use();
+			shader->setMatrix("view", camera.getView());
+			shader->setMatrix("projection", camera.getProjection());
+			for (auto&& surface : surfaces)
+			{
+				surface->draw(shader);
+			}
 		}
 
 		// Curves
@@ -211,7 +211,8 @@ private:
 	std::unique_ptr<Shader> bezierCubicShader = std::make_unique<BezierCubicShader>();
 	std::unique_ptr<Shader> bezierQuadraticShader = std::make_unique<BezierQuadraticShader>();
 	std::unique_ptr<Shader> interpolatingSplineShader = std::make_unique<InterpolatingSplineShader>();
-	std::unique_ptr<Shader> surfaceShader = std::make_unique<SurfaceShader>();
+	std::unique_ptr<Shader> c0SurfaceShader = std::make_unique<C0SurfaceShader>();
+	std::unique_ptr<Shader> c2SurfaceShader = std::make_unique<C2SurfaceShader>();
 
 	int windowWidth;
 	int windowHeight;

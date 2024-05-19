@@ -81,6 +81,11 @@ protected:
 		update();
 	}
 
+	SolidObject(const glm::vec3& position, const math::Quat& rotation, const glm::vec3& scale) : position(position), rotation(rotation), scale(scale)
+	{
+		update();
+	}
+
 	virtual void update()
 	{
 		model = math::translate(position) * rotation.toMatrix() * math::scale(scale);

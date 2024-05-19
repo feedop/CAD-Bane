@@ -1,16 +1,19 @@
 export module c0surface;
 
 import <format>;
+import <memory>;
 import <span>;
 import <glm/vec3.hpp>;
+import <Serializer/Serializer.h>;
 
 import math;
+import patch;
 import surface;
 
 export class C0Surface : public Surface
 {
 public:
-	C0Surface(const glm::vec3& position, int sizeX, int sizeZ) : Surface(getSurfaceName())
+	C0Surface(const glm::vec3& position, int sizeX, int sizeZ) : Surface(getSurfaceName(), sizeX, sizeZ)
 	{
 
 		std::vector<Point*> tempPoints;
@@ -86,16 +89,11 @@ public:
 			tempPoints.clear();
 		}
 
-		for (auto&& point : points)
-		{
-			point->attach(this);
-		}
+		attachPoints();
 	}
 
-	C0Surface(const glm::vec3& position, int sizeX, float radius) : Surface(getSurfaceName())
+	C0Surface(const glm::vec3& position, int sizeX, float radius) : Surface(getSurfaceName(), sizeX, std::max(3, static_cast<int>(2 * math::pi * radius / patchSizeZ)), true)
 	{
-		float realLength = 2 * math::pi * radius;
-		int sizeZ = std::max(4, static_cast<int>(realLength / patchSizeZ));
 		int pointCountZ = 4 + 3 * (sizeZ - 2) + 2;
 		float minAngleDist = 2 * math::pi / pointCountZ;
 
@@ -210,9 +208,62 @@ public:
 		}
 		tempPoints.clear();
 
-		for (auto&& point : points)
+		attachPoints();
+	}
+
+	C0Surface(const MG1::BezierSurfaceC0& other, const std::vector<std::unique_ptr<Point>>& allPoints, unsigned int pointOffset) : Surface(other.name, other.size.x, other.size.y, other.vWrapped)
+	{
+		instanceCount++;
+		if (!other.name.empty())
+			setName(other.name);
+
+		int sizeX = other.size.x;
+		int sizeZ = other.size.y;
+
+		std::vector<Point*> tempPoints;
+
+		for (auto& patch : other.patches)
 		{
-			point->attach(this);
+			for (int i = 0; i < 4; i++)
+			{
+				for (int j = 0; j < 4; j++)
+				{
+					//auto index = patch.controlPoints[i * 4 + j].GetId() - 1;
+					auto point = allPoints[patch.controlPoints[i * 4 + j].GetId() - pointOffset].get();
+					tempPoints.push_back(point);
+					points.push_back(point);
+				}
+			}
+			patches.emplace_back(new Patch(tempPoints));
+			tempPoints.clear();
+		}
+
+		attachPoints();
+	}
+
+	virtual void drawPolygon(const Shader* shader) const override
+	{
+		for (auto&& patch : patches)
+		{
+			patch->drawPolygon(shader);
+		}
+	}
+
+	virtual void draw(const Shader* shader) const override
+	{
+		setColor(shader);
+		shader->setInt("reverse", false);
+		shader->setFloat("segmentCount", densityZ);
+		for (auto&& patch : patches)
+		{
+			patch->draw(shader);
+		}
+
+		shader->setInt("reverse", true);
+		shader->setFloat("segmentCount", densityX);
+		for (auto&& patch : patches)
+		{
+			patch->draw(shader);
 		}
 	}
 
@@ -229,8 +280,37 @@ public:
 		scheduledToUpdate = false;
 	}
 
+	virtual void addToMGScene(MG1::Scene& mgscene, const std::vector<std::unique_ptr<Point>>& allPoints) const override
+	{
+		MG1::BezierSurfaceC0 surface;
+		surface.name = getName();
+		surface.size.x = sizeX;
+		surface.size.y = sizeZ;
+
+		surface.uWrapped = surface.vWrapped = cylinder;
+
+		for (auto&& patch : patches)
+		{
+			patch->addToMGSurface(surface, allPoints);
+		}
+		mgscene.surfacesC0.push_back(surface);
+	}
+
+	virtual Shader* getPreferredShader() const
+	{
+		return preferredShader;
+	}
+
+	inline static void setPreferredShader(Shader* shader)
+	{
+		preferredShader = shader;
+	}
+
 private:
 	inline static unsigned int instanceCount = 0;
+	inline static Shader* preferredShader = nullptr;
+
+	std::vector<std::unique_ptr<Patch>> patches;
 
 	virtual std::string getSurfaceName() const override
 	{

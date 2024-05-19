@@ -8,6 +8,7 @@ import <set>;
 import <vector>;
 
 import <glm/vec3.hpp>;
+import <Serializer/Serializer.h>;
 
 import colors;
 import glutils;
@@ -93,6 +94,13 @@ public:
 	{
 		return std::accumulate(positions.begin(), positions.end(), glm::vec3{ 0.0f, 0.0f, 0.0f }) * (1.0f / positions.size());
 	}
+
+	inline const std::vector<Point*>& getPoints() const
+	{
+		return points;
+	}
+
+	virtual void addToMGScene(MG1::Scene& mgscene, const std::vector<unsigned int>& indices) const = 0;
 
 protected:
 	static constexpr int degree = 3;

@@ -72,11 +72,21 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ExternalIncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);external/include;external/include/imgui/imgui;</ExternalIncludePath>
-    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);external/lib;</LibraryPath>
+    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);external/lib;;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir)/external/include/Serializer</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ExternalIncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);external/include;external/include/imgui/imgui;</ExternalIncludePath>
-    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);external/lib;</LibraryPath>
+    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);external/lib;;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir)/external/include/Serializer</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(LibraryPath)</LibraryPath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir)/external/include/Serializer</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(LibraryPath)</LibraryPath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir)/external/include/Serializer</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -85,12 +95,13 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
-      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);MGSerializerDebug.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -102,7 +113,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
-      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
     </ClCompile>
     <Link>
@@ -110,6 +121,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);MGSerializer.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -118,7 +130,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <BuildStlModules>true</BuildStlModules>
       <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
@@ -130,6 +142,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>
       </AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);MGSerializerDebug.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -140,7 +153,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <BuildStlModules>true</BuildStlModules>
       <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
@@ -154,10 +167,12 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>
       </AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);MGSerializer.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="external\include\glm\detail\glm.cpp" />
+    <ClCompile Include="external\include\imguiFileDialog\ImGuiFileDialog.cpp" />
     <ClCompile Include="external\include\imgui\backend\imgui_impl_glfw.cpp" />
     <ClCompile Include="external\include\imgui\backend\imgui_impl_opengl3.cpp" />
     <ClCompile Include="external\include\imgui\imgui\imgui.cpp" />
@@ -190,6 +205,7 @@
     <ClCompile Include="src\objects\solids\torus.ixx" />
     <ClCompile Include="src\objects\points\virtualpoint.ixx" />
     <ClCompile Include="src\objects\surfaces\c0surface.ixx" />
+    <ClCompile Include="src\objects\surfaces\c2surface.ixx" />
     <ClCompile Include="src\objects\surfaces\patch.ixx" />
     <ClCompile Include="src\objects\surfaces\surface.ixx" />
     <ClCompile Include="src\raycasting\raycastingop.ixx" />
@@ -198,6 +214,7 @@
     <ClCompile Include="src\raycasting\strategy\raycastingstrategy.ixx" />
     <ClCompile Include="src\rendering\pointrenderer.ixx" />
     <ClCompile Include="src\ui\components\ellipsoidcomp.ixx" />
+    <ClCompile Include="src\ui\components\menubar.ixx" />
     <ClCompile Include="src\ui\components\objectlistcomp.ixx" />
     <ClCompile Include="src\ui\components\surfaceconfigcomp.ixx" />
     <ClCompile Include="src\ui\components\torusconfigcomp.ixx" />
@@ -221,6 +238,7 @@
     <ClCompile Include="src\utils\imguiext.ixx" />
     <ClCompile Include="src\utils\scopedbindarray.ixx" />
     <ClCompile Include="src\utils\scopedlinewidth.ixx" />
+    <ClCompile Include="src\utils\vec3conversion.ixx" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external\include\glad\glad.h" />
@@ -513,6 +531,11 @@
     <ClInclude Include="external\include\glm\vec3.hpp" />
     <ClInclude Include="external\include\glm\vec4.hpp" />
     <ClInclude Include="external\include\glm\vector_relational.hpp" />
+    <ClInclude Include="external\include\imguiFileDialog\dirent\dirent.h" />
+    <ClInclude Include="external\include\imguiFileDialog\ImGuiFileDialog.h" />
+    <ClInclude Include="external\include\imguiFileDialog\ImGuiFileDialogConfig.h" />
+    <ClInclude Include="external\include\imguiFileDialog\stb\stb_image.h" />
+    <ClInclude Include="external\include\imguiFileDialog\stb\stb_image_resize2.h" />
     <ClInclude Include="external\include\imgui\backend\imgui_impl_glfw.h" />
     <ClInclude Include="external\include\imgui\backend\imgui_impl_opengl3.h" />
     <ClInclude Include="external\include\imgui\backend\imgui_impl_opengl3_loader.h" />
@@ -666,6 +689,7 @@
     <None Include="external\include\glm\gtx\wrap.inl" />
     <None Include="shaders\bezier2.tese" />
     <None Include="shaders\c0surface.tese" />
+    <None Include="shaders\c2surface.tese" />
     <None Include="shaders\curve.tesc" />
     <None Include="shaders\bezier3.tese" />
     <None Include="shaders\curve.vert" />

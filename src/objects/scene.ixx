@@ -3,14 +3,17 @@ export module scene;
 import <cmath>;
 import <memory>;
 import <ranges>;
+import <unordered_map>;
 import <vector>;
 
 import <glm/vec3.hpp>;
 import <glm/gtc/constants.hpp>;
+import <Serializer/Serializer.h>;
 
 import c0bezier;
 import c2bezier;
 import c0surface;
+import c2surface;
 import camera;
 import cube;
 import cursor;
@@ -19,12 +22,14 @@ import grid;
 import interpolatingspline;
 import math;
 import middlepoint;
+import shader;
 import shape;
 import solidobject;
 import surface;
 import point;
 import pointrenderer;
 import torus;
+import vec3conversion;
 
 
 export class Scene
@@ -34,9 +39,6 @@ public:
 	{
 		// Cursor
 		cursor = std::make_unique<Cursor>();
-
-		// Initial objects
-		addSurface<C0Surface>(1, 1);
 
 		pointRenderer.update(points);
 	}
@@ -89,6 +91,11 @@ public:
 	inline const auto& getSurfaces() const
 	{
 		return surfaces;
+	}
+
+	inline const auto& getSurfaceTypes() const
+	{
+		return surfaceTypes;
 	}
 
 	void moveCursor(float xDiff, float yDiff)
@@ -226,6 +233,7 @@ public:
 		}
 		selectedSurfaces.clear();
 		std::erase_if(surfaces, [](auto&& surface) { return surface->isSelected; });
+		updateSurfaceTypes();
 
 		// Tori
 		selectedTori.clear();
@@ -293,6 +301,7 @@ public:
 			points.emplace_back(point);
 		}
 		pointRenderer.update(points);
+		updateSurfaceTypes();
 	}
 
 	void selectCurve(Curve* curve)
@@ -430,6 +439,132 @@ public:
 		}
 	}
 
+	void clear()
+	{
+		curves.clear();
+		interpolatingCurves.clear();
+		surfaces.clear();
+		surfaceTypes.clear();
+		tori.clear();
+		points.clear();
+		
+		selectedCurves.clear();
+		selectedSurfaces.clear();
+		selectedTori.clear();
+		selectedPoints.clear();
+
+		selectedVirtualPointOwner = nullptr;
+		selectedVirtualPoint = nullptr;
+
+		pointRenderer.update(points);
+	}
+
+	void deserialize(MG1::Scene& mgscene)
+	{
+		clear();
+		auto pointOffset = mgscene.points[0].GetId();
+
+		for (auto&& point : mgscene.points)
+		{
+			points.emplace_back(new Point(point));
+		}
+
+		for (auto&& torus : mgscene.tori)
+		{
+			tori.emplace_back(new Torus(torus));
+		}
+
+		auto transformPoints = [&](const auto& controlPoints)
+		{
+			std::vector<Point*> newPoints;
+			for (auto&& point : controlPoints)
+			{
+				newPoints.push_back(points[point.GetId() - pointOffset].get());
+			}
+
+			return newPoints;
+		};
+
+		for (auto&& curve : mgscene.bezierC0)
+		{
+			curves.emplace_back(new C0Bezier(transformPoints(curve.controlPoints)));
+			curves[curves.size() - 1]->setName(curve.name);
+		}
+
+		for (auto&& curve : mgscene.bezierC2)
+		{
+			curves.emplace_back(new C2Bezier(transformPoints(curve.controlPoints)));
+			curves[curves.size() - 1]->setName(curve.name);
+		}
+
+		for (auto&& curve : mgscene.interpolatedC2)
+		{
+			curves.emplace_back(new InterpolatingSpline(transformPoints(curve.controlPoints)));
+			curves[curves.size() - 1]->setName(curve.name);
+		}
+
+		for (auto&& surface : mgscene.surfacesC0)
+		{
+			surfaces.emplace_back(new C0Surface(surface, points, pointOffset));
+		}
+		for (auto& surface : mgscene.surfacesC2)
+		{
+			if (surface.uWrapped)
+				transposeSurface(surface);
+			surfaces.emplace_back(new C2Surface(surface, points, pointOffset));
+		}
+
+		updateSurfaceTypes();
+		pointRenderer.update(points);
+	}
+
+	void serialize(MG1::Scene& mgscene)
+	{
+		auto addCurveToMGScene = [&](const auto& curve)
+		{
+			std::vector<unsigned int> indices;
+			for (auto&& point : curve->getPoints())
+			{
+				unsigned int found = 0;
+				for (int i = 0; i < points.size(); i++)
+				{
+					if (points[i].get() == point)
+					{
+						found = i;
+						break;
+					}
+				}
+				indices.push_back(found);
+			}
+
+			curve->addToMGScene(mgscene, indices);
+		};
+
+		for (auto&& point : points)
+		{
+			mgscene.points.emplace_back(*point);
+		}
+
+		for (auto&& torus : tori)
+		{
+			mgscene.tori.emplace_back(*torus);
+		}
+
+		for (auto&& curve : curves)
+		{
+			addCurveToMGScene(curve);
+		}
+		for (auto&& curve : interpolatingCurves)
+		{
+			addCurveToMGScene(curve);
+		}
+
+		for (auto&& surface : surfaces)
+		{
+			surface->addToMGScene(mgscene, points);
+		}
+	}
+
 private:
 	const Camera& camera;
 	PointRenderer& pointRenderer;
@@ -441,6 +576,7 @@ private:
 	std::vector<std::unique_ptr<Curve>> interpolatingCurves;
 
 	std::vector<std::unique_ptr<Surface>> surfaces;
+	std::unordered_map<Shader*, std::vector<const Surface*>> surfaceTypes;
 
 	std::unique_ptr<SolidObject> cursor;
 
@@ -479,6 +615,23 @@ private:
 				point->isSelected = false;
 			}
 			curve->updateRenderer();
+		}
+	}
+
+	void updateSurfaceTypes()
+	{
+		surfaceTypes.clear();
+		for (auto&& surface : surfaces)
+		{
+			auto shader = surface->getPreferredShader();
+			if (surfaceTypes.contains(shader))
+			{
+				surfaceTypes[shader].push_back(surface.get());
+			}
+			else
+			{
+				surfaceTypes.insert({ shader, std::vector<const Surface*>{surface.get()} });
+			}
 		}
 	}
 };

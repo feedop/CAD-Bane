@@ -65,7 +65,9 @@ public:
             return;
         }
 
-        ImGui::Begin("Configuration window", nullptr, 0); // Create a window and append into it.
+        ImGui::Begin("Configuration window", nullptr, ImGuiWindowFlags_MenuBar); // Create a window and append into it.
+
+        renderMenuBar();
 
         static bool fpsLimit = true;
         if (ImGui::Checkbox("Limit fps to screen frequency", &fpsLimit))
@@ -123,6 +125,7 @@ private:
     }
 
     // Components
+    void renderMenuBar();
     void renderEllipsoid();
     void renderObjectList();
     void renderTorusConfig();

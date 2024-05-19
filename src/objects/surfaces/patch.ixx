@@ -5,6 +5,7 @@ import <memory>;
 import <vector>;
 import <glm/vec3.hpp>;
 import <glm/vec4.hpp>;
+import <Serializer/Serializer.h>;
 
 import colors;
 import drawable;
@@ -33,12 +34,12 @@ public:
 
 	virtual ~Patch()
 	{
-		ScopedBindArray ba(VAO);
+		ScopedBindArray ba(transposedVAO);
 
-		glBindBuffer(GL_ARRAY_BUFFER, VBO);
-		glDeleteBuffers(1, &VBO);
+		glBindBuffer(GL_ARRAY_BUFFER, transposedVBO);
+		glDeleteBuffers(1, &transposedVBO);
 
-		glDeleteVertexArrays(1, &VAO);
+		glDeleteVertexArrays(1, &transposedVAO);
 	}
 
 	virtual void draw(const Shader* shader) const override
@@ -97,6 +98,30 @@ public:
 				glDrawArrays(GL_LINE_STRIP, i * 4, 4);
 			}
 		}	
+	}
+
+	void addToMGSurface(MG1::BezierSurfaceC0& surface, const std::vector<std::unique_ptr<Point>>& allPoints)
+	{
+		auto find = [&](const Point* point)
+		{
+			for (int i = 0; i < allPoints.size(); i++)
+			{
+				if (allPoints[i].get() == point)
+				{
+					return i;
+				}
+			}
+			return 0;
+		};
+
+		MG1::BezierPatchC0 bp;
+		bp.samples.x = 4;
+		bp.samples.y = 4;
+		for (auto&& point : points)
+		{
+			bp.controlPoints.emplace_back(find(point) + 1);
+		}
+		surface.patches.push_back(bp);
 	}
 
 private:

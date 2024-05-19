@@ -207,6 +207,18 @@
     <ClCompile Include="src\utils\imguiext.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\objects\surfaces\c2surface.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="external\include\imguiFileDialog\ImGuiFileDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ui\components\menubar.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utils\vec3conversion.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external\include\KHR\khrplatform.h">
@@ -1109,6 +1121,21 @@
     <ClInclude Include="external\include\imgui\backend\imgui_impl_opengl3_loader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="external\include\imguiFileDialog\dirent\dirent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="external\include\imguiFileDialog\ImGuiFileDialog.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="external\include\imguiFileDialog\ImGuiFileDialogConfig.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="external\include\imguiFileDialog\stb\stb_image.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="external\include\imguiFileDialog\stb\stb_image_resize2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="external\include\glm\detail\func_common.inl">
@@ -1550,6 +1577,7 @@
     <None Include="shaders\interpolating.tese" />
     <None Include="shaders\surface.tesc" />
     <None Include="shaders\c0surface.tese" />
+    <None Include="shaders\c2surface.tese" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="external\lib\glfw3.lib" />

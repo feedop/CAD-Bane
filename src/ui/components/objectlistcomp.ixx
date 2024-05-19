@@ -4,20 +4,21 @@ import <vector>;
 import <imgui/imgui/imgui.h>;
 
 import c0bezier;
+import c0surface;
 import c2bezier;
+import c2surface;
 import gui.controller;
 import imguiext;
 import interpolatingspline;
 import scene;
 import surface;
-import c0surface;
 import point;
 import torus;
 
 static char name[31]{ 0 };
 
 template <class T>
-void renderAddSurfacePopup(Scene& scene, const char* popupName)
+void renderAddSurfacePopup(Scene& scene, const char* popupName, int minSize)
 {
     static bool cylinder = false;
     static int sizeX = 1;
@@ -28,14 +29,14 @@ void renderAddSurfacePopup(Scene& scene, const char* popupName)
     {
         ImGui::Checkbox("Render as cylinder", &cylinder);
 
-        ext::InputClampedInt("Length", &sizeX, 1, 100);
+        ext::InputClampedInt("Length", &sizeX, minSize, 100);
         if (cylinder)
         {
             ext::InputClampedFloat("Radius", &radius, 0.1f, 100.0F);            
         }
         else
         {
-            ext::InputClampedInt("Width", &sizeZ, 1, 100);
+            ext::InputClampedInt("Width", &sizeZ, minSize, 100);
         }
 
         if (ImGui::Button("Add to scene##addSurface"))
@@ -78,6 +79,11 @@ export void GuiController::renderObjectList()
 {
     if (ImGui::Begin("Object list", nullptr, 0))
     {
+        if (ImGui::Button("Clear scene"))
+        {
+            scene.clear();
+        }
+
         // Tori
         ImGui::Text("Tori");
 
@@ -192,8 +198,13 @@ export void GuiController::renderObjectList()
             {
                 ImGui::OpenPopup("Add C0 Surface");   
             }
+            if (ImGui::Button("New C2 Surface ##newc2surface"))
+            {
+                ImGui::OpenPopup("Add C2 Surface");
+            }
 
-            renderAddSurfacePopup<C0Surface>(scene, "Add C0 Surface");
+            renderAddSurfacePopup<C0Surface>(scene, "Add C0 Surface", 1);
+            renderAddSurfacePopup<C2Surface>(scene, "Add C2 Surface", 4);
 
             ImGui::EndListBox();
         }

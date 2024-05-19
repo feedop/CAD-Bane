@@ -57,6 +57,17 @@ public:
 		return true;
 	}
 
+	virtual void addToMGScene(MG1::Scene& mgscene, const std::vector<unsigned int>& indices) const override
+	{
+		MG1::InterpolatedC2 curve;
+		curve.name = getName();
+		for (auto i : indices)
+		{
+			curve.controlPoints.emplace_back(i + 1);
+		}
+		mgscene.interpolatedC2.push_back(curve);
+	}
+
 protected:
 	virtual void fillPositions() override
 	{

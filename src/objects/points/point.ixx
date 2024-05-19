@@ -4,12 +4,14 @@ import <format>;
 import <unordered_set>;
 
 import <glm/vec3.hpp>;
+import <Serializer/Serializer.h>;
 
 import clickable;
 import colors;
 import selectable;
 import solidobject;
 import math;
+import vec3conversion;
 
 export class Updatable;
 
@@ -27,6 +29,20 @@ public:
 	{
 		if (!isVirtual)
 			instanceCount++;
+	}
+
+	Point(const MG1::Point& other) : Point(toGLM(other.position))
+	{
+		if (!other.name.empty())
+			setName(other.name);
+	}
+
+	operator MG1::Point() const
+	{
+		MG1::Point p;
+		p.position = toMG1(position);
+		p.name = getName();
+		return p;
 	}
 
 	Vertex toVertex() const

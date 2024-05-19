@@ -244,8 +244,14 @@ public:
     InterpolatingSplineShader() : VertFragTessShader("shaders/curve.vert", "shaders/uniformcolor.frag", "shaders/interpolating.tesc", "shaders/interpolating.tese") {}
 };
 
-export class SurfaceShader : public VertFragTessShader
+export class C0SurfaceShader : public VertFragTessShader
 {
 public:
-    SurfaceShader() : VertFragTessShader("shaders/curve.vert", "shaders/uniformcolor.frag", "shaders/surface.tesc", "shaders/c0surface.tese") {}
+    C0SurfaceShader() : VertFragTessShader("shaders/curve.vert", "shaders/uniformcolor.frag", "shaders/surface.tesc", "shaders/c0surface.tese") {}
+};
+
+export class C2SurfaceShader : public VertFragTessShader
+{
+public:
+    C2SurfaceShader() : VertFragTessShader("shaders/curve.vert", "shaders/uniformcolor.frag", "shaders/surface.tesc", "shaders/c2surface.tese") {}
 };
