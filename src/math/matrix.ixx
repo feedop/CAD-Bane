@@ -7,7 +7,7 @@ import <glm/gtx/matrix_operation.hpp>;
 export namespace math
 {
 	inline constexpr double eps = 1e-6;
-	inline const float pi = glm::pi<float>();
+	inline constexpr float pi = glm::pi<float>();
 
 	glm::mat4 rotate(float angle, const glm::vec3& vector)
 	{
@@ -72,4 +72,18 @@ export namespace math
 		result[3][2] = -(2.0f * zFar * zNear) / (zFar - zNear);
 		return result;
 	}
+
+	glm::mat4 frustum(float left, float right, float bottom, float top, float near, float far)
+	{
+		glm::mat4 result{ 0.0f };
+		result[0][0] = (2.0f * near) / (right - left);
+		result[1][1] = (2.0f * near) / (top - bottom);
+		result[2][0] = (right + left) / (right - left);
+		result[2][1] = (top + bottom) / (top - bottom);
+		result[2][2] = -(far + near) / (far - near);
+		result[2][3] = -1.0f;
+		result[3][2] = -(2.0f * far * near) / (far - near);
+		return result;
+	}
+	
 }

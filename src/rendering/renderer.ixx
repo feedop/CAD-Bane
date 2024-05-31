@@ -9,6 +9,7 @@ import <glm/vec4.hpp>;
 import <glm/gtc/matrix_transform.hpp>;
 
 import camera;
+import colors;
 import solidobject;
 import scene;
 import pointrenderer;
@@ -27,7 +28,7 @@ export class Renderer
 public:
 	friend class GuiController;
 
-	Renderer(int windowWidth, int windowHeight, const Camera& camera, PointRenderer& pointRenderer,
+	Renderer(int windowWidth, int windowHeight, Camera& camera, PointRenderer& pointRenderer,
 			Scene& scene, Raycaster& raycaster) :
 		windowWidth(windowWidth), windowHeight(windowHeight),
 		camera(camera), pointRenderer(pointRenderer), scene(scene), raycaster(raycaster)
@@ -57,104 +58,24 @@ public:
 		glClearColor(0.15f, 0.0f, 0.17f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		glEnable(GL_DEPTH_TEST);
-
-		// Surfaces
-		
-		for (auto&& [shader, surfaces] : scene.getSurfaceTypes())
+		if (stereo)
 		{
-			shader->use();
-			shader->setMatrix("view", camera.getView());
-			shader->setMatrix("projection", camera.getProjection());
-			for (auto&& surface : surfaces)
-			{
-				surface->draw(shader);
-			}
+			camera.setForLeftEye();
+			glColorMask(true, false, false, false);
+			drawScene(camera.getRedProjection());
+			glClear(GL_DEPTH_BUFFER_BIT);
+
+			camera.setForRightEye();
+			glColorMask(false, true, true, false);
+			drawScene(camera.getBlueProjection());
+			glColorMask(true, true, true, true);
+			camera.setForCenter();
+		}
+		else
+		{
+			drawScene(camera.getProjection());
 		}
 
-		// Curves
-		static constexpr float baseSegmentCount = 128.0f;
-		// Interpolating curves
-
-		interpolatingSplineShader->use();
-		interpolatingSplineShader->setMatrix("view", camera.getView());
-		interpolatingSplineShader->setMatrix("projection", camera.getProjection());
-
-		for (auto&& curve : scene.getInterpolatingCurves())
-		{
-			auto segmentCount = std::min(64.0f, baseSegmentCount / glm::length(camera.getPosition() - curve->getCenter()));
-			interpolatingSplineShader->setFloat("segmentCount", segmentCount);
-			curve->draw(interpolatingSplineShader.get());
-		}
-
-		// Approximating curves		
-		auto approximatingCurves = scene.getApproximatingCurves();
-
-		bezierCubicShader->use();
-		bezierCubicShader->setMatrix("view", camera.getView());
-		bezierCubicShader->setMatrix("projection", camera.getProjection());
-		for (auto&& curve : approximatingCurves)
-		{
-			auto segmentCount = std::min(64.0f, baseSegmentCount / glm::length(camera.getPosition() - curve->getCenter()));
-			bezierCubicShader->setFloat("segmentCount", segmentCount);
-			curve->draw(bezierCubicShader.get());
-		}
-
-		bezierQuadraticShader->use();
-		bezierQuadraticShader->setMatrix("view", camera.getView());
-		bezierQuadraticShader->setMatrix("projection", camera.getProjection());
-		
-		for (auto&& curve : approximatingCurves)
-		{
-			auto segmentCount = std::min(64.0f, baseSegmentCount / glm::length(camera.getPosition() - curve->getCenter()));
-			bezierQuadraticShader->setFloat("segmentCount", segmentCount);
-			curve->drawQuadratic(bezierQuadraticShader.get());
-		}
-
-		uniformColorShader->use();
-		uniformColorShader->setMatrix("model", glm::mat4{1.0f});
-		uniformColorShader->setMatrix("view", camera.getView());
-		uniformColorShader->setMatrix("projection", camera.getProjection());
-
-		for (auto&& curve : approximatingCurves)
-		{
-			curve->drawLines(uniformColorShader.get());
-		}
-
-		// Tori
-
-		for (auto&& torus: scene.getTori())
-		{
-			torus->draw(uniformColorShader.get());
-		}
-
-		// Curve and surface polygons if enabled
-		if (drawPolygons)
-		{
-			for (auto&& curve : scene.getCurves())
-			{
-				curve->drawPolygon(uniformColorShader.get());
-			}
-
-			for (auto&& surface : scene.getSurfaces())
-			{
-				surface->drawPolygon(uniformColorShader.get());
-			}
-		}
-
-		// Points
-		pointShader->use();
-		pointShader->setMatrix("view", camera.getView());
-		pointShader->setMatrix("projection", camera.getProjection());
-		pointShader->setVector("cameraPosition", camera.getPosition());
-		pointRenderer.draw(pointShader.get());
-
-		// Additional points from curves
-		for (auto&& curve : scene.getCurves())
-		{
-			curve->drawAdditionalPoints(pointShader.get());
-		}
-		
 		// Grid
 		if (drawGrid)
 		{
@@ -197,7 +118,7 @@ public:
 	}
 
 private:
-	const Camera& camera;
+	Camera& camera;
 	Scene& scene;
 	Raycaster& raycaster;
 	PointRenderer& pointRenderer;
@@ -219,6 +140,108 @@ private:
 
 	bool drawGrid = true;
 	bool drawPolygons = false;
+
+	bool stereo = false;
+
+	void drawScene(const glm::mat4& projection) const
+	{
+		glEnable(GL_DEPTH_TEST);
+
+		// Surfaces	
+		for (auto&& [shader, surfaces] : scene.getSurfaceTypes())
+		{
+			shader->use();
+			shader->setMatrix("view", camera.getView());
+			shader->setMatrix("projection", projection);
+			for (auto&& surface : surfaces)
+			{
+				surface->draw(shader);
+			}
+		}
+
+		// Curves
+		static constexpr float baseSegmentCount = 128.0f;
+		// Interpolating curves
+
+		interpolatingSplineShader->use();
+		interpolatingSplineShader->setMatrix("view", camera.getView());
+		interpolatingSplineShader->setMatrix("projection", projection);
+
+		for (auto&& curve : scene.getInterpolatingCurves())
+		{
+			auto segmentCount = std::min(64.0f, baseSegmentCount / glm::length(camera.getPosition() - curve->getCenter()));
+			interpolatingSplineShader->setFloat("segmentCount", segmentCount);
+			curve->draw(interpolatingSplineShader.get());
+		}
+
+		// Approximating curves		
+		auto approximatingCurves = scene.getApproximatingCurves();
+
+		bezierCubicShader->use();
+		bezierCubicShader->setMatrix("view", camera.getView());
+		bezierCubicShader->setMatrix("projection", projection);
+		for (auto&& curve : approximatingCurves)
+		{
+			auto segmentCount = std::min(64.0f, baseSegmentCount / glm::length(camera.getPosition() - curve->getCenter()));
+			bezierCubicShader->setFloat("segmentCount", segmentCount);
+			curve->draw(bezierCubicShader.get());
+		}
+
+		bezierQuadraticShader->use();
+		bezierQuadraticShader->setMatrix("view", camera.getView());
+		bezierQuadraticShader->setMatrix("projection", projection);
+
+		for (auto&& curve : approximatingCurves)
+		{
+			auto segmentCount = std::min(64.0f, baseSegmentCount / glm::length(camera.getPosition() - curve->getCenter()));
+			bezierQuadraticShader->setFloat("segmentCount", segmentCount);
+			curve->drawQuadratic(bezierQuadraticShader.get());
+		}
+
+		uniformColorShader->use();
+		uniformColorShader->setMatrix("model", glm::mat4{ 1.0f });
+		uniformColorShader->setMatrix("view", camera.getView());
+		uniformColorShader->setMatrix("projection", projection);
+
+		for (auto&& curve : approximatingCurves)
+		{
+			curve->drawLines(uniformColorShader.get());
+		}
+
+		// Tori
+
+		for (auto&& torus : scene.getTori())
+		{
+			torus->draw(uniformColorShader.get());
+		}
+
+		// Curve and surface polygons if enabled
+		if (drawPolygons)
+		{
+			for (auto&& curve : scene.getCurves())
+			{
+				curve->drawPolygon(uniformColorShader.get());
+			}
+
+			for (auto&& surface : scene.getSurfaces())
+			{
+				surface->drawPolygon(uniformColorShader.get());
+			}
+		}
+
+		// Points
+		pointShader->use();
+		pointShader->setMatrix("view", camera.getView());
+		pointShader->setMatrix("projection", projection);
+		pointShader->setVector("cameraPosition", camera.getPosition());
+		pointRenderer.draw(pointShader.get());
+
+		// Additional points from curves
+		for (auto&& curve : scene.getCurves())
+		{
+			curve->drawAdditionalPoints(pointShader.get());
+		}
+	}
 
 	// Fill depth buffer with only torus and point data without actually rendering
 	void fillDepthBuffer()

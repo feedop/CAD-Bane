@@ -216,7 +216,10 @@
     <ClCompile Include="src\ui\components\menubar.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\utils\vec3conversion.ixx">
+    <ClCompile Include="src\ui\components\stereocomp.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utils\mg1utils.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

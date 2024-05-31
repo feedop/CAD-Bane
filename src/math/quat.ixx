@@ -1,11 +1,13 @@
 export module math:quat;
 
+import <algorithm>;
+
+import <glm/vec2.hpp>;
 import <glm/vec3.hpp>;
 import <glm/vec4.hpp>;
 import <glm/mat3x3.hpp>;
 import <glm/mat4x4.hpp>;
 import <glm/gtx/matrix_operation.hpp>;
-import <glm/gtc/quaternion.hpp>;
 
 export namespace math
 {
@@ -33,10 +35,10 @@ export namespace math
 			glm::vec3 c = glm::cos(rpy * 0.5f);
 			glm::vec3 s = glm::sin(rpy * 0.5f);
 
-			w = c.x * c.y * c.z + s.x * s.y * s.z;
-			x = s.x * c.y * c.z - c.x * s.y * s.z;
-			y = c.x * s.y * c.z + s.x * c.y * s.z;
-			z = c.x * c.y * s.z - s.x * s.y * c.z;
+			this->w = c.x * c.y * c.z + s.x * s.y * s.z;
+			this->x = s.x * c.y * c.z - c.x * s.y * s.z;
+			this->y = c.x * s.y * c.z + s.x * c.y * s.z;
+			this->z = c.x * c.y * s.z - s.x * s.y * c.z;
 		}
 
 		Quat operator*(const Quat& other) const
@@ -90,7 +92,7 @@ export namespace math
 		Quat normalized() const
 		{
 			float len = length();
-			if (len <= 0.0f)
+			if (len <= 0.0f) [[unlikely]]
 				return Quat(1.0f, 0.0f, 0.0f, 0.0f);
 			float oneOverLen = 1.0f / len;
 			return Quat(w * oneOverLen, x * oneOverLen, y * oneOverLen, z * oneOverLen);
@@ -98,20 +100,7 @@ export namespace math
 
 		glm::vec3 rpy() const
 		{
-				auto t0 = 2.0f * (w * x + y * z);
-				auto t1 = 1.0f - 2.0f * (x * x + y * y);
-				auto roll = atan2(t0, t1);
-
-				auto t2 = 2.0f * (w * y - z * x);
-				t2 = t2 > 1.0f ? 1.0f : t2;
-				t2 = t2 < -1.0f ? -1.0f : t2;
-				auto pitch = asin(t2);
-
-				auto t3 = 2.0f * (w * z + x * y);
-				auto t4 = 1.0f - 2.0f * (y * y + z * z);
-				auto yaw = atan2(t3, t4);
-
-			return { roll, pitch, yaw };
+			return glm::vec3{ pitch(), yaw(), roll() };
 		}
 
 		static Quat angleAxis(float angle, const glm::vec3& axis)
@@ -122,5 +111,32 @@ export namespace math
 			return Quat(glm::cos(a * 0.5f), axis * s);
 		}
 
+	private:
+		float roll() const
+		{
+			float yy = 2.0f * (x * y + w * z);
+			float xx = w * w + x * x - y * y - z * z;
+
+			if (glm::length(glm::vec2{ xx, yy }) < 1e-6) [[unlikely]] //avoid atan2(0,0) - handle singularity
+				return 0.0f;
+
+			return atan2(yy, xx);
+		}
+
+		float pitch() const
+		{
+			float yy = 2.0f * (y * z + w * x);
+			float xx = w * w - x * x - y * y + z * z;
+
+			if (glm::length(glm::vec2{ xx, yy }) < 1e-6) [[unlikely]] //avoid atan2(0,0) - handle singularity
+				return 0.0f;
+
+			return atan2(yy, xx);
+		}
+
+		float yaw() const
+		{
+			return asin(std::clamp(-2.0f * (x * z - w * y), -1.0f, 1.0f));
+		}
 	};
 }

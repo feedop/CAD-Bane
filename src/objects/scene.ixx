@@ -29,7 +29,7 @@ import surface;
 import point;
 import pointrenderer;
 import torus;
-import vec3conversion;
+import mg1utils;
 
 
 export class Scene
@@ -462,7 +462,6 @@ public:
 	void deserialize(MG1::Scene& mgscene)
 	{
 		clear();
-		auto pointOffset = mgscene.points[0].GetId();
 
 		for (auto&& point : mgscene.points)
 		{
@@ -479,7 +478,7 @@ public:
 			std::vector<Point*> newPoints;
 			for (auto&& point : controlPoints)
 			{
-				newPoints.push_back(points[point.GetId() - pointOffset].get());
+				newPoints.push_back(findPoint(points, point.GetId()));
 			}
 
 			return newPoints;
@@ -505,13 +504,13 @@ public:
 
 		for (auto&& surface : mgscene.surfacesC0)
 		{
-			surfaces.emplace_back(new C0Surface(surface, points, pointOffset));
+			surfaces.emplace_back(new C0Surface(surface, points));
 		}
 		for (auto& surface : mgscene.surfacesC2)
 		{
 			if (surface.uWrapped)
 				transposeSurface(surface);
-			surfaces.emplace_back(new C2Surface(surface, points, pointOffset));
+			surfaces.emplace_back(new C2Surface(surface, points));
 		}
 
 		updateSurfaceTypes();

@@ -216,6 +216,7 @@
     <ClCompile Include="src\ui\components\ellipsoidcomp.ixx" />
     <ClCompile Include="src\ui\components\menubar.ixx" />
     <ClCompile Include="src\ui\components\objectlistcomp.ixx" />
+    <ClCompile Include="src\ui\components\stereocomp.ixx" />
     <ClCompile Include="src\ui\components\surfaceconfigcomp.ixx" />
     <ClCompile Include="src\ui\components\torusconfigcomp.ixx" />
     <ClCompile Include="src\ui\guicontroller.ixx" />
@@ -236,9 +237,9 @@
     <ClCompile Include="src\utils\colors.ixx" />
     <ClCompile Include="src\utils\glutils.ixx" />
     <ClCompile Include="src\utils\imguiext.ixx" />
+    <ClCompile Include="src\utils\mg1utils.ixx" />
     <ClCompile Include="src\utils\scopedbindarray.ixx" />
     <ClCompile Include="src\utils\scopedlinewidth.ixx" />
-    <ClCompile Include="src\utils\vec3conversion.ixx" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external\include\glad\glad.h" />

@@ -41,6 +41,7 @@ export void renderDialogWindow(Scene& scene, IoOperation& operation)
 				{
 					MG1::SceneSerializer serializer;
 					auto& mgscene = MG1::Scene::Get();
+					mgscene.Clear();
 					scene.serialize(mgscene);
 					serializer.SaveScene(filePath);
 				}

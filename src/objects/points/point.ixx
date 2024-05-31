@@ -11,7 +11,7 @@ import colors;
 import selectable;
 import solidobject;
 import math;
-import vec3conversion;
+import mg1utils;
 
 export class Updatable;
 
@@ -35,6 +35,8 @@ public:
 	{
 		if (!other.name.empty())
 			setName(other.name);
+
+		id = other.GetId();
 	}
 
 	operator MG1::Point() const
@@ -109,6 +111,11 @@ public:
 		return position - lastPosition;
 	}
 
+	inline unsigned int getId() const
+	{
+		return id;
+	}
+
 protected:
 	std::unordered_set<Updatable*> attachedTo;
 	glm::vec3 lastPosition{ 0.0f, 0.0f, 0.0f };
@@ -118,4 +125,6 @@ protected:
 private:
 	friend class GuiController;
 	inline static unsigned int instanceCount = 0;
+
+	unsigned int id = 0;
 };

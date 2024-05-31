@@ -9,6 +9,7 @@ import <GLFW/glfw3.h>;
 import <glm/vec2.hpp>;
 import <glm/vec3.hpp>;
 
+import camera;
 import ellipsoid;
 import scene;
 import raycaster;
@@ -29,8 +30,8 @@ ImGuiIO& createImguiContext()
 export class GuiController
 {
 public:
-    GuiController(GLFWwindow* window, Scene& scene, Raycaster& raycaster, Renderer& renderer, Ellipsoid& ellipsoid) :
-        io(createImguiContext()), scene(scene), raycaster(raycaster), renderer(renderer), ellipsoid(ellipsoid)
+    GuiController(GLFWwindow* window, Camera& camera, Scene& scene, Raycaster& raycaster, Renderer& renderer, Ellipsoid& ellipsoid) :
+        io(createImguiContext()), camera(camera), scene(scene), raycaster(raycaster), renderer(renderer), ellipsoid(ellipsoid)
     {
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;       // Enable Keyboard Controls
         //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
@@ -88,6 +89,8 @@ public:
 
         ImGui::Checkbox("Render curve polygons", &renderer.drawPolygons);
 
+        renderStereoConfig();
+
         renderTorusConfig();
         renderSurfaceConfig();
 
@@ -100,6 +103,7 @@ public:
     }
 private:
     ImGuiIO& io;
+    Camera& camera;
     Scene& scene;
     Raycaster& raycaster;
     Renderer& renderer;
@@ -127,6 +131,7 @@ private:
     // Components
     void renderMenuBar();
     void renderEllipsoid();
+    void renderStereoConfig();
     void renderObjectList();
     void renderTorusConfig();
     void renderSurfaceConfig();

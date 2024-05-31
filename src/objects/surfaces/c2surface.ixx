@@ -10,6 +10,7 @@ import colors;
 import glutils;
 import math;
 import surface;
+import mg1utils;
 
 export class C2Surface : public Surface
 {
@@ -50,7 +51,7 @@ public:
 	}
 
 
-	C2Surface(const MG1::BezierSurfaceC2& other, const std::vector<std::unique_ptr<Point>>& allPoints, unsigned int pointOffset) :
+	C2Surface(const MG1::BezierSurfaceC2& other, const std::vector<std::unique_ptr<Point>>& allPoints) :
 		Surface(other.name, other.size.x + 3, other.size.y, other.vWrapped)
 	{
 		instanceCount++;
@@ -66,21 +67,19 @@ public:
 		
 		for (int i = 0; i < other.size.y; i++)
 		{
-			for (int j = 0; j < other.size.x; j++)
+			for (int j = 0; j < other.size.x - 1; j++)
 			{
 				// first element only - the rest will be added by next patches
 				auto& patch = other.patches[i * other.size.x + j];
-				auto pointIndex = patch.controlPoints[0].GetId();
-				auto point = allPoints[pointIndex - pointOffset].get();
 				auto index = j * sizeZ + i;
-				points[index] = point;
+				points[index] = findPoint(allPoints, patch.controlPoints[0].GetId());
 			}
 			// last patch - add 4 elements
 			{
 				auto j = other.size.x - 1;
 				auto& patch = other.patches[i * other.size.x + j];
-				for (int k = 1; k < 4; k++)
-					points[(j + k) * sizeZ + i] = allPoints[patch.controlPoints[k].GetId() - pointOffset].get();
+				for (int k = 0; k < 4; k++)
+					points[(j + k) * sizeZ + i] = findPoint(allPoints, patch.controlPoints[k].GetId());
 			}
 		}
 		if (!cylinder) // extra 3 rows
@@ -90,7 +89,7 @@ public:
 			{		
 				auto& patch = other.patches[i * other.size.x + j];
 				for (int kk = 1; kk < 4; kk++)
-					points[j * sizeZ + i + kk] = allPoints[patch.controlPoints[4 * kk].GetId() - pointOffset].get();
+					points[j * sizeZ + i + kk] = findPoint(allPoints, patch.controlPoints[4 * kk].GetId());
 
 			}
 			// last patch - add 4 elements
@@ -101,7 +100,7 @@ public:
 				{
 					for (int kk = 1; kk < 4; kk++)
 					{
-						points[(j + k) * sizeZ + i + kk] = allPoints[patch.controlPoints[4*kk + k].GetId() - pointOffset].get();
+						points[(j + k) * sizeZ + i + kk] = findPoint(allPoints, patch.controlPoints[4*kk + k].GetId());
 					}
 				}			
 			}

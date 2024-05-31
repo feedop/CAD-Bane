@@ -14,7 +14,7 @@ import math;
 import selectable;
 import solidobject;
 import shader;
-import vec3conversion;
+import mg1utils;
 
 export class Torus : public SolidObject, public Selectable, public Clickable
 {
@@ -38,7 +38,8 @@ public:
 	}
 
 	Torus(const MG1::Torus& other) : Torus(toGLM(other.position), other.largeRadius, other.smallRadius, toGLM(other.scale),
-										   math::Quat(math::pi / 180.0f * toGLM(other.rotation)), other.samples.x, other.samples.y)
+										   math::Quat(toGLM(other.rotation)),
+										   other.samples.x, other.samples.y)
 	{
 		if (!other.name.empty())
 			setName(other.name);
@@ -51,7 +52,7 @@ public:
 		t.largeRadius = R;
 		t.smallRadius = r;
 		t.scale = toMG1(scale);
-		t.rotation = toMG1(180.0f / math::pi * rotation.rpy());
+		t.rotation = toMG1(rotation.rpy());
 		t.samples.x = majorPoints;
 		t.samples.y = minorPoints;
 		return t;
@@ -102,8 +103,8 @@ private:
 				float minorCircleAngle = j * 2 * math::pi / majorPoints;
 				
 				float x = totalRadius * std::cos(minorCircleAngle);
-				float y = totalRadius * std::sin(minorCircleAngle);
-				float z = r * majorCircleAngleSin;
+				float z = totalRadius * std::sin(minorCircleAngle);
+				float y = r * majorCircleAngleSin;
 
 				vertices.emplace_back(glm::vec3{ x, y, z });
 

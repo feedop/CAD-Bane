@@ -49,10 +49,10 @@ int main()
     InputHandler inputHandler(window, camera, scene, raycaster, renderer);
 
     // Create a GUI controller
-    GuiController guiController(window, scene, raycaster, renderer, ellipsoid);
+    GuiController guiController(window, camera, scene, raycaster, renderer, ellipsoid);
 
     // Initial objects
-    scene.addSurface<C2Surface>(4, 0.2f);
+    scene.addSurface<C2Surface>(6, 1.0f);
     MG1::Point p;
 
     // MAIN LOOP HERE - dictated by glfw

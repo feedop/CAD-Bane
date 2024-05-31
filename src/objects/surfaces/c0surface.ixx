@@ -9,6 +9,7 @@ import <Serializer/Serializer.h>;
 import math;
 import patch;
 import surface;
+import mg1utils;
 
 export class C0Surface : public Surface
 {
@@ -211,7 +212,7 @@ public:
 		attachPoints();
 	}
 
-	C0Surface(const MG1::BezierSurfaceC0& other, const std::vector<std::unique_ptr<Point>>& allPoints, unsigned int pointOffset) : Surface(other.name, other.size.x, other.size.y, other.vWrapped)
+	C0Surface(const MG1::BezierSurfaceC0& other, const std::vector<std::unique_ptr<Point>>& allPoints) : Surface(other.name, other.size.x, other.size.y, other.vWrapped)
 	{
 		instanceCount++;
 		if (!other.name.empty())
@@ -228,8 +229,7 @@ public:
 			{
 				for (int j = 0; j < 4; j++)
 				{
-					//auto index = patch.controlPoints[i * 4 + j].GetId() - 1;
-					auto point = allPoints[patch.controlPoints[i * 4 + j].GetId() - pointOffset].get();
+					auto point = findPoint(allPoints, patch.controlPoints[i * 4 + j].GetId());
 					tempPoints.push_back(point);
 					points.push_back(point);
 				}
