@@ -13,7 +13,7 @@ import solidobject;
 import math;
 import mg1utils;
 
-export class Updatable;
+export class Shape;
 
 export class Point : public SolidObject, public Selectable, public Clickable
 {
@@ -91,14 +91,14 @@ public:
 		update();
 	}
 
-	inline void attach(Updatable* updatable)
+	inline void attach(Shape* shape)
 	{
-		attachedTo.insert(updatable);
+		attachedTo.insert(shape);
 	}
 
-	inline void detach(Updatable* updatable)
+	inline void detach(Shape* shape)
 	{
-		attachedTo.erase(updatable);
+		attachedTo.erase(shape);
 	}
 
 	inline bool isAttached() const
@@ -106,7 +106,12 @@ public:
 		return attachedTo.size() > 0;
 	}
 
-	inline const glm::vec3& getLastTranslation() const
+	inline const auto& getAttachmentList() const
+	{
+		return attachedTo;
+	}
+
+	inline glm::vec3 getLastTranslation() const
 	{
 		return position - lastPosition;
 	}
@@ -117,7 +122,7 @@ public:
 	}
 
 protected:
-	std::unordered_set<Updatable*> attachedTo;
+	std::unordered_set<Shape*> attachedTo;
 	glm::vec3 lastPosition{ 0.0f, 0.0f, 0.0f };
 
 	virtual void update() override;

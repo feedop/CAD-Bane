@@ -182,6 +182,8 @@
     <ClCompile Include="external\include\imgui\imgui\imgui_widgets.cpp" />
     <ClCompile Include="src\application.ixx" />
     <ClCompile Include="src\config.ixx" />
+    <ClCompile Include="src\math\bezier.ixx" />
+    <ClCompile Include="src\math\holefinder.ixx" />
     <ClCompile Include="src\math\quat.ixx" />
     <ClCompile Include="src\objects\curves\c0bezier.ixx" />
     <ClCompile Include="src\objects\curves\c2bezier.ixx" />
@@ -206,6 +208,8 @@
     <ClCompile Include="src\objects\points\virtualpoint.ixx" />
     <ClCompile Include="src\objects\surfaces\c0surface.ixx" />
     <ClCompile Include="src\objects\surfaces\c2surface.ixx" />
+    <ClCompile Include="src\objects\surfaces\gregorystructs.ixx" />
+    <ClCompile Include="src\objects\surfaces\gregorysurface.ixx" />
     <ClCompile Include="src\objects\surfaces\patch.ixx" />
     <ClCompile Include="src\objects\surfaces\surface.ixx" />
     <ClCompile Include="src\raycasting\raycastingop.ixx" />
@@ -698,6 +702,8 @@
     <None Include="shaders\flattexture.vert" />
     <None Include="shaders\checkergrid.frag" />
     <None Include="shaders\checkergrid.vert" />
+    <None Include="shaders\gregory.tesc" />
+    <None Include="shaders\gregory.tese" />
     <None Include="shaders\infinitegrid.frag" />
     <None Include="shaders\infinitegrid.vert" />
     <None Include="shaders\interpolating.tesc" />

@@ -16,8 +16,6 @@ import pointrenderer;
 import raycaster;
 import renderer;
 
-import c2surface;
-
 #ifdef _WIN32
 // Select an NVIDIA GPU if possible
 extern "C"
@@ -52,8 +50,7 @@ int main()
     GuiController guiController(window, camera, scene, raycaster, renderer, ellipsoid);
 
     // Initial objects
-    scene.addSurface<C2Surface>(6, 1.0f);
-    MG1::Point p;
+    scene.init();
 
     // MAIN LOOP HERE - dictated by glfw
     double lastTime = glfwGetTime();

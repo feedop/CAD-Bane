@@ -19,13 +19,6 @@ import shape;
 export class Curve : public PointOwner, public Shape
 {
 public:
-	virtual ~Curve()
-	{
-		for (auto&& point : points)
-		{
-			point->detach(this);
-		}
-	}
 
 	virtual void draw(const Shader* shader) const override
 	{
@@ -107,14 +100,13 @@ protected:
 
 	inline static const glm::vec4 polygonColor = colors::orange;
 
-	std::vector<Point*> points;
 	std::vector<glm::vec3> positions;
 	std::vector<glm::vec3> positionsQuadratic;
 	std::vector<glm::vec3> positionsLine;
 
-	Curve(const std::string& curveName, const std::vector<Point*>& points) : Shape(curveName), points(points)
+	Curve(const std::string& curveName, const std::vector<Point*>& points) : Shape(curveName, points)
 	{
-		attachPointsToCurve();
+		attachPoints();
 		glGenVertexArrays(1, &VAO);
 		glGenBuffers(1, &VBO);
 	}
@@ -141,16 +133,6 @@ protected:
 		else
 		{
 			glBufferData(GL_ARRAY_BUFFER, 0, nullptr, GL_DYNAMIC_DRAW);
-		}
-	}
-
-private:
-
-	void attachPointsToCurve()
-	{
-		for (auto&& point : points)
-		{
-			point->attach(this);
 		}
 	}
 };

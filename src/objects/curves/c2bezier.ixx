@@ -153,7 +153,7 @@ private:
 
 		if (deBoorPointCount >= 4)
 		{
-			int m = deBoorPointCount - 3;
+			auto m = deBoorPointCount - 3;
 			std::vector<glm::vec3> f;
 			std::vector<glm::vec3> g;
 			std::vector<glm::vec3> e;
@@ -208,8 +208,8 @@ private:
 
 	void bezierToBSpline()
 	{
-		auto& invokerTranslation = updateInvoker->getLastTranslation();
-		auto& invokerPosition = updateInvoker->getPosition();
+		auto&& invokerTranslation = updateInvoker->getLastTranslation();
+		auto&& invokerPosition = updateInvoker->getPosition();
 		auto it = std::find_if(virtualPoints.begin(), virtualPoints.end(), [&](const auto& vp) { return vp.get() == updateInvoker; });
 		int index = it - virtualPoints.begin();
 		int indexInBezier = index % 3;

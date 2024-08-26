@@ -255,3 +255,10 @@ export class C2SurfaceShader : public VertFragTessShader
 public:
     C2SurfaceShader() : VertFragTessShader("shaders/curve.vert", "shaders/uniformcolor.frag", "shaders/surface.tesc", "shaders/c2surface.tese") {}
 };
+
+
+export class GregoryShader : public VertFragTessShader
+{
+public:
+    GregoryShader() : VertFragTessShader("shaders/curve.vert", "shaders/uniformcolor.frag", "shaders/gregory.tesc", "shaders/gregory.tese") {}
+};

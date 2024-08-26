@@ -53,7 +53,7 @@ public:
 		return projection;
 	}
 
-	inline const glm::vec3& getZoomScale() const
+	inline glm::vec3 getZoomScale() const
 	{
 		return { 1 / zoomScale, 1 / zoomScale, 1 / zoomScale };
 	}

@@ -6,10 +6,13 @@ import <span>;
 import <glm/vec3.hpp>;
 import <Serializer/Serializer.h>;
 
+import gregorystructs;
 import math;
 import patch;
 import surface;
 import mg1utils;
+
+using namespace Gregory;
 
 export class C0Surface : public Surface
 {
@@ -93,7 +96,7 @@ public:
 		attachPoints();
 	}
 
-	C0Surface(const glm::vec3& position, int sizeX, float radius) : Surface(getSurfaceName(), sizeX, std::max(3, static_cast<int>(2 * math::pi * radius / patchSizeZ)), true)
+	C0Surface(const glm::vec3& position, int sizeX, float radius) : Surface(getSurfaceName(), sizeX, std::max(3, 3/*static_cast<int>(2 * math::pi * radius / patchSizeZ)*/), true)
 	{
 		int pointCountZ = 4 + 3 * (sizeZ - 2) + 2;
 		float minAngleDist = 2 * math::pi / pointCountZ;
@@ -287,12 +290,15 @@ public:
 		surface.size.x = sizeX;
 		surface.size.y = sizeZ;
 
-		surface.uWrapped = surface.vWrapped = cylinder;
+		surface.uWrapped = false;
+		surface.vWrapped = cylinder;
 
 		for (auto&& patch : patches)
 		{
 			patch->addToMGSurface(surface, allPoints);
 		}
+		if (cylinder)
+			transposeSurface(surface);
 		mgscene.surfacesC0.push_back(surface);
 	}
 
@@ -304,6 +310,125 @@ public:
 	inline static void setPreferredShader(Shader* shader)
 	{
 		preferredShader = shader;
+	}
+
+	virtual void collapsePoints(const Point* oldPoint1, const Point* oldPoint2, Point* newPoint) override
+	{
+		Shape::collapsePoints(oldPoint1, oldPoint2, newPoint);
+		for (auto&& patch : patches)
+		{
+			patch->replacePoint(oldPoint1, newPoint);
+		}
+	}
+
+	Border getBorder() const
+	{
+		if (sizeX == 0 || sizeZ == 0)
+			return {};
+
+		if (cylinder)
+		{
+			return
+			Border{
+				BorderNode{patches[0]->getPoints()[0], patches[0]->getPoints()[4], nullptr},
+				BorderNode{patches[0]->getPoints()[1], patches[0]->getPoints()[5], nullptr},
+				BorderNode{patches[0]->getPoints()[2], patches[0]->getPoints()[6], nullptr},
+				BorderNode{patches[0]->getPoints()[3], patches[0]->getPoints()[7], nullptr},
+				BorderNode{patches[1]->getPoints()[1], patches[1]->getPoints()[5], nullptr},
+				BorderNode{patches[1]->getPoints()[2], patches[1]->getPoints()[6], nullptr},
+				BorderNode{patches[1]->getPoints()[3], patches[1]->getPoints()[7], nullptr},
+				BorderNode{patches[2]->getPoints()[1], patches[2]->getPoints()[5], nullptr},
+				BorderNode{patches[2]->getPoints()[2], patches[2]->getPoints()[6], nullptr},
+
+				BorderNode{patches[sizeX * sizeZ - 3]->getPoints()[12], patches[sizeX * sizeZ - 3]->getPoints()[8], nullptr},
+				BorderNode{patches[sizeX * sizeZ - 3]->getPoints()[13], patches[sizeX * sizeZ - 3]->getPoints()[9], nullptr},
+				BorderNode{patches[sizeX * sizeZ - 3]->getPoints()[14], patches[sizeX * sizeZ - 3]->getPoints()[10], nullptr},
+				BorderNode{patches[sizeX * sizeZ - 3]->getPoints()[15], patches[sizeX * sizeZ - 3]->getPoints()[11], nullptr},
+				BorderNode{patches[sizeX * sizeZ - 2]->getPoints()[13], patches[sizeX * sizeZ - 2]->getPoints()[9], nullptr},
+				BorderNode{patches[sizeX * sizeZ - 2]->getPoints()[14], patches[sizeX * sizeZ - 2]->getPoints()[10], nullptr},
+				BorderNode{patches[sizeX * sizeZ - 2]->getPoints()[15], patches[sizeX * sizeZ - 2]->getPoints()[11], nullptr},
+				BorderNode{patches[sizeX * sizeZ - 1]->getPoints()[13], patches[sizeX * sizeZ - 1]->getPoints()[9], nullptr},
+				BorderNode{patches[sizeX * sizeZ - 1]->getPoints()[14], patches[sizeX * sizeZ - 1]->getPoints()[10], nullptr}
+			};
+		}
+
+		Border border;
+		for (int i = 0; i < sizeZ; i++)
+		{
+			auto& tempPoints = patches[i]->getPoints();
+			for (int j = 0; j < 3; j++)
+			{		
+				if (i == 0 && j == 0) [[unlikely]]
+					border.emplace_back(tempPoints[j], tempPoints[4], tempPoints[1]);
+				else [[likely]] if (i == sizeZ - 1 && j == 3) [[unlikely]]
+					border.emplace_back(tempPoints[j], tempPoints[2], tempPoints[7]);
+				else [[likely]]
+					border.emplace_back(tempPoints[j], tempPoints[j + 4], tempPoints[j + 4]);
+			}
+		}
+		border.emplace_back(patches[sizeZ - 1]->getPoints()[3], patches[sizeZ - 1]->getPoints()[2], patches[sizeZ - 1]->getPoints()[7]);
+
+		if (sizeX == 1)
+		{
+			auto& tempPoints0 = patches[0]->getPoints();
+			border.emplace_back(tempPoints0[7], tempPoints0[6], tempPoints0[6]);
+			border.emplace_back(tempPoints0[11], tempPoints0[10], tempPoints0[10]);
+		}
+		else
+		{
+			auto& tempPoints0 = patches[sizeZ - 1]->getPoints();
+			border.emplace_back(tempPoints0[7], tempPoints0[6], tempPoints0[6]);
+			border.emplace_back(tempPoints0[11], tempPoints0[10], tempPoints0[10]);
+
+			for (int i = 1; i < sizeX; i++)
+			{
+				auto& tempPoints = patches[(i + 1) * sizeZ - 1]->getPoints();
+				for (int j = 0; j < 3; j++)
+				{
+					border.emplace_back(tempPoints[4 * j + 3], tempPoints[4 * j + 2], tempPoints[4 * j + 2]);
+				}
+			}
+		}	
+
+		for (int i = sizeZ - 1; i >= 0; i--)
+		{
+			auto& tempPoints = patches[(sizeX - 1) * sizeZ + i]->getPoints();
+			for (int j = 0; j < 3; j++)
+			{
+				if (i == sizeZ - 1 && j == 0) [[unlikely]]
+					border.emplace_back(tempPoints[15 - j], tempPoints[11], tempPoints[14]);					
+				else [[likely]]
+					border.emplace_back(tempPoints[15 - j], tempPoints[11 - j], tempPoints[11 - j]);
+			}		
+		}
+		border.emplace_back(patches[(sizeX - 1) * sizeZ]->getPoints()[12], patches[(sizeX - 1) * sizeZ]->getPoints()[13], patches[(sizeX - 1) * sizeZ]->getPoints()[8]);
+
+		if (sizeX == 1)
+		{
+			auto& tempPoints2 = patches[0]->getPoints();
+			border.emplace_back(tempPoints2[8], tempPoints2[9], tempPoints2[9]);
+			border.emplace_back(tempPoints2[4], tempPoints2[5], tempPoints2[5]);
+		}
+		else
+		{
+			auto& tempPoints2 = patches[(sizeX - 1) * sizeZ]->getPoints();
+			border.emplace_back(tempPoints2[8], tempPoints2[9], tempPoints2[9]);
+			border.emplace_back(tempPoints2[4], tempPoints2[5], tempPoints2[5]);
+
+			for (int i = sizeX - 2; i >= 1; i--)
+			{
+				auto& tempPoints = patches[i * sizeZ]->getPoints();
+				for (int j = 0; j < 3; j++)
+				{
+					border.emplace_back(tempPoints[12 - 4 * j], tempPoints[13 - 4 * j], tempPoints[13 - 4 * j]);
+				}
+			}
+			auto& tempPoints3 = patches[0]->getPoints();
+			border.emplace_back(tempPoints3[12], tempPoints3[13], tempPoints3[13]);
+			border.emplace_back(tempPoints3[8], tempPoints3[9], tempPoints3[9]);
+		}		
+
+		return border;
 	}
 
 private:

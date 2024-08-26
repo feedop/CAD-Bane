@@ -100,7 +100,7 @@ public:
 		}	
 	}
 
-	void addToMGSurface(MG1::BezierSurfaceC0& surface, const std::vector<std::unique_ptr<Point>>& allPoints)
+	void addToMGSurface(MG1::BezierSurfaceC0& surface, const std::vector<std::unique_ptr<Point>>& allPoints) const
 	{
 		auto find = [&](const Point* point)
 		{
@@ -122,6 +122,18 @@ public:
 			bp.controlPoints.emplace_back(find(point) + 1);
 		}
 		surface.patches.push_back(bp);
+	}
+
+	void replacePoint(const Point* oldPoint, Point* newPoint)
+	{
+		auto it = std::find(points.begin(), points.end(), oldPoint);
+		if (it != points.end())
+			*it = newPoint;
+	}
+
+	inline const auto& getPoints() const
+	{
+		return points;
 	}
 
 private:

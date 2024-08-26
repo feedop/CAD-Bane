@@ -222,6 +222,18 @@
     <ClCompile Include="src\utils\mg1utils.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\math\holefinder.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\objects\surfaces\gregorysurface.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\objects\surfaces\gregorystructs.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\math\bezier.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external\include\KHR\khrplatform.h">
@@ -1581,6 +1593,8 @@
     <None Include="shaders\surface.tesc" />
     <None Include="shaders\c0surface.tese" />
     <None Include="shaders\c2surface.tese" />
+    <None Include="shaders\gregory.tesc" />
+    <None Include="shaders\gregory.tese" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="external\lib\glfw3.lib" />

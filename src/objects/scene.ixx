@@ -14,11 +14,13 @@ import c0bezier;
 import c2bezier;
 import c0surface;
 import c2surface;
+import gregorysurface;
 import camera;
 import cube;
 import cursor;
 import curve;
 import grid;
+import holefinder;
 import interpolatingspline;
 import math;
 import middlepoint;
@@ -35,6 +37,11 @@ import mg1utils;
 export class Scene
 {
 public:
+	void init()
+	{
+		addSurface<C0Surface>(1, 0.5f);
+	}
+
 	Scene(const Camera& camera, PointRenderer& pointRenderer) : camera(camera), pointRenderer(pointRenderer)
 	{
 		// Cursor
@@ -66,6 +73,11 @@ public:
 	inline const std::vector<Surface*>& getSelectedSurfaces() const
 	{
 		return selectedSurfaces;
+	}
+
+	inline const std::vector<Point*>& getSelectedPoints() const
+	{
+		return selectedPoints;
 	}
 
 	inline const std::vector<std::unique_ptr<Point>>& getPoints() const
@@ -304,6 +316,26 @@ public:
 		updateSurfaceTypes();
 	}
 
+	void addGregoryPatch(bool backGregory = false)
+	{
+		auto&& holes = math::findHole(selectedSurfaces);
+		if (selectedSurfaces.size() == 1 && selectedSurfaces[0]->isCylinder() && holes.size() == 2)
+		{
+			if (!backGregory)
+				surfaces.emplace_back(new GregorySurface(holes[0]));
+			else
+				surfaces.emplace_back(new GregorySurface(holes[1]));
+			updateSurfaceTypes();
+			return;
+		}
+
+		for (auto&& hole : holes)
+		{
+			surfaces.emplace_back(new GregorySurface(hole));
+		}
+		updateSurfaceTypes();
+	}
+
 	void selectCurve(Curve* curve)
 	{
 		selectedCurves.push_back(curve);
@@ -338,6 +370,44 @@ public:
 		{
 			curve->removePoints();
 		}
+	}
+
+	void collapsePoints()
+	{
+		if (selectedPoints.size() != 2)
+			return;
+
+		auto ptr1 = selectedPoints[0];
+		auto ptr2 = selectedPoints[1];
+
+		//for (auto&& attachedTo1 : ptr1->getAttachmentList())
+		//{
+		//	if (ptr1->getAttachmentList().contains(attachedTo1))
+		//	{
+		//		// TODO - handle this case
+		//		return;
+		//	}
+		//}
+
+		points.emplace_back(new Point(0.5f * (ptr1->getPosition() + ptr2->getPosition())));
+
+		for (auto&& attachment : ptr1->getAttachmentList())
+		{
+			attachment->collapsePoints(ptr1, ptr2, points[points.size() - 1].get());
+			attachment->scheduleToUpdate();
+		}
+
+		for (auto&& attachment : ptr2->getAttachmentList())
+		{
+			attachment->collapsePoints(ptr2, ptr1, points[points.size() - 1].get());
+			attachment->scheduleToUpdate();
+		}
+
+		std::erase_if(points, [](auto&& point) { return point->isSelected; });
+		selectedPoints.clear();
+
+		MiddlePoint::getInstance().calculateMiddlePoint(selectedTori, selectedPoints);
+		pointRenderer.update(points);
 	}
 
 	void selectObjectFromScreen(const glm::vec3& objcoord, bool selectMultiple)
@@ -504,6 +574,7 @@ public:
 
 		for (auto&& surface : mgscene.surfacesC0)
 		{
+			transposeC0(surface);
 			surfaces.emplace_back(new C0Surface(surface, points));
 		}
 		for (auto& surface : mgscene.surfacesC2)

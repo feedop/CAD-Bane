@@ -65,9 +65,9 @@ public:
 
 		points.resize(sizeX * sizeZ);
 		
-		for (int i = 0; i < other.size.y; i++)
+		for (auto i = 0; i < other.size.y; i++)
 		{
-			for (int j = 0; j < other.size.x - 1; j++)
+			for (auto j = 0; j < other.size.x - 1; j++)
 			{
 				// first element only - the rest will be added by next patches
 				auto& patch = other.patches[i * other.size.x + j];
@@ -85,7 +85,7 @@ public:
 		if (!cylinder) // extra 3 rows
 		{
 			auto i = other.size.y - 1;
-			for (int j = 0; j < other.size.x; j++)
+			for (auto j = 0; j < other.size.x; j++)
 			{		
 				auto& patch = other.patches[i * other.size.x + j];
 				for (int kk = 1; kk < 4; kk++)
@@ -286,6 +286,8 @@ public:
 				surface.patches.push_back(bp);
 			}
 		}
+		if (cylinder)
+			transposeSurface(surface);
 		mgscene.surfacesC2.push_back(surface);
 	}
 

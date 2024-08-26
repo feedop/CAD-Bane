@@ -1,12 +1,12 @@
 export module chainedupdate;
 
 import point;
-import updatable;
+import shape;
 
 export void Point::update()
 {
-	for (auto&& updatable : attachedTo)
+	for (auto&& shape : attachedTo)
 	{
-		updatable->scheduleToUpdate();
+		shape->scheduleToUpdate();
 	}
 }

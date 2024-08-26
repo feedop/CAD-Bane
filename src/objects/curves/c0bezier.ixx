@@ -147,7 +147,7 @@ private:
 				}
 				positions.push_back(points[degree + 1 + degree * i + degree - 1]->getPosition());
 			}
-			int rest = inputSize - pointsProcessed;
+			auto rest = inputSize - pointsProcessed;
 			switch (rest)
 			{
 			case 1:

@@ -26,6 +26,10 @@ public:
 
 	virtual void draw(const Shader* shader) const = 0;
 
+	Drawable() = default;
+	Drawable(const Drawable& other) = delete;
+	Drawable& operator=(const Drawable& other) = delete;
+
 protected:
 	unsigned int VAO = 0, VBO = 0, EBO = 0;
 };

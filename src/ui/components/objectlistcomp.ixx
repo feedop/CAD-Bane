@@ -104,17 +104,16 @@ export void GuiController::renderObjectList()
 
                 renderRenamePopup(torus);
             }
-
-            if (ImGui::Button("New##newtorus"))
-            {
-                scene.addTorus();
-            }
-
             ImGui::EndListBox();
+        }
+        if (ImGui::Button("New##newtorus"))
+        {
+            scene.addTorus();
         }
 
         // Points
         const auto& points = scene.getPoints();
+        const auto& selectedPoints = scene.getSelectedPoints();
 
         ImGui::Text("Points");
         if (ImGui::BeginListBox("##Points"))
@@ -131,13 +130,19 @@ export void GuiController::renderObjectList()
 
                 renderRenamePopup(point);
             }
-
-            if (ImGui::Button("New##newpoint"))
-            {
-                scene.addPoint();
-            }
-
             ImGui::EndListBox();
+        }
+        if (ImGui::Button("New##newpoint"))
+        {
+            scene.addPoint();
+        }
+        if (selectedPoints.size() == 2)
+        {
+            ImGui::SameLine();
+            if (ImGui::Button("Collapse##collapsepoints"))
+            {
+                scene.collapsePoints();
+            }
         }
 
         // Curves
@@ -158,21 +163,19 @@ export void GuiController::renderObjectList()
 
                 renderRenamePopup(curve);
             }
-
-            if (ImGui::Button("New C0 Bezier curve ##newc0bezier"))
-            {
-                scene.addCurve<C0Bezier>();
-            }
-            if (ImGui::Button("New C2 Bezier curve ##newc2bezier"))
-            {
-                scene.addCurve<C2Bezier>();
-            }
-            if (ImGui::Button("New C2 interpolating spline ##newinterpolatingspline"))
-            {
-                scene.addCurve<InterpolatingSpline>();
-            }
-
             ImGui::EndListBox();
+        }
+        if (ImGui::Button("New C0 Bezier curve ##newc0bezier"))
+        {
+            scene.addCurve<C0Bezier>();
+        }
+        if (ImGui::Button("New C2 Bezier curve ##newc2bezier"))
+        {
+            scene.addCurve<C2Bezier>();
+        }
+        if (ImGui::Button("New C2 interpolating spline ##newinterpolatingspline"))
+        {
+            scene.addCurve<InterpolatingSpline>();
         }
 
         // Surfaces
@@ -193,21 +196,26 @@ export void GuiController::renderObjectList()
 
                 renderRenamePopup(surface);
             }
-
-            if (ImGui::Button("New C0 Surface ##newc0surface"))
-            {
-                ImGui::OpenPopup("Add C0 Surface");   
-            }
-            if (ImGui::Button("New C2 Surface ##newc2surface"))
-            {
-                ImGui::OpenPopup("Add C2 Surface");
-            }
-
-            renderAddSurfacePopup<C0Surface>(scene, "Add C0 Surface", 1);
-            renderAddSurfacePopup<C2Surface>(scene, "Add C2 Surface", 4);
-
             ImGui::EndListBox();
         }
+        if (ImGui::Button("New C0 Surface ##newc0surface"))
+        {
+            ImGui::OpenPopup("Add C0 Surface");
+        }
+        if (ImGui::Button("New C2 Surface ##newc2surface"))
+        {
+            ImGui::OpenPopup("Add C2 Surface");
+        }
+
+        static bool backGregory = false;
+        ImGui::Checkbox("Flip cylinder Gregory patch", &backGregory);
+        if (ImGui::Button("New Gregory patch ##newgregorypatch"))
+        {
+            scene.addGregoryPatch(backGregory);
+        }
+
+        renderAddSurfacePopup<C0Surface>(scene, "Add C0 Surface", 1);
+        renderAddSurfacePopup<C2Surface>(scene, "Add C2 Surface", 4);
 
         ImGui::End(); 
     }    

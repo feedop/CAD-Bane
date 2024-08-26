@@ -2,7 +2,7 @@ export module virtualpoint;
 
 import colors;
 import point;
-import updatable;
+import shape;
 
 export class VirtualPoint : public Point
 {
@@ -21,9 +21,9 @@ public:
 
 	virtual void update() override
 	{
-		for (auto&& updatable : attachedTo)
+		for (auto&& shape : attachedTo)
 		{
-			updatable->scheduleToUpdate(this);
+			shape->scheduleToUpdate(this);
 		}
 	}
 };

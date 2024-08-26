@@ -16,6 +16,7 @@ import pointrenderer;
 import surface;
 import c0surface;
 import c2surface;
+import gregorysurface;
 import raycaster;
 import shader;
 
@@ -36,7 +37,6 @@ public:
 		glViewport(0, 0, windowWidth, windowHeight);
 
 		glEnable(GL_DEPTH_TEST);
-		//glEnable(GL_CULL_FACE);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glEnable(GL_PROGRAM_POINT_SIZE);
@@ -44,6 +44,7 @@ public:
 		// Set surface shaders
 		C0Surface::setPreferredShader(c0SurfaceShader.get());
 		C2Surface::setPreferredShader(c2SurfaceShader.get());
+		GregorySurface::setPreferredShader(gregoryShader.get());
 
 		// First raycasting
 		raycaster.setTextureSize(windowWidth, windowHeight);
@@ -134,6 +135,7 @@ private:
 	std::unique_ptr<Shader> interpolatingSplineShader = std::make_unique<InterpolatingSplineShader>();
 	std::unique_ptr<Shader> c0SurfaceShader = std::make_unique<C0SurfaceShader>();
 	std::unique_ptr<Shader> c2SurfaceShader = std::make_unique<C2SurfaceShader>();
+	std::unique_ptr<Shader> gregoryShader = std::make_unique<GregoryShader>();
 
 	int windowWidth;
 	int windowHeight;

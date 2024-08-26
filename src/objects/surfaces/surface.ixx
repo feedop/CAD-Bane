@@ -15,14 +15,6 @@ import virtualpoint;
 export class Surface : public Shape
 {
 public:
-	virtual ~Surface()
-	{
-		for (auto&& point : points)
-		{
-			point->detach(this);
-		}
-	}
-
 	inline float getDensityX() const
 	{
 		return densityX;
@@ -50,6 +42,19 @@ public:
 		return points;
 	}
 
+	inline bool isCylinder() const
+	{
+		return cylinder;
+	}
+	inline int getSizeX() const
+	{
+		return sizeX;
+	}
+	inline int getSizeZ() const
+	{
+		return sizeZ;
+	}
+
 	virtual Shader* getPreferredShader() const = 0;
 
 protected:
@@ -59,22 +64,12 @@ protected:
 	float densityX = 4.0f;
 	float densityZ = 4.0f;
 
-	std::vector<Point*> points;
-
-	int sizeX = 4, sizeZ = 4;
+	int sizeX, sizeZ;
 	bool cylinder;
 
 	Surface(const std::string& surfaceName, int sizeX, int sizeZ, bool cylinder = false) : Shape(surfaceName), sizeX(sizeX), sizeZ(sizeZ), cylinder(cylinder)
 	{
 		
-	}
-
-	void attachPoints()
-	{
-		for (auto&& point : points)
-		{
-			point->attach(this);
-		}
 	}
 
 	virtual std::string getSurfaceName() const = 0;
