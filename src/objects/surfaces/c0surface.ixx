@@ -1,8 +1,7 @@
 export module c0surface;
 
-import <format>;
-import <memory>;
-import <span>;
+import std;
+
 import <glm/vec3.hpp>;
 import <Serializer/Serializer.h>;
 
@@ -19,7 +18,6 @@ export class C0Surface : public Surface
 public:
 	C0Surface(const glm::vec3& position, int sizeX, int sizeZ) : Surface(getSurfaceName(), sizeX, sizeZ)
 	{
-
 		std::vector<Point*> tempPoints;
 
 		// generate points
@@ -96,7 +94,7 @@ public:
 		attachPoints();
 	}
 
-	C0Surface(const glm::vec3& position, int sizeX, float radius) : Surface(getSurfaceName(), sizeX, std::max(3, 3/*static_cast<int>(2 * math::pi * radius / patchSizeZ)*/), true)
+	C0Surface(const glm::vec3& position, int sizeX, float radius) : Surface(getSurfaceName(), sizeX, std::max(3, static_cast<int>(2 * math::pi * radius / patchSizeZ)), true)
 	{
 		int pointCountZ = 4 + 3 * (sizeZ - 2) + 2;
 		float minAngleDist = 2 * math::pi / pointCountZ;
@@ -255,18 +253,24 @@ public:
 	virtual void draw(const Shader* shader) const override
 	{
 		setColor(shader);
-		shader->setInt("reverse", false);
-		shader->setFloat("segmentCount", densityZ);
-		for (auto&& patch : patches)
+		Parametric::uploadTrimTexture(shader);
+		
+		for (int i = 0; i < patches.size(); i++)
 		{
-			patch->draw(shader);
-		}
+			int z = i / sizeX;
+			int x = i % sizeX;
+			shader->setFloat("patchIndexU", z);
+			shader->setFloat("patchIndexV", x);
+			shader->setFloat("patchCountU", sizeZ);
+			shader->setFloat("patchCountV", sizeX);
 
-		shader->setInt("reverse", true);
-		shader->setFloat("segmentCount", densityX);
-		for (auto&& patch : patches)
-		{
-			patch->draw(shader);
+			shader->setInt("reverse", false);
+			shader->setFloat("segmentCount", densityZ);
+			patches[i]->draw(shader);
+
+			shader->setInt("reverse", true);
+			shader->setFloat("segmentCount", densityX);
+			patches[i]->draw(shader);
 		}
 	}
 
@@ -431,6 +435,28 @@ public:
 		return border;
 	}
 
+	virtual glm::vec3 evaluate(float u, float v) const override
+	{
+		return eval(u, v, [](float u, float v, const std::unique_ptr<Patch>& patch) { return patch->evaluate(u, v); });
+	}
+
+	virtual glm::vec3 derivativeU(float u, float v) const override
+	{
+		if (u > 1.0f - math::derivativeH)
+			return derivativeU(u - math::derivativeH, v);
+		return (evaluate(u + math::derivativeH, v) - evaluate(u, v)) / math::derivativeH;
+		//return eval(u, v, [](float u, float v, const std::unique_ptr<Patch>& patch) { return patch->derivativeU(u, v); });
+
+	}
+
+	virtual glm::vec3 derivativeV(float u, float v) const override
+	{
+		if (v > 1.0f - math::derivativeH)
+			return derivativeV(u, v - math::derivativeH);
+		return (evaluate(u, v + math::derivativeH) - evaluate(u, v)) / math::derivativeH;
+		///return eval(u, v, [](float u, float v, const std::unique_ptr<Patch>& patch) { return patch->derivativeV(u, v); });
+	}
+
 private:
 	inline static unsigned int instanceCount = 0;
 	inline static Shader* preferredShader = nullptr;
@@ -440,5 +466,41 @@ private:
 	virtual std::string getSurfaceName() const override
 	{
 		return std::format("{} {}", "C0 Surface", instanceCount++);
+	}
+
+	glm::vec3 eval(float u, float v, auto func) const
+	{
+		// sizeZ <=> sizeX ?
+		float fIndexV = v * sizeX;
+		int indexV = fIndexV;
+		float newV = fIndexV - indexV;
+		float fIndexU = u * sizeZ;
+		int indexU = fIndexU;
+		float newU = fIndexU - indexU;
+
+		if (v >= 1.0f - math::eps)
+		{
+			indexV = sizeX - 1;
+			newV = 1.0f;
+		}
+		if (u >= 1.0f - math::eps)
+		{
+			indexU = sizeZ - 1;
+			newU = 1.0f;
+		}
+
+		/*if (cylinder && newU >= 1.0f - math::eps)
+		{
+			int nextU = (indexU + 1) % sizeZ;
+			return (func(1.0f, newV, patches[indexU * sizeX + indexV]) + func(0.0f, newV, patches[nextU * sizeX + indexV])) * 0.5f;
+		}
+
+		if (cylinder && newU <= math::eps)
+		{
+			int prevU = indexU == 0 ? (sizeZ - 1) : indexU - 1;
+			return (func(0.0f, newV, patches[indexU * sizeX + indexV]) + func(1.0f, newV, patches[prevU * sizeX + indexV])) * 0.5f;
+		}*/
+
+		return func(newU, newV, patches[indexU * sizeX + indexV]);
 	}
 };

@@ -94,9 +94,12 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
+      <ScanSourceForModuleDependencies>true</ScanSourceForModuleDependencies>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <BuildStlModules>true</BuildStlModules>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -112,9 +115,12 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
+      <ScanSourceForModuleDependencies>true</ScanSourceForModuleDependencies>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <BuildStlModules>true</BuildStlModules>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -133,9 +139,10 @@
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <BuildStlModules>true</BuildStlModules>
-      <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
+      <ScanSourceForModuleDependencies>true</ScanSourceForModuleDependencies>
       <TranslateIncludes>false</TranslateIncludes>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -156,9 +163,10 @@
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <BuildStlModules>true</BuildStlModules>
-      <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
+      <ScanSourceForModuleDependencies>true</ScanSourceForModuleDependencies>
       <TranslateIncludes>false</TranslateIncludes>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -184,12 +192,15 @@
     <ClCompile Include="src\config.ixx" />
     <ClCompile Include="src\math\bezier.ixx" />
     <ClCompile Include="src\math\holefinder.ixx" />
+    <ClCompile Include="src\math\intersections.ixx" />
     <ClCompile Include="src\math\quat.ixx" />
     <ClCompile Include="src\objects\curves\c0bezier.ixx" />
     <ClCompile Include="src\objects\curves\c2bezier.ixx" />
     <ClCompile Include="src\objects\curves\interpolatingspline.ixx" />
+    <ClCompile Include="src\objects\curves\intersectioncurve.ixx" />
     <ClCompile Include="src\objects\mixins\clickable.ixx" />
     <ClCompile Include="src\objects\mixins\drawable.ixx" />
+    <ClCompile Include="src\objects\mixins\parametric.ixx" />
     <ClCompile Include="src\objects\mixins\pointowner.ixx" />
     <ClCompile Include="src\objects\mixins\selectable.ixx" />
     <ClCompile Include="src\objects\mixins\updatable.ixx" />
@@ -202,6 +213,7 @@
     <ClCompile Include="src\objects\solids\grid.ixx" />
     <ClCompile Include="src\objects\points\middlepoint.ixx" />
     <ClCompile Include="src\objects\points\point.ixx" />
+    <ClCompile Include="src\objects\solids\parametricviewcanvas.ixx" />
     <ClCompile Include="src\objects\solids\solidobject.ixx" />
     <ClCompile Include="src\objects\solids\texturedobject.ixx" />
     <ClCompile Include="src\objects\solids\torus.ixx" />
@@ -715,6 +727,8 @@
     <None Include="shaders\raycasting.frag" />
     <None Include="shaders\raycasting.vert" />
     <None Include="shaders\surface.tesc" />
+    <None Include="shaders\torus.vert" />
+    <None Include="shaders\trim.frag" />
     <None Include="shaders\uniformcolor.frag" />
     <None Include="shaders\uniformcolor.vert" />
   </ItemGroup>

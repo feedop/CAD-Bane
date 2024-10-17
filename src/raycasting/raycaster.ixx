@@ -1,10 +1,8 @@
 export module raycaster;
 
+import std;
+
 import <glad/glad.h>;
-import <memory>;
-import <queue>;
-
-
 
 import camera;
 import canvas;

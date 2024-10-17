@@ -1,10 +1,9 @@
 export module gregorysurface;
 
+import std;
+
 import <glad/glad.h>;
-import <format>;
-import <iostream>;
-import <span>;
-import <vector>;
+
 import <glm/vec3.hpp>;
 
 import colors;

@@ -74,6 +74,9 @@ void transposeSurface(T& surface)
 
 	surface.patches = std::move(tempPatches);
 
+	if constexpr (std::is_same_v<T, MG1::BezierSurfaceC0>) // Needed for intersection file
+		return;
+
 	for (auto&& patch : surface.patches)
 	{
 		transposePatch(patch);

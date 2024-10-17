@@ -1,8 +1,9 @@
 export module patch;
 
+import std;
+
 import <glad/glad.h>;
-import <memory>;
-import <vector>;
+
 import <glm/vec3.hpp>;
 import <glm/vec4.hpp>;
 import <Serializer/Serializer.h>;
@@ -10,10 +11,12 @@ import <Serializer/Serializer.h>;
 import colors;
 import drawable;
 import glutils;
+import math;
+import parametric;
 import point;
 import shader;
 
-export class Patch : public Drawable
+export class Patch : public Drawable, public Parametric
 {
 public:
 
@@ -134,6 +137,54 @@ public:
 	inline const auto& getPoints() const
 	{
 		return points;
+	}
+
+	virtual glm::vec3 evaluate(float u, float v) const override
+	{
+		glm::vec3 bernsteins[4];
+		for (int i = 0; i < 4; i++)
+		{
+			bernsteins[i] = math::deCasteljau3(
+				points[i]->getPosition(),
+				points[4 + i]->getPosition(),
+				points[8 + i]->getPosition(),
+				points[12 + i]->getPosition(),
+				v
+			);
+		}
+		return math::deCasteljau3(bernsteins[0], bernsteins[1], bernsteins[2], bernsteins[3], u);
+	}
+
+	virtual glm::vec3 derivativeU(float u, float v) const override
+	{
+		glm::vec3 bernsteins[4];
+		for (int i = 0; i < 4; i++)
+		{
+			bernsteins[i] = math::deCasteljau3(
+				points[i]->getPosition(),
+				points[4 + i]->getPosition(),
+				points[8 + i]->getPosition(),
+				points[12 + i]->getPosition(),
+				v
+			);
+		}
+		return math::deCasteljau3Derivative(bernsteins[0], bernsteins[1], bernsteins[2], bernsteins[3], u);
+	}
+
+	virtual glm::vec3 derivativeV(float u, float v) const override
+	{
+		glm::vec3 bernsteins[4];
+		for (int i = 0; i < 4; i++)
+		{
+			bernsteins[i] = math::deCasteljau3Derivative(
+				points[i]->getPosition(),
+				points[4 + i]->getPosition(),
+				points[8 + i]->getPosition(),
+				points[12 + i]->getPosition(),
+				v
+			);
+		}
+		return math::deCasteljau3(bernsteins[0], bernsteins[1], bernsteins[2], bernsteins[3], u);
 	}
 
 private:

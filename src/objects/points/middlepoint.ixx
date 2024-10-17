@@ -1,7 +1,6 @@
 export module middlepoint;
 
-import <numeric>;
-import <vector>;
+import std;
 
 import <glm/vec3.hpp>;
 

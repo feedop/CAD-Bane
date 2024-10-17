@@ -1,6 +1,6 @@
 export module interpolatingspline;
 
-import <numeric>;
+import std;
 
 import <glad/glad.h>;
 import <glm/vec3.hpp>;
@@ -18,6 +18,9 @@ public:
 	{}
 
 	InterpolatingSpline(std::initializer_list<Point*> points) : Curve(getCurveName(), points)
+	{}
+
+	InterpolatingSpline(const std::string& curveName) : Curve(curveName, {})
 	{}
 
 	virtual void draw(const Shader* shader) const override
@@ -69,6 +72,16 @@ public:
 	}
 
 protected:
+	std::vector<glm::vec3> b;
+	std::vector<glm::vec3> c;
+	std::vector<glm::vec3> d;
+
+	std::vector<float> dist;
+
+	std::vector<float> alpha;
+	std::vector<float> beta;
+	std::vector<float> scratch;
+
 	virtual void fillPositions() override
 	{
 		positions.clear();
@@ -86,24 +99,6 @@ protected:
 			if (glm::length(pos2 - pos1) > eps)
 				positions.push_back(pos2);
 		}
-	}
-
-private:
-	inline static unsigned int instanceCount = 0;
-
-	std::vector<glm::vec3> b;
-	std::vector<glm::vec3> c;
-	std::vector<glm::vec3> d;
-
-	std::vector<float> dist;
-
-	std::vector<float> alpha;
-	std::vector<float> beta;
-	std::vector<float> scratch;
-
-	virtual std::string getCurveName() const override
-	{
-		return std::format("{} {}", "Interpolating spline", instanceCount++);
 	}
 
 	void calculateCoefficients()
@@ -154,7 +149,7 @@ private:
 			alpha[i - 1] = dist[i - 1] / denom;
 			beta[i - 1] = dist[i] / denom;
 			// R[i]
-			c[i] = 3.0f * ( (positions[i + 1] - positions[i]) / dist[i] - (positions[i] - positions[i - 1]) / dist[i - 1] ) / denom;
+			c[i] = 3.0f * ((positions[i + 1] - positions[i]) / dist[i] - (positions[i] - positions[i - 1]) / dist[i - 1]) / denom;
 		}
 
 		// Solve the system of equations
@@ -168,8 +163,16 @@ private:
 		for (int i = 1; i < N; i++)
 		{
 			auto di = dist[i - 1];
-			b[i-1] = (positions[i] - positions[i-1] - c[i-1] *di * di - d[i-1] * di * di *di) / di;
+			b[i - 1] = (positions[i] - positions[i - 1] - c[i - 1] * di * di - d[i - 1] * di * di * di) / di;
 		}
+	}
+
+private:
+	inline static unsigned int instanceCount = 0;
+
+	virtual std::string getCurveName() const override
+	{
+		return std::format("{} {}", "Interpolating spline", instanceCount++);
 	}
 
 	void solve(int X)

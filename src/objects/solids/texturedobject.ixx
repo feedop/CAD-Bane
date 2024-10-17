@@ -1,7 +1,8 @@
 export module texturedobject;
 
+import std;
+
 import <glad/glad.h>;
-import <vector>;
 
 import <glm/vec2.hpp>;
 import <glm/vec3.hpp>;

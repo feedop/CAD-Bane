@@ -1,8 +1,8 @@
 export module application;
 
-import <glad/glad.h>;
-import <iostream>;
+import std;
 
+import <glad/glad.h>;
 import <GLFW/glfw3.h>;
 
 export class Application

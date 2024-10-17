@@ -2,6 +2,8 @@
 
 layout(isolines) in;
 
+out vec2 texCoord;
+
 uniform mat4 view;
 uniform mat4 projection;
 uniform int reverse;
@@ -10,6 +12,8 @@ uniform int knotCountX;
 uniform int knotIndexX;
 uniform int knotCountZ;
 uniform int knotIndexZ;
+uniform float texModifierX;
+uniform float texModifierZ;
 
 float[5] basisFunctions(int i, float t, int knotCount)
 {
@@ -82,4 +86,16 @@ void main()
         deBoors[3] * Nx[4];
 
     gl_Position = projection * view * vec4(final, 1.0f);
+    if (reverse == 0)
+    {
+        x = float(knotIndexX - 3) / (knotCountZ - 6) + float(gl_TessCoord.y) / (knotCountZ - 6);
+        z = float(knotIndexZ - 3) / (knotCountX - 6) + float(gl_TessCoord.x) / (knotCountX - 6);
+    }
+    else
+    {
+        x = float(knotIndexX - 3) / (knotCountZ - 6) + float(gl_TessCoord.x) / (knotCountZ - 6);
+        z = float(knotIndexZ - 3) / (knotCountX - 6) + float(gl_TessCoord.y) / (knotCountX - 6);
+    }
+    
+    texCoord = vec2(x, z);
 }

@@ -1,8 +1,8 @@
 export module gpuraycasting;
 
+import std;
+
 import <glad/glad.h>;
-import <memory>;
-import <vector>;
 
 import <glm/vec4.hpp>;
 import <glm/mat4x4.hpp>;

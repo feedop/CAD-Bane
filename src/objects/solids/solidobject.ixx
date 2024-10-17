@@ -1,7 +1,8 @@
 export module solidobject;
 
+import std;
+
 import <glad/glad.h>;
-import <vector>;
 
 import <glm/mat4x4.hpp>;
 
@@ -37,7 +38,7 @@ public:
 
 	virtual void rotateLocal(float angleRadians, const glm::vec3& axis)
 	{
-		rotation = (math::Quat::angleAxis(angleRadians, axis) * rotation);
+		rotation = (math::Quat::angleAxis(angleRadians, axis) * rotation).normalized();
 		update();
 	}
 

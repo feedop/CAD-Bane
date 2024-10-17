@@ -1,7 +1,6 @@
 export module point;
 
-import <format>;
-import <unordered_set>;
+import std;
 
 import <glm/vec3.hpp>;
 import <Serializer/Serializer.h>;
@@ -29,6 +28,11 @@ public:
 	{
 		if (!isVirtual)
 			instanceCount++;
+	}
+
+	Point(const glm::vec3& translation, const std::string& name) : SolidObject(translation), Selectable(name)
+	{
+		instanceCount++;
 	}
 
 	Point(const MG1::Point& other) : Point(toGLM(other.position))

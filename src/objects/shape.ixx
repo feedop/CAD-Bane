@@ -1,7 +1,6 @@
 export module shape;
 
-import <algorithm>;
-import <vector>;
+import std;
 
 import drawable;
 import point;

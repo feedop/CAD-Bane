@@ -1,7 +1,8 @@
 export module c0bezier;
 
+import std;
+
 import <glad/glad.h>;
-import <vector>;
 
 import colors;
 import curve;

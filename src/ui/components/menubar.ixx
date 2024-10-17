@@ -4,7 +4,8 @@ import config;
 import gui.controller;
 import scene;
 
-import <iostream>;
+import std;
+
 import <imguiFileDialog/ImGuiFileDialog.h>;
 import <Serializer/Serializer.h>;
 

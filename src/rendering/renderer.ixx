@@ -1,15 +1,17 @@
 export module renderer;
 
+import std;
+
 import <glad/glad.h>;
-import <vector>;
-import <memory>;
 
 import <glm/vec3.hpp>;
 import <glm/vec4.hpp>;
 import <glm/gtc/matrix_transform.hpp>;
 
 import camera;
+import canvas;
 import colors;
+import intersectioncurve;
 import solidobject;
 import scene;
 import pointrenderer;
@@ -34,8 +36,6 @@ public:
 		windowWidth(windowWidth), windowHeight(windowHeight),
 		camera(camera), pointRenderer(pointRenderer), scene(scene), raycaster(raycaster)
 	{
-		glViewport(0, 0, windowWidth, windowHeight);
-
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -56,9 +56,19 @@ public:
 	void draw() const
 	{
 		// Clear
+		glViewport(0, 0, windowWidth, windowHeight);
 		glClearColor(0.15f, 0.0f, 0.17f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		// Full screen canvas - intersection curve parametric view
+		if (parametricViewCanvas)
+		{
+			flatTextureShader->use();
+			parametricViewCanvas->draw(flatTextureShader.get());
+			return;
+		}
+
+		// Stereographic rendering
 		if (stereo)
 		{
 			camera.setForLeftEye();
@@ -118,6 +128,21 @@ public:
 		scene.selectObjectFromScreen(objcoord, selectMultiple);
 	}
 
+	const Canvas* getParametricViewCanvas() const
+	{
+		return parametricViewCanvas.get();
+	}
+
+	void setParametricViewCurve(IntersectionCurve* curve, bool firstSurface)
+	{
+		parametricViewCanvas = curve->getParametricViewCanvas(firstSurface);
+	}
+
+	void resetParametricViewCurve()
+	{
+		parametricViewCanvas.reset();
+	}
+
 private:
 	Camera& camera;
 	Scene& scene;
@@ -136,6 +161,7 @@ private:
 	std::unique_ptr<Shader> c0SurfaceShader = std::make_unique<C0SurfaceShader>();
 	std::unique_ptr<Shader> c2SurfaceShader = std::make_unique<C2SurfaceShader>();
 	std::unique_ptr<Shader> gregoryShader = std::make_unique<GregoryShader>();
+	std::unique_ptr<Shader> torusShader = std::make_unique<TorusShader>();
 
 	int windowWidth;
 	int windowHeight;
@@ -144,6 +170,8 @@ private:
 	bool drawPolygons = false;
 
 	bool stereo = false;
+
+	std::shared_ptr<Canvas> parametricViewCanvas;
 
 	void drawScene(const glm::mat4& projection) const
 	{
@@ -210,13 +238,6 @@ private:
 			curve->drawLines(uniformColorShader.get());
 		}
 
-		// Tori
-
-		for (auto&& torus : scene.getTori())
-		{
-			torus->draw(uniformColorShader.get());
-		}
-
 		// Curve and surface polygons if enabled
 		if (drawPolygons)
 		{
@@ -229,6 +250,15 @@ private:
 			{
 				surface->drawPolygon(uniformColorShader.get());
 			}
+		}
+
+		// Tori
+		torusShader->use();
+		torusShader->setMatrix("view", camera.getView());
+		torusShader->setMatrix("projection", projection);
+		for (auto&& torus : scene.getTori())
+		{
+			torus->draw(torusShader.get());
 		}
 
 		// Points

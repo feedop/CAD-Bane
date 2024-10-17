@@ -1,10 +1,8 @@
 export module cpuraycasting;
 
+import std;
+
 import <glad/glad.h>;
-import <algorithm>;
-import <execution>;
-import <ranges>;
-import <vector>;
 
 import <glm/vec4.hpp>;
 import <glm/mat4x4.hpp>;

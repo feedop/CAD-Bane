@@ -1,7 +1,6 @@
 export module gregorystructs;
 
-import <array>;
-import <vector>;
+import std;
 
 import point;
 

@@ -1,6 +1,7 @@
 export module gui.controller;
 
-import <vector>;
+import std;
+
 import <imgui.h>;
 import <imgui/backend/imgui_impl_glfw.h>;
 import <imgui/backend/imgui_impl_opengl3.h>;
@@ -90,6 +91,13 @@ public:
         ImGui::Checkbox("Render curve polygons", &renderer.drawPolygons);
 
         renderStereoConfig();
+
+        if (renderer.getParametricViewCanvas() != nullptr)
+        {
+            if (ImGui::Button("Close parametric view window"))
+                renderer.resetParametricViewCurve();
+        }
+            
 
         renderTorusConfig();
         renderSurfaceConfig();

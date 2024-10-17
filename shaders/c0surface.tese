@@ -2,10 +2,16 @@
 
 layout(isolines) in;
 
+out vec2 texCoord;
+
 uniform mat4 view;
 uniform mat4 projection;
 uniform int reverse;
 uniform float segmentCount;
+uniform float patchIndexU;
+uniform float patchIndexV;
+uniform float patchCountU;
+uniform float patchCountV;
 
 vec3 deCasteljau(vec3 b00, vec3 b10, vec3 b20, vec3 b30, float t)
 {
@@ -58,4 +64,7 @@ void main()
     vec3 final = deCasteljau(bernsteins[0], bernsteins[1], bernsteins[2], bernsteins[3], x);
 
     gl_Position = projection * view * vec4(final, 1.0f);
+    texCoord = reverse == 0 ? vec2(z, x) : vec2(x, z);
+    texCoord.x = patchIndexU / patchCountU + texCoord.x / patchCountU;
+    texCoord.y = patchIndexV / patchCountV + texCoord.y / patchCountV;
 }

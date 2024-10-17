@@ -1,9 +1,8 @@
 export module torus;
 
+import std;
+
 import <glad/glad.h>;
-import <cmath>;
-import <format>;
-import <vector>;
 
 import <glm/vec4.hpp>;
 import <Serializer/Serializer.h>;
@@ -11,16 +10,18 @@ import <Serializer/Serializer.h>;
 import glutils;
 import clickable;
 import math;
+import parametric;
 import selectable;
 import solidobject;
 import shader;
 import mg1utils;
 
-export class Torus : public SolidObject, public Selectable, public Clickable
+export class Torus : public SolidObject, public Selectable, public Clickable, public Parametric
 {
 	struct Vertex
 	{
 		glm::vec3 translation;
+		glm::vec2 texCoords;
 	};
 
 public:
@@ -62,6 +63,7 @@ public:
 	{
 		ScopedBindArray ba(VAO);
 		setColor(shader);
+		Parametric::uploadTrimTexture(shader);
 		SolidObject::draw(shader);
 		glDrawElements(GL_LINES, static_cast<GLsizei>(indices.size()), GL_UNSIGNED_INT, 0);
 	}
@@ -72,6 +74,50 @@ public:
 		// From torus equation
 		float left = std::powf(R - std::sqrtf(diff.x * diff.x + diff.y * diff.y), 2) + coord.z * coord.z;
 		return (left <= r * r);
+	}
+
+	virtual glm::vec3 evaluate(float u, float v) const override
+	{
+		u *= 2 * math::pi;
+		v *= 2 * math::pi;
+		float totalRadius = R + r * std::cos(u);
+
+		float x = totalRadius * std::cos(v);
+		float z = totalRadius * std::sin(v);
+		float y = r * std::sin(u);
+
+		return model * glm::vec4{ x, y, z, 1 };
+	}
+
+	virtual glm::vec3 derivativeU(float u, float v) const override
+	{
+		u *= 2 * math::pi;
+		v *= 2 * math::pi;
+		float totalRadius = -r * std::sin(u);
+
+		float x = totalRadius * std::cos(v);
+		float z = totalRadius * std::sin(v);
+		float y = r * std::cos(u);
+
+		return { x, y, z};
+	}
+
+	virtual glm::vec3 derivativeV(float u, float v) const override
+	{
+		u *= 2 * math::pi;
+		v *= 2 * math::pi;
+		float totalRadius = R + r * std::cos(u);
+
+		float x = totalRadius * -std::sin(v);
+		float z = totalRadius * std::cos(v);
+		float y = 0;
+
+		return { x, y, z};
+	}
+
+	virtual constexpr float getRange() const override
+	{
+		return 2.0f * math::pi;
 	}
 
 private:
@@ -94,7 +140,6 @@ private:
 		for (int i = 0; i < minorPoints; i++)
 		{
 			float majorCircleAngle = i * 2 * math::pi / minorPoints;
-			float majorCircleAngleCos = std::cos(majorCircleAngle);
 			float majorCircleAngleSin = std::sin(majorCircleAngle);
 			float totalRadius = R + r * std::cos(majorCircleAngle);
 
@@ -106,7 +151,7 @@ private:
 				float z = totalRadius * std::sin(minorCircleAngle);
 				float y = r * majorCircleAngleSin;
 
-				vertices.emplace_back(glm::vec3{ x, y, z });
+				vertices.emplace_back(glm::vec3{ x, y, z }, glm::vec2{ majorCircleAngle / (2 * math::pi),  minorCircleAngle / (2 * math::pi) });
 
 				indices.push_back(i * majorPoints + j);
 				if (j == majorPoints - 1) [[unlikely]]
@@ -132,7 +177,11 @@ private:
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int),
 					 &indices[0], GL_DYNAMIC_DRAW);
 
+		// vertex positions
 		glEnableVertexAttribArray(0);
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
+		// texture coordinates
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, texCoords));
 	}
 };

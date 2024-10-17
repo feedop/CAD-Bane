@@ -1,8 +1,8 @@
 #include <Serializer/Models/Point.h>
 
+import std;
+
 import <glad/glad.h>;
-import <iostream>;
-import <sstream>;
 import <GLFW/glfw3.h>;
 
 import application;

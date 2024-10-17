@@ -1,7 +1,8 @@
 export module cursor;
 
+import std;
+
 import <glad/glad.h>;
-import <array>;
 
 import <glm/vec3.hpp>;
 

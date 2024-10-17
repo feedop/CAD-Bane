@@ -1,8 +1,6 @@
 export module holefinder;
 
-import <algorithm>;
-import <array>;
-import <vector>;
+import std;
 
 import c0surface;
 import gregorystructs;

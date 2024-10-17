@@ -1,14 +1,8 @@
 export module shader;
 
+import std;
+
 import <glad/glad.h>;
-
-
-import <fstream>;
-import <iostream>;
-import <sstream>;
-import <string>;
-import <string_view>;
-import <vector>;
 
 import <glm/glm.hpp>;
 import <glm/gtc/type_ptr.hpp>;
@@ -247,18 +241,23 @@ public:
 export class C0SurfaceShader : public VertFragTessShader
 {
 public:
-    C0SurfaceShader() : VertFragTessShader("shaders/curve.vert", "shaders/uniformcolor.frag", "shaders/surface.tesc", "shaders/c0surface.tese") {}
+    C0SurfaceShader() : VertFragTessShader("shaders/curve.vert", "shaders/trim.frag", "shaders/surface.tesc", "shaders/c0surface.tese") {}
 };
 
 export class C2SurfaceShader : public VertFragTessShader
 {
 public:
-    C2SurfaceShader() : VertFragTessShader("shaders/curve.vert", "shaders/uniformcolor.frag", "shaders/surface.tesc", "shaders/c2surface.tese") {}
+    C2SurfaceShader() : VertFragTessShader("shaders/curve.vert", "shaders/trim.frag", "shaders/surface.tesc", "shaders/c2surface.tese") {}
 };
-
 
 export class GregoryShader : public VertFragTessShader
 {
 public:
     GregoryShader() : VertFragTessShader("shaders/curve.vert", "shaders/uniformcolor.frag", "shaders/gregory.tesc", "shaders/gregory.tese") {}
+};
+
+export class TorusShader : public VertFragShader
+{
+public:
+    TorusShader() : VertFragShader("shaders/torus.vert", "shaders/trim.frag") {}
 };

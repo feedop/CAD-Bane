@@ -1,9 +1,9 @@
 export module c2surface;
 
+import std;
+
 import <glad/glad.h>;
-import <format>;
-import <span>;
-import <vector>;
+
 import <glm/vec3.hpp>;
 
 import colors;
@@ -24,7 +24,7 @@ public:
 			auto offset = i * distanceX;
 			for (int j = 0; j < sizeZ; j++)
 			{
-				points.emplace_back(new Point(position + glm::vec3{ offset, 0, j * distanceZ }));
+				points.emplace_back(new Point(position + glm::vec3{ 0, offset, j * distanceZ })); // TODO : swap x and y
 			}
 		}
 		attachPoints();
@@ -128,9 +128,12 @@ public:
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 		glPatchParameteri(GL_PATCH_VERTICES, 16);
 		setColor(shader);
+		Parametric::uploadTrimTexture(shader);
 
 		shader->setInt("knotCountX", sizeX + 3);
 		shader->setInt("knotCountZ", sizeZ + 3);
+		shader->setFloat("texModifierX", densityX / (densityX - 1));
+		shader->setFloat("texModifierZ", densityZ / (densityZ - 1));
 
 		auto indexSizeZ = cylinder ? sizeZ : sizeZ - 3;
 		for (int i = 0; i < sizeX - 3; i++)
@@ -301,6 +304,47 @@ public:
 		preferredShader = shader;
 	}
 
+	virtual glm::vec3 evaluate(float u, float v) const override
+	{
+		
+		return eval(u, v, [&](int knotIndexZ, int knotIndexX, int knotCountZ, int knotCountX, int indexU, int indexV, int indexSizeZ, float newU, float newV)
+		{
+			auto Nu = math::deBoorBasisFunctions(knotIndexZ, newU, knotCountZ);
+			auto Nv = math::deBoorBasisFunctions(knotIndexX, newV, knotCountX);
+
+			glm::vec3 deBoors[4];
+			int offset = 16 * (indexV * indexSizeZ + indexU);
+			for (int i = 0; i < 4; i++)
+			{
+				deBoors[i] =
+					positions[indices[offset + i]] * Nv[1] +
+					positions[indices[offset + 4 + i]] * Nv[2] +
+					positions[indices[offset + 8 + i]] * Nv[3] +
+					positions[indices[offset + 12 + i]] * Nv[4];
+			}
+
+			return
+				deBoors[0] * Nu[1] +
+				deBoors[1] * Nu[2] +
+				deBoors[2] * Nu[3] +
+				deBoors[3] * Nu[4];
+		});
+	}
+
+	virtual glm::vec3 derivativeU(float u, float v) const override
+	{
+		if (u == 1.0f)
+			return derivativeU(u - math::derivativeH, v);
+		return (evaluate(u + math::derivativeH, v) - evaluate(u, v)) / math::derivativeH;
+	}
+
+	virtual glm::vec3 derivativeV(float u, float v) const override
+	{
+		if (v == 1.0f)
+			return derivativeV(u, v - math::derivativeH);
+		return (evaluate(u, v + math::derivativeH) - evaluate(u, v)) / math::derivativeH;
+	}
+
 private:
 	inline static unsigned int instanceCount = 0;
 	inline static Shader* preferredShader = nullptr;
@@ -313,6 +357,7 @@ private:
 	unsigned int polygonIndexCount = 0;
 
 	std::vector<glm::vec3> positions;
+	std::vector<unsigned int> indices;
 
 	virtual std::string getSurfaceName() const override
 	{
@@ -327,7 +372,6 @@ private:
 		glGenBuffers(1, &polygonEBO);
 
 		// fill indices
-		std::vector<unsigned int> indices;
 		for (int i = 0; i < sizeX - 3; i++)
 		{
 			for (int j = 0; j < sizeZ - 3; j++)
@@ -400,5 +444,42 @@ private:
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, polygonEBO);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * polygonIndices.size(), &polygonIndices[0], GL_STATIC_DRAW);
 		polygonIndexCount = polygonIndices.size();
+	}
+
+	glm::vec3 eval(float u, float v, auto func) const
+	{
+		auto indexSizeZ = cylinder ? sizeZ : sizeZ - 3;
+		float fIndexV = v * (sizeX - 3);
+		int indexV = fIndexV;
+		float newV = fIndexV - indexV;
+		float fIndexU = u * indexSizeZ;
+		int indexU = fIndexU;
+		float newU = fIndexU - indexU;
+
+		if (v >= 1.0f - math::eps)
+		{
+			indexV = sizeX - 4;
+			newV = 1.0f;
+		}
+		if (u >= 1.0f - math::eps)
+		{
+			indexU = sizeZ - 4;
+			newU = 1.0f;
+		}
+
+		int knotCountX = sizeX + 3;
+		int knotCountZ = sizeZ + 3;
+
+		int knotIndexZ = 3 + indexU;
+		int knotIndexX = 3 + indexV;
+
+		float u0 = float(knotIndexZ) / knotCountZ;
+		float u1 = float(knotIndexZ + 1) / knotCountZ;
+		float v0 = float(knotIndexX) / knotCountX;
+		float v1 = float(knotIndexX + 1) / knotCountX;
+		newU = u0 + (u1 - u0) * newU;
+		newV = v0 + (v1 - v0) * newV;
+
+		return func(knotIndexZ, knotIndexX, knotCountZ, knotCountX, indexU, indexV, indexSizeZ, newU, newV);
 	}
 };

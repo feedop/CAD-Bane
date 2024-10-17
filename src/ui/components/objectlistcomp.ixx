@@ -1,6 +1,7 @@
 export module gui:objectlistcomp;
 
-import <vector>;
+import std;
+
 import <imgui/imgui/imgui.h>;
 
 import c0bezier;
@@ -10,9 +11,12 @@ import c2surface;
 import gui.controller;
 import imguiext;
 import interpolatingspline;
+import intersectioncurve;
+import parametric;
+import point;
+import renderer;
 import scene;
 import surface;
-import point;
 import torus;
 
 static char name[31]{ 0 };
@@ -55,25 +59,74 @@ void renderAddSurfacePopup(Scene& scene, const char* popupName, int minSize)
     }  
 }
 
-void renderRenamePopup(auto& object)
+void renderRenamePopup(auto object)
+{
+    ImGui::Text("Rename ");
+    ImGui::InputText("##Rename", name, 30);
+    if (ImGui::Button("Accept"))
+    {
+        if (name[0] != 0)
+            object->setName(name);
+        ImGui::CloseCurrentPopup();
+    }
+
+    if (ImGui::Button("Cancel"))
+        ImGui::CloseCurrentPopup();
+}
+
+void renderContextMenu(auto object)
 {
     if (ImGui::BeginPopupContextItem())
     {
-
-        ImGui::Text("Rename ");
-        ImGui::InputText("##Rename", name, 30);
-        if (ImGui::Button("Accept"))
-        {
-            if (name[0] != 0)
-                object->setName(name);
-            ImGui::CloseCurrentPopup();
-        }
-
-        if (ImGui::Button("Cancel"))
-            ImGui::CloseCurrentPopup();
+        renderRenamePopup(object);
         ImGui::EndPopup();
     }
 }
+
+void renderContextMenu(auto object, Scene* scene)
+{
+    if (ImGui::BeginPopupContextItem())
+    {
+        if (object->hasIntersection())
+        {
+            ImGui::RadioButton("Show full object", reinterpret_cast<int*>(&object->trimMode), static_cast<int>(TrimMode::Show));
+            ImGui::RadioButton("Hide object", reinterpret_cast<int*>(&object->trimMode), static_cast<int>(TrimMode::Hide));
+            ImGui::RadioButton("Remove white", reinterpret_cast<int*>(&object->trimMode), static_cast<int>(TrimMode::RemoveWhite));
+            ImGui::RadioButton("Remove black", reinterpret_cast<int*>(&object->trimMode), static_cast<int>(TrimMode::RemoveBlack));
+        }
+        renderRenamePopup(object);
+        ImGui::EndPopup();
+    }
+}
+
+void renderContextMenu(Curve* object, Renderer* renderer, Scene* scene)
+{
+    if (ImGui::BeginPopupContextItem())
+    {
+        IntersectionCurve* inter = dynamic_cast<IntersectionCurve*>(object);
+        if (inter)
+        {
+            if (ImGui::Button("Parametric view for first surface"))
+            {
+                renderer->setParametricViewCurve(inter, true);
+                ImGui::CloseCurrentPopup();
+            }
+            if (ImGui::Button("Parametric view for second surface"))
+            {
+                renderer->setParametricViewCurve(inter, false);
+                ImGui::CloseCurrentPopup();
+            }
+            if (ImGui::Button("Convert to interpolating"))
+            {
+                scene->convertCurve(inter);
+                ImGui::CloseCurrentPopup();
+            }
+        }
+        renderRenamePopup(object);
+        ImGui::EndPopup();
+    }
+}
+
 
 export void GuiController::renderObjectList()
 {
@@ -102,7 +155,7 @@ export void GuiController::renderObjectList()
                         scene.deselectTorus(torus.get());
                 }
 
-                renderRenamePopup(torus);
+                renderContextMenu(torus.get(), &scene);
             }
             ImGui::EndListBox();
         }
@@ -128,7 +181,7 @@ export void GuiController::renderObjectList()
                         scene.deselectPoint(point.get());
                 }
 
-                renderRenamePopup(point);
+                renderContextMenu(point.get());
             }
             ImGui::EndListBox();
         }
@@ -161,7 +214,7 @@ export void GuiController::renderObjectList()
                         scene.deselectCurve(curve.get());
                 }
 
-                renderRenamePopup(curve);
+                renderContextMenu(curve.get(), &renderer, &scene);
             }
             ImGui::EndListBox();
         }
@@ -194,7 +247,7 @@ export void GuiController::renderObjectList()
                         scene.deselectSurface(surface.get());
                 }
 
-                renderRenamePopup(surface);
+                renderContextMenu(surface.get(), &scene);
             }
             ImGui::EndListBox();
         }
@@ -212,6 +265,18 @@ export void GuiController::renderObjectList()
         if (ImGui::Button("New Gregory patch ##newgregorypatch"))
         {
             scene.addGregoryPatch(backGregory);
+        }
+
+        static float d = 0.05f;
+        static bool cursorInitial = true;
+        if (scene.intersectable())
+        {
+            ImGui::SliderFloat("Intersection precision", &d, 0.005f, 0.15f);
+            ImGui::Checkbox("Use cursor as initial approximation", &cursorInitial);
+            if (ImGui::Button("Intersect selected objects"))
+            {
+                scene.intersect(d, cursorInitial);
+            }
         }
 
         renderAddSurfacePopup<C0Surface>(scene, "Add C0 Surface", 1);

@@ -1,6 +1,7 @@
 export module inputhandler;
 
-import <iostream>;
+import std;
+
 import <glm/gtc/constants.hpp>;
 import <GLFW/glfw3.h>;
 import <imgui/imgui/imgui.h>;

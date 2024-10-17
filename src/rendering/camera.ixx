@@ -1,6 +1,6 @@
 export module camera;
 
-import <iostream>;
+import std;
 
 import <glm/vec3.hpp>;
 import <glm/mat4x4.hpp>;

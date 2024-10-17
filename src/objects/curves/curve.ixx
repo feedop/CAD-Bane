@@ -1,11 +1,8 @@
 export module curve;
 
+import std;
+
 import <glad/glad.h>;
-import <format>;
-import <initializer_list>;
-import <numeric>;
-import <set>;
-import <vector>;
 
 import <glm/vec3.hpp>;
 import <Serializer/Serializer.h>;
@@ -91,6 +88,11 @@ public:
 	inline const std::vector<Point*>& getPoints() const
 	{
 		return points;
+	}
+
+	inline const std::vector<glm::vec3>& getPositions() const
+	{
+		return positions;
 	}
 
 	virtual void addToMGScene(MG1::Scene& mgscene, const std::vector<unsigned int>& indices) const = 0;

@@ -1,18 +1,20 @@
 export module surface;
 
+import std;
+
 import <glad/glad.h>;
-import <memory>;
-import <vector>;
+
 import <glm/vec3.hpp>;
 import <glm/mat4x4.hpp>;
 import <Serializer/Serializer.h>;
 
+import parametric;
 import pointrenderer;
 import shape;
 import shader;
 import virtualpoint;
 
-export class Surface : public Shape
+export class Surface : public Shape, public Parametric
 {
 public:
 	inline float getDensityX() const
@@ -56,6 +58,21 @@ public:
 	}
 
 	virtual Shader* getPreferredShader() const = 0;
+
+	virtual glm::vec3 evaluate(float u, float v) const override
+	{
+		return { 0, 0, 0 };
+	}
+
+	virtual glm::vec3 derivativeU(float u, float v) const override
+	{
+		return { 0, 0, 1 };
+	}
+
+	virtual glm::vec3 derivativeV(float u, float v) const override
+	{
+		return { 1, 0, 0 };
+	}
 
 protected:
 	static constexpr float patchSizeX = 1.0f;

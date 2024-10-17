@@ -1,12 +1,9 @@
 export module scene;
 
-import <cmath>;
-import <memory>;
-import <ranges>;
-import <unordered_map>;
-import <vector>;
+import std;
 
 import <glm/vec3.hpp>;
+import <glm/vec4.hpp>;
 import <glm/gtc/constants.hpp>;
 import <Serializer/Serializer.h>;
 
@@ -15,6 +12,8 @@ import c2bezier;
 import c0surface;
 import c2surface;
 import gregorysurface;
+import intersectioncurve;
+import intersections;
 import camera;
 import cube;
 import cursor;
@@ -39,7 +38,16 @@ export class Scene
 public:
 	void init()
 	{
-		addSurface<C0Surface>(1, 0.5f);
+		//addSurface<C0Surface>(1, 0.5f);
+		//addSurface<C0Surface>(1, 1);
+		// 
+		//addTorus({ 1.1 , 0, 0 });
+		//addTorus({ -1.1, 0, 0 });
+
+		/*MG1::SceneSerializer serializer;
+		serializer.LoadScene("examples/itersectionsFull.json");
+		auto& mgscene = MG1::Scene::Get();
+		deserialize(mgscene);*/
 	}
 
 	Scene(const Camera& camera, PointRenderer& pointRenderer) : camera(camera), pointRenderer(pointRenderer)
@@ -216,6 +224,11 @@ public:
 		tori.emplace_back(new Torus(cursor->getPosition()));
 	}
 
+	void addTorus(const glm::vec3& position)
+	{
+		tori.emplace_back(new Torus(position));
+	}
+
 	void removeObjects()
 	{
 		// Curves need to be removed before points so that every object is deleted in the same frame
@@ -271,15 +284,20 @@ public:
 		pointRenderer.update(points);
 	}
 
-	void addPoint()
+	void addPoint(const glm::vec3& position)
 	{
-		points.emplace_back(new Point(cursor->getPosition()));
+		points.emplace_back(new Point(position));
 		for (auto& curve : selectedCurves)
 		{
 			curve->addPoints((points.end() - 1)->get());
 		}
 
 		pointRenderer.update(points);
+	}
+
+	void addPoint()
+	{
+		addPoint(cursor->getPosition());
 	}
 
 	void selectPoint(Point* point)
@@ -512,7 +530,6 @@ public:
 	void clear()
 	{
 		curves.clear();
-		interpolatingCurves.clear();
 		surfaces.clear();
 		surfaceTypes.clear();
 		tori.clear();
@@ -574,7 +591,9 @@ public:
 
 		for (auto&& surface : mgscene.surfacesC0)
 		{
-			transposeC0(surface);
+			if (!surface.vWrapped)
+				transposeSurface(surface);
+			//transposeC0(surface);
 			surfaces.emplace_back(new C0Surface(surface, points));
 		}
 		for (auto& surface : mgscene.surfacesC2)
@@ -624,10 +643,6 @@ public:
 		{
 			addCurveToMGScene(curve);
 		}
-		for (auto&& curve : interpolatingCurves)
-		{
-			addCurveToMGScene(curve);
-		}
 
 		for (auto&& surface : surfaces)
 		{
@@ -635,7 +650,98 @@ public:
 		}
 	}
 
+	bool intersectable() const
+	{
+		int size = selectedTori.size() + selectedSurfaces.size();
+		return size > 0 && size <= 2;
+	}
+
+	void intersect(float d, bool cursorInitial)
+	{
+		if (selectedTori.size() + selectedSurfaces.size() == 1)
+		{	
+			if (selectedTori.size() == 1)
+			{
+				//return;
+				static constexpr float stepU = 0.1f;
+				static constexpr float stepV = 1.3f;
+				for (float u = 0.0f; u <= 0.2f; u += stepU)
+				{
+					for (float v = 0.5f; v <= 1.0f; v += stepV)
+					{
+						auto pos = selectedTori[0]->evaluate(u, v);
+						auto du = selectedTori[0]->derivativeU(u, v);
+						auto dv = selectedTori[0]->derivativeV(u, v);
+						curves.emplace_back(new IntersectionCurve(selectedTori[0], selectedTori[0], { pos, pos + glm::normalize(glm::cross(du, dv)) }, {}, parametricViewShader.get()));
+					}
+				}
+			}
+			if (selectedSurfaces.size() == 1)
+			{
+				if (dynamic_cast<GregorySurface*>(selectedSurfaces[0]))
+					return;
+
+				calculateIntersection(selectedSurfaces[0], selectedSurfaces[0], d, { selectedSurfaces[0]->isCylinder(), false, selectedSurfaces[0]->isCylinder(), false }, cursorInitial);
+			}
+		}
+		else if (selectedTori.size() == 2)
+		{
+			calculateIntersection(selectedTori[0], selectedTori[1], d, { true, true, true, true }, cursorInitial);
+		}
+		else if (selectedSurfaces.size() == 2)
+		{
+			if (dynamic_cast<GregorySurface*>(selectedSurfaces[0]) || dynamic_cast<GregorySurface*>(selectedSurfaces[1]))
+				return;
+
+			calculateIntersection(selectedSurfaces[0], selectedSurfaces[1], d, { selectedSurfaces[0]->isCylinder(), false, selectedSurfaces[1]->isCylinder(), false }, cursorInitial);
+		}
+		else
+		{
+			if (dynamic_cast<GregorySurface*>(selectedSurfaces[0]))
+				return;
+
+			calculateIntersection(selectedTori[0], selectedSurfaces[0], d, { true, true, selectedSurfaces[0]->isCylinder(), false }, cursorInitial);
+		}
+	}
+
+	void convertCurve(const IntersectionCurve* intersectionCurve)
+	{
+		auto foundCurve = std::find_if(curves.begin(), curves.end(), [&](auto&& curve) { return curve.get() == intersectionCurve; });
+
+		std::vector<Point*> tempSelectedPoints;
+
+		auto&& positions = intersectionCurve->getPositions();
+		if (glm::length(positions[0] - positions[positions.size() - 1]) <= math::eps)
+		{
+			// Close the curve if start and end are close
+			for (int i = 0; i < positions.size() - 1; i++)
+			{
+				addPoint(positions[i]);
+				tempSelectedPoints.push_back(points[points.size() - 1].get());
+			}
+			tempSelectedPoints.push_back(points[0].get());
+		}
+		else
+		{
+			for (auto&& position : positions)
+			{
+				addPoint(position);
+				tempSelectedPoints.push_back(points[points.size() - 1].get());
+			}
+		}
+		
+
+		*foundCurve = std::make_unique<InterpolatingSpline>(tempSelectedPoints);
+
+		auto selected = std::find_if(selectedCurves.begin(), selectedCurves.end(), [&](auto&& curve) { return curve == intersectionCurve; });
+		if (selected != selectedCurves.end())
+		{
+			*selected = foundCurve->get();
+		}
+	}
+
 private:
+	friend glm::vec4 conjugateGradientSelf(const Parametric* surface, const glm::vec3& startingPointLocation, const glm::vec4& wrap);
 	const Camera& camera;
 	PointRenderer& pointRenderer;
 	const std::unique_ptr<SolidObject> grid = std::make_unique<Grid>();
@@ -643,7 +749,6 @@ private:
 	std::vector<std::unique_ptr<Torus>> tori;
 	std::vector<std::unique_ptr<Point>> points;
 	std::vector<std::unique_ptr<Curve>> curves;
-	std::vector<std::unique_ptr<Curve>> interpolatingCurves;
 
 	std::vector<std::unique_ptr<Surface>> surfaces;
 	std::unordered_map<Shader*, std::vector<const Surface*>> surfaceTypes;
@@ -656,6 +761,8 @@ private:
 	std::vector<Surface*> selectedSurfaces;
 	Shape* selectedVirtualPointOwner = nullptr;
 	Point* selectedVirtualPoint = nullptr;
+
+	std::unique_ptr<Shader> parametricViewShader = std::make_unique<UniformColorShader>();
 
 	inline glm::vec3 getTranslationFromMouse(float xDiff, float yDiff) const
 	{
@@ -703,5 +810,32 @@ private:
 				surfaceTypes.insert({ shader, std::vector<const Surface*>{surface.get()} });
 			}
 		}
+	}
+
+	void calculateIntersection(Parametric* surface1, Parametric* surface2, float d, const glm::vec4& wrap, bool cursorInitial)
+	{
+		std::unique_ptr<IntersectionCurve> curve;
+		if (surface1 == surface2)
+		{
+			if (cursorInitial)
+				curve = math::calculateSelfIntersection(surface1, parametricViewShader.get(), d, wrap, cursor->getPosition());
+			else
+				curve = math::calculateSelfIntersection(surface1, parametricViewShader.get(), d, wrap);
+		}
+		else
+		{
+			if (cursorInitial)
+				curve = math::calculateIntersection(surface1, surface2, parametricViewShader.get(), d, wrap, cursor->getPosition());
+			else
+				curve = math::calculateIntersection(surface1, surface2, parametricViewShader.get(), d, wrap);
+		}
+
+		surface1->addIntersection(curve.get());
+		surface2->addIntersection(curve.get());
+		curves.push_back(std::move(curve));
+
+		// TODO : remove
+		/*static unsigned int number = 0;
+		points.emplace_back(new Point(curves[curves.size() - 1]->getPositions()[0], std::format("newpoint {}", number++)));*/
 	}
 };

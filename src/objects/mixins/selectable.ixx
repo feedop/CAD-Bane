@@ -1,6 +1,6 @@
 export module selectable;
 
-import <string>;
+import std;
 
 import <glm/vec4.hpp>;
 

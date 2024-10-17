@@ -1,7 +1,6 @@
 export module pointowner;
 
-import <memory>;
-import <vector>;
+import std;
 
 import point;
 import shader;

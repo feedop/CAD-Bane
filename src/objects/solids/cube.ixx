@@ -1,6 +1,6 @@
 export module cube;
 
-import <vector>;
+import std;
 
 import <glm/vec2.hpp>;
 import <glm/vec3.hpp>;

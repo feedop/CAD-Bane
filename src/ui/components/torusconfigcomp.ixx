@@ -1,7 +1,7 @@
 export module gui:torusconfigcomp;
 
-import <algorithm>;
-import <format>;
+import std;
+
 import <imgui/imgui/imgui.h>;
 
 import gui.controller;
