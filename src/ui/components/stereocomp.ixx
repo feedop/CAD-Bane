@@ -1,6 +1,6 @@
 export module gui:stereocomp;
 
-import gui.controller;
+import :controller;
 
 export void GuiController::renderStereoConfig()
 {

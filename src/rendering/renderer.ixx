@@ -1,16 +1,14 @@
 export module renderer;
 
 import std;
+import glm;
 
 import <glad/glad.h>;
-
-import <glm/vec3.hpp>;
-import <glm/vec4.hpp>;
-import <glm/gtc/matrix_transform.hpp>;
 
 import camera;
 import canvas;
 import colors;
+import config;
 import intersectioncurve;
 import solidobject;
 import scene;
@@ -21,6 +19,9 @@ import c2surface;
 import gregorysurface;
 import raycaster;
 import shader;
+import glutils;
+import math;
+import depthbmp;
 
 
 /// <summary>
@@ -118,10 +119,10 @@ public:
 
 	void selectObjectFromScreen(double x, double y, bool selectMultiple)
 	{
-		fillDepthBuffer();
+		fillClickDepthBuffer();
 
 		float depth;
-		glReadPixels(x, windowHeight - y - 1, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth);
+		glReadPixels(static_cast<int>(x), static_cast<int>(windowHeight - y - 1), 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth);
 		glm::vec4 viewport = glm::vec4(0, 0, windowWidth, windowHeight);
 		glm::vec3 wincoord = glm::vec3(x, windowHeight - y - 1, depth);
 		glm::vec3 objcoord = glm::unProject(wincoord, camera.getView(), camera.getProjection(), viewport);
@@ -141,6 +142,57 @@ public:
 	void resetParametricViewCurve()
 	{
 		parametricViewCanvas.reset();
+	}
+
+	std::vector<float> getPathHeightMap(int size) const
+	{
+		static constexpr float scaleFactor = 1.0f / 7.5f;
+
+		glEnable(GL_DEPTH_TEST);
+		glClear(GL_DEPTH_BUFFER_BIT);
+		ScopedDisableColorWrite disable;
+
+		static constexpr float zNear = 0.00001f;
+		static constexpr float zFar = 1.0f;
+		auto linearizeDepth = [](float d)
+		{
+			float z_n = 2.0 * d - 1.0;
+			return 2.0 * zNear * zFar / (zFar + zNear - z_n * (zFar - zNear));
+		};
+
+		// Surfaces	
+		for (auto&& [shader, surfaces] : scene.getSurfaceTypes())
+		{
+			shader->use();
+			shader->setMatrix("view", math::translate({ 0, 0, -1.0f }) * math::scale({ scaleFactor, scaleFactor, scaleFactor }) * math::translate({ 0, 0, -1.5f }));
+			shader->setMatrix("projection", /*glm::perspective(200.0f,1.0f,zNear, zFar)*/ glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, zNear, zFar));
+			for (auto&& surface : surfaces)
+			{
+				auto densityX = surface->getDensityX();
+				auto densityZ = surface->getDensityZ();
+				surface->setDensityX(64);
+				surface->setDensityZ(64);
+				surface->draw(shader);
+				surface->setDensityX(densityX);
+				surface->setDensityZ(densityZ);
+			}
+		}
+
+		// Download the depth buffer data
+		std::vector<float> depthData(size * size);;
+		glReadPixels(0, 0, size, size, GL_DEPTH_COMPONENT, GL_FLOAT, depthData.data());
+		std::transform(std::execution::par, depthData.begin(), depthData.end(), depthData.begin(), [&](auto d)
+		{
+			float linearDepth = linearizeDepth(d);
+			return (1.0f - d) * 7.5f + 1.5f;
+		});
+		float min = *std::min_element(depthData.begin(), depthData.end());
+		float max = *std::max_element(depthData.begin(), depthData.end());
+
+		if constexpr (cfg::savePathTextures)
+			saveDepthBmp(depthData, size, size, "paths/depth.bmp");
+
+		return depthData;
 	}
 
 private:
@@ -276,11 +328,11 @@ private:
 	}
 
 	// Fill depth buffer with only torus and point data without actually rendering
-	void fillDepthBuffer()
+	void fillClickDepthBuffer()
 	{
 		glEnable(GL_DEPTH_TEST);
 		glClear(GL_DEPTH_BUFFER_BIT);
-		glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+		ScopedDisableColorWrite disable;
 
 		// Tori
 		uniformColorShader->use();
@@ -302,8 +354,6 @@ private:
 		}
 
 		// Points
-		
 		pointRenderer.draw(pointShader.get());
-		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 	}
 };

@@ -1,11 +1,10 @@
 export module surface;
 
 import std;
+import glm;
 
 import <glad/glad.h>;
 
-import <glm/vec3.hpp>;
-import <glm/mat4x4.hpp>;
 import <Serializer/Serializer.h>;
 
 import parametric;
@@ -21,10 +20,17 @@ public:
 	{
 		return densityX;
 	}
-
+	inline void setDensityX(float newDensityX)
+	{
+		densityX = newDensityX;
+	}
 	inline float getDensityZ() const
 	{
 		return densityZ;
+	}
+	inline void setDensityZ(float newDensityZ)
+	{
+		densityZ = newDensityZ;
 	}
 
 	void translate(const glm::vec3& positionChange)
@@ -48,28 +54,28 @@ public:
 	{
 		return cylinder;
 	}
-	inline int getSizeX() const
+	inline void setSizeX(int newSizeX)
 	{
-		return sizeX;
+		sizeX = newSizeX;
 	}
 	inline int getSizeZ() const
 	{
 		return sizeZ;
-	}
+	}	
 
 	virtual Shader* getPreferredShader() const = 0;
 
-	virtual glm::vec3 evaluate(float u, float v) const override
+	virtual glm::vec3 evaluate(float u, float v, float toolRadius) const override
 	{
 		return { 0, 0, 0 };
 	}
 
-	virtual glm::vec3 derivativeU(float u, float v) const override
+	virtual glm::vec3 derivativeU(float u, float v, float toolRadius) const override
 	{
 		return { 0, 0, 1 };
 	}
 
-	virtual glm::vec3 derivativeV(float u, float v) const override
+	virtual glm::vec3 derivativeV(float u, float v, float toolRadius) const override
 	{
 		return { 1, 0, 0 };
 	}

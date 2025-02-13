@@ -1,13 +1,9 @@
 export module cpuraycasting;
 
 import std;
+import glm;
 
 import <glad/glad.h>;
-
-import <glm/vec4.hpp>;
-import <glm/mat4x4.hpp>;
-import <glm/ext/matrix_transform.hpp>;
-import <glm/gtx/matrix_operation.hpp>;
 
 import camera;
 import ellipsoid;

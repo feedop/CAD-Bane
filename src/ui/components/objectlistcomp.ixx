@@ -8,7 +8,7 @@ import c0bezier;
 import c0surface;
 import c2bezier;
 import c2surface;
-import gui.controller;
+import :controller;
 import imguiext;
 import interpolatingspline;
 import intersectioncurve;

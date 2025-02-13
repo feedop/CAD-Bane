@@ -1,11 +1,10 @@
 export module patch;
 
 import std;
+import glm;
 
 import <glad/glad.h>;
 
-import <glm/vec3.hpp>;
-import <glm/vec4.hpp>;
 import <Serializer/Serializer.h>;
 
 import colors;
@@ -139,7 +138,7 @@ public:
 		return points;
 	}
 
-	virtual glm::vec3 evaluate(float u, float v) const override
+	virtual glm::vec3 evaluate(float u, float v, float toolRadius) const override
 	{
 		glm::vec3 bernsteins[4];
 		for (int i = 0; i < 4; i++)
@@ -152,12 +151,38 @@ public:
 				v
 			);
 		}
-		return math::deCasteljau3(bernsteins[0], bernsteins[1], bernsteins[2], bernsteins[3], u);
+		auto ret = math::deCasteljau3(bernsteins[0], bernsteins[1], bernsteins[2], bernsteins[3], u);
+
+		if (toolRadius != 0.0f)
+		{
+			auto PU = derivativeU(u, v);
+			auto PV = derivativeV(u, v);
+			auto np = glm::cross(PU, PV);
+
+			ret += glm::normalize(np) * toolRadius;
+		}
+		return ret;
 	}
 
-	virtual glm::vec3 derivativeU(float u, float v) const override
+	virtual glm::vec3 derivativeU(float u, float v, float toolRadius = 0.0f) const override
 	{
-		glm::vec3 bernsteins[4];
+		/*if (u < math::eps)
+		{
+			auto len = glm::length(derivativeU(2 * math::eps, v, toolRadius));
+			return glm::vec3{ 0, 1, 0 } *len;
+		}
+		if (u > 1.0f - math::derivativeH)
+		{
+			auto len = glm::length(derivativeU(u - math::derivativeH, v, toolRadius));
+			return glm::vec3{ 0, 1, 0 } * len;
+		}*/
+
+		if (u > 1.0f - math::derivativeH)
+			return derivativeU(u - math::derivativeH, v, toolRadius);
+		return (evaluate(u + math::derivativeH, v, toolRadius) - evaluate(u, v, toolRadius)) / math::derivativeH;
+
+		// Analytical derivative
+		/*glm::vec3 bernsteins[4];
 		for (int i = 0; i < 4; i++)
 		{
 			bernsteins[i] = math::deCasteljau3(
@@ -168,12 +193,26 @@ public:
 				v
 			);
 		}
-		return math::deCasteljau3Derivative(bernsteins[0], bernsteins[1], bernsteins[2], bernsteins[3], u);
+		return math::deCasteljau3Derivative(bernsteins[0], bernsteins[1], bernsteins[2], bernsteins[3], u);*/
 	}
 
-	virtual glm::vec3 derivativeV(float u, float v) const override
+	virtual glm::vec3 derivativeV(float u, float v, float toolRadius = 0.0f) const override
 	{
-		glm::vec3 bernsteins[4];
+		/*if (v < math::eps)
+		{
+			auto len = glm::length(derivativeV(u, 2 * math::eps, toolRadius));
+			return glm::vec3{ 0, 1, 0 } *len;
+		}
+		if (v > 1.0f - math::derivativeH)
+		{
+			auto len = glm::length(derivativeV(u, v - math::derivativeH, toolRadius));
+			return glm::vec3{ 0, 1, 0 } *len;
+		}*/
+
+		if (v > 1.0f - math::derivativeH)
+			return derivativeV(u, v - math::derivativeH, toolRadius);
+		return (evaluate(u, v + math::derivativeH, toolRadius) - evaluate(u, v, toolRadius)) / math::derivativeH;
+		/*glm::vec3 bernsteins[4];
 		for (int i = 0; i < 4; i++)
 		{
 			bernsteins[i] = math::deCasteljau3Derivative(
@@ -184,7 +223,7 @@ public:
 				v
 			);
 		}
-		return math::deCasteljau3(bernsteins[0], bernsteins[1], bernsteins[2], bernsteins[3], u);
+		return math::deCasteljau3(bernsteins[0], bernsteins[1], bernsteins[2], bernsteins[3], u);*/
 	}
 
 private:

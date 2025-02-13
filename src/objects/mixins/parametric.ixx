@@ -1,8 +1,9 @@
 export module parametric;
 
+import glm;
+
 import <glad/glad.h>;
 
-import <glm/vec3.hpp>;
 import shader;
 
 export
@@ -31,11 +32,11 @@ public:
 			removeSurfaceFromCurve(intersectionCurve, this);
 	}
 
-	virtual glm::vec3 evaluate(float u, float v) const = 0;
+	virtual glm::vec3 evaluate(float u, float v, float toolRadius) const = 0;
 
-	virtual glm::vec3 derivativeU(float u, float v) const = 0;
+	virtual glm::vec3 derivativeU(float u, float v, float toolRadius) const = 0;
 
-	virtual glm::vec3 derivativeV(float u, float v) const = 0;
+	virtual glm::vec3 derivativeV(float u, float v, float toolRadius) const = 0;
 
 	virtual constexpr float getRange() const
 	{

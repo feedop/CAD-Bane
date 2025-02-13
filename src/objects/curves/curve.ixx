@@ -1,10 +1,10 @@
 export module curve;
 
 import std;
+import glm;
 
 import <glad/glad.h>;
 
-import <glm/vec3.hpp>;
 import <Serializer/Serializer.h>;
 
 import colors;

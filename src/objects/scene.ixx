@@ -1,10 +1,8 @@
 export module scene;
 
 import std;
+import glm;
 
-import <glm/vec3.hpp>;
-import <glm/vec4.hpp>;
-import <glm/gtc/constants.hpp>;
 import <Serializer/Serializer.h>;
 
 import c0bezier;
@@ -38,14 +36,8 @@ export class Scene
 public:
 	void init()
 	{
-		//addSurface<C0Surface>(1, 0.5f);
-		//addSurface<C0Surface>(1, 1);
-		// 
-		//addTorus({ 1.1 , 0, 0 });
-		//addTorus({ -1.1, 0, 0 });
-
 		/*MG1::SceneSerializer serializer;
-		serializer.LoadScene("examples/itersectionsFull.json");
+		serializer.LoadScene("examples/FISH/everything_final.json");
 		auto& mgscene = MG1::Scene::Get();
 		deserialize(mgscene);*/
 	}
@@ -153,6 +145,11 @@ public:
 
 		MiddlePoint::getInstance().calculateMiddlePoint(selectedTori, selectedPoints);
 		pointRenderer.update(points);
+
+		for (auto&& point : points)
+		{
+			point->resetMoved();
+		}
 	}
 
 	void rotateObjects(float xDiff, float yDiff)
@@ -398,15 +395,6 @@ public:
 		auto ptr1 = selectedPoints[0];
 		auto ptr2 = selectedPoints[1];
 
-		//for (auto&& attachedTo1 : ptr1->getAttachmentList())
-		//{
-		//	if (ptr1->getAttachmentList().contains(attachedTo1))
-		//	{
-		//		// TODO - handle this case
-		//		return;
-		//	}
-		//}
-
 		points.emplace_back(new Point(0.5f * (ptr1->getPosition() + ptr2->getPosition())));
 
 		for (auto&& attachment : ptr1->getAttachmentList())
@@ -631,6 +619,17 @@ public:
 
 		for (auto&& point : points)
 		{
+			////  ------------ REMOVE ------------
+			/*auto newPosition = point->getPosition() * 2.0f;
+			newPosition = newPosition + glm::vec3{-5.5f, 0.0f, 1.5f};
+			point->setPosition(newPosition);*/
+
+			/*auto newPosition = point->getPosition();
+			newPosition.x *= 1.1f;
+			newPosition.y *= 1.2f;
+			point->setPosition(newPosition);*/
+			////  ------------ REMOVE ------------
+
 			mgscene.points.emplace_back(*point);
 		}
 
@@ -662,7 +661,6 @@ public:
 		{	
 			if (selectedTori.size() == 1)
 			{
-				//return;
 				static constexpr float stepU = 0.1f;
 				static constexpr float stepV = 1.3f;
 				for (float u = 0.0f; u <= 0.2f; u += stepU)
@@ -740,6 +738,11 @@ public:
 		}
 	}
 
+	inline const Shader* getIntersectionShader() const
+	{
+		return parametricViewShader.get();
+	}
+
 private:
 	friend glm::vec4 conjugateGradientSelf(const Parametric* surface, const glm::vec3& startingPointLocation, const glm::vec4& wrap);
 	const Camera& camera;
@@ -751,7 +754,7 @@ private:
 	std::vector<std::unique_ptr<Curve>> curves;
 
 	std::vector<std::unique_ptr<Surface>> surfaces;
-	std::unordered_map<Shader*, std::vector<const Surface*>> surfaceTypes;
+	std::unordered_map<Shader*, std::vector<Surface*>> surfaceTypes;
 
 	std::unique_ptr<SolidObject> cursor;
 
@@ -774,6 +777,7 @@ private:
 		selectedTori.clear();
 		for (auto&& torus : tori)
 		{
+			torus->isSelected = false;
 			torus->isSelected = false;
 		}
 
@@ -807,7 +811,7 @@ private:
 			}
 			else
 			{
-				surfaceTypes.insert({ shader, std::vector<const Surface*>{surface.get()} });
+				surfaceTypes.insert({ shader, std::vector<Surface*>{surface.get()} });
 			}
 		}
 	}
@@ -833,9 +837,5 @@ private:
 		surface1->addIntersection(curve.get());
 		surface2->addIntersection(curve.get());
 		curves.push_back(std::move(curve));
-
-		// TODO : remove
-		/*static unsigned int number = 0;
-		points.emplace_back(new Point(curves[curves.size() - 1]->getPositions()[0], std::format("newpoint {}", number++)));*/
 	}
 };

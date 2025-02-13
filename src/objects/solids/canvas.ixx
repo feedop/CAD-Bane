@@ -1,10 +1,7 @@
 export module canvas;
 
 import std;
-
-import <glm/vec2.hpp>;
-import <glm/vec3.hpp>;
-import <glm/mat4x4.hpp>;
+import glm;
 
 import shader;
 

@@ -1,11 +1,9 @@
 export module shader;
 
 import std;
+import glm;
 
 import <glad/glad.h>;
-
-import <glm/glm.hpp>;
-import <glm/gtc/type_ptr.hpp>;
 
 
 std::string getShaderCode(const std::string& filePath)
@@ -40,13 +38,13 @@ GLuint compileShader(GLuint type, const char* shaderCode)
     char infoLog[512];
 
     GLuint shader = glCreateShader(type);
-    glShaderSource(shader, 1, &shaderCode, NULL);
+    glShaderSource(shader, 1, &shaderCode, nullptr);
     glCompileShader(shader);
     // print compile errors if any
     glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
     if (!success)
     {
-        glGetShaderInfoLog(shader, 512, NULL, infoLog);
+        glGetShaderInfoLog(shader, 512, nullptr, infoLog);
         std::cout << "ERROR::SHADER::COMPILATION_FAILED\n" << infoLog << std::endl;
         exit(1);
     };
@@ -110,7 +108,7 @@ protected:
         glGetProgramiv(id, GL_LINK_STATUS, &success);
         if (!success)
         {
-            glGetProgramInfoLog(id, 512, NULL, infoLog);
+            glGetProgramInfoLog(id, 512, nullptr, infoLog);
             std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
         }
     }

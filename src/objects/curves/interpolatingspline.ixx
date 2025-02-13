@@ -1,10 +1,9 @@
 export module interpolatingspline;
 
 import std;
+import glm;
 
 import <glad/glad.h>;
-import <glm/vec3.hpp>;
-import <glm/vec4.hpp>;
 
 import curve;
 import glutils;

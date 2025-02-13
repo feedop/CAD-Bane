@@ -1,6 +1,6 @@
 export module ellipsoid;
 
-import <glm/vec3.hpp>;
+import glm;
 
 /// <summary>
 /// Ellipsoid description

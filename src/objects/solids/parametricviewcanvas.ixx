@@ -1,65 +1,17 @@
 export module parametricviewcanvas;
 
 import std;
+import glm;
 
 import <glad/glad.h>;
-
-import <glm/mat4x4.hpp>;
-import <glm/vec2.hpp>;
 
 import canvas;
 import glutils;
 import math;
 import shader;
+import floodfill;
 
 inline constexpr int size = 512;
-
-inline int toIndex(int x, int y)
-{
-	return y * size + x;
-}
-
-inline bool isValid(int x, int y, int rows, int cols)
-{
-	return (x >= 0 && x < rows && y >= 0 && y < cols);
-}
-
-inline bool isSkippable(const std::vector<glm::vec3>& positions, int i)
-{
-	return std::abs(positions[i - 1].x - positions[i].x) > 0.9f ||
-		std::abs(positions[i - 1].y - positions[i].y) > 0.9f;
-}
-
-glm::vec3 endAtEdge(const glm::vec3& pos)
-{
-	static constexpr float tol = 5e-2;
-	glm::vec3 newPos = pos;
-	if (newPos.x < -1.0f + tol)
-		newPos.x = -1.2f;
-	else if (newPos.x > 1.0f - tol)
-		newPos.x = 1.2f;
-
-	if (newPos.y < -1.0f + tol)
-		newPos.y = -1.2f;
-	else if (newPos.y > 1.0f - tol)
-		newPos.y = 1.2f;
-
-	return newPos;
-}
-
-std::vector<glm::vec3> adaptPositions(const std::vector<glm::vec3>& positions)
-{
-	std::vector<glm::vec3> ret;
-	for (int i = 1; i < positions.size(); i++)
-	{
-		if (isSkippable(positions, i))
-			continue;
-
-		ret.push_back(endAtEdge(positions[i - 1]));
-		ret.push_back(endAtEdge(positions[i]));
-	}
-	return ret;
-}
 
 export class ParametricViewCanvas : public Canvas
 {
@@ -93,7 +45,6 @@ public:
 
 		ScopedBindArray ba(VAO);
 		glBindBuffer(GL_ARRAY_BUFFER, VBO);
-
 		glBufferData(GL_ARRAY_BUFFER, adaptedPositions.size() * sizeof(glm::vec3), &adaptedPositions[0], GL_STATIC_DRAW);
 
 		// vertex positions
@@ -144,7 +95,7 @@ private:
 		while (data[start].x == 1.0f && start < size * size)
 			start++;
 
-		floodfill(data, start % size, start / size);
+		floodFillColor(data, start % size, start / size, size);
 
 		unsigned int trimmingTex;
 		glGenTextures(1, &trimmingTex);
@@ -154,40 +105,5 @@ private:
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size, size, 0, GL_RGBA, GL_FLOAT, &data[0]);
 
 		return trimmingTex;
-	}
-
-	void floodfill(std::vector<glm::vec4>& image, int x, int y)
-	{
-		auto initialColor = image[toIndex(x, y)];
-		const glm::vec4 newColor{ 1.0f, 1.0f, 1.0f, 1.0f };
-
-		// Directions array for 4-directional movement (up, down, left, right)
-		std::vector<std::pair<int, int>> directions = { {-1, 0}, {1, 0}, {0, -1}, {0, 1} };
-
-		// Queue to store the points to process
-		std::queue<std::pair<int, int>> q;
-		q.push({ x, y });
-		image[toIndex(x, y)] = newColor; // Set the starting point to the new color
-
-		// BFS loop
-		while (!q.empty())
-		{
-			auto [x, y] = q.front();
-			q.pop();
-
-			// Process all 4 neighbors
-			for (const auto& dir : directions)
-			{
-				int newX = x + dir.first;
-				int newY = y + dir.second;
-
-				// If the new coordinates are valid and the cell has the initial color
-				if (isValid(newX, newY, size, size) && image[toIndex(newX, newY)] == initialColor)
-				{
-					image[toIndex(newX, newY)] = newColor;  // Change color
-					q.push({ newX, newY });  // Add to queue for further processing
-				}
-			}
-		}
 	}
 };

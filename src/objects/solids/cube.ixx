@@ -1,9 +1,7 @@
 export module cube;
 
 import std;
-
-import <glm/vec2.hpp>;
-import <glm/vec3.hpp>;
+import glm;
 
 import shader;
 import texturedobject;

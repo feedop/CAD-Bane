@@ -1,12 +1,11 @@
 export module math:bezier;
 
 import std;
-
-import <glm/vec3.hpp>;
+import glm;
 
 export namespace math
 {
-	inline constexpr float derivativeH = 1e-5f;
+	inline constexpr float derivativeH = 1e-3f;
 
 	auto deCasteljauSplit3(const glm::vec3& b00, const glm::vec3& b10, const glm::vec3& b20, const glm::vec3& b30, float t)
 	{

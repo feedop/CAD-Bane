@@ -1,7 +1,7 @@
 export module gui:ellipsoidcomp;
 
 import config;
-import gui.controller;
+import :controller;
 
 export void GuiController::renderEllipsoid()
 {

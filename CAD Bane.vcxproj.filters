@@ -18,9 +18,6 @@
     <ClCompile Include="src\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="external\include\glm\detail\glm.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\glad.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -150,13 +147,13 @@
     <ClCompile Include="src\objects\scene.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\utils\scopedbindarray.ixx">
+    <ClCompile Include="src\utils\glutils\scopedbindarray.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\utils\scopedlinewidth.ixx">
+    <ClCompile Include="src\utils\glutils\scopedlinewidth.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\utils\glutils.ixx">
+    <ClCompile Include="src\utils\glutils\glutils.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\objects\curves\c2bezier.ixx">
@@ -165,7 +162,7 @@
     <ClCompile Include="src\objects\mixins\drawable.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\utils\colors.ixx">
+    <ClCompile Include="src\utils\colors\colors.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\objects\curves\interpolatingspline.ixx">
@@ -246,6 +243,54 @@
     <ClCompile Include="src\objects\solids\parametricviewcanvas.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\paths\paths.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\paths\roughpath.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utils\glutils\scopeddisablecolorwrite.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utils\colors\depthbmp.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\paths\intersectionconfig.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\paths\detailedpath.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\objects\surfaces\dummysurface.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utils\colors\floodfill.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\paths\multitexture.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\paths\floodfillconfig.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utils\colors\imopen.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\paths\pathutils.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\paths\flatpath.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\paths\concavehull.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="external\include\glm\detail\glm.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="external\include\glm\glm.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external\include\KHR\khrplatform.h">
@@ -258,6 +303,54 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="external\include\GLFW\glfw3native.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="external\include\imgui\imgui\imconfig.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="external\include\imgui\imgui\imgui.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="external\include\imgui\imgui\imgui_internal.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="external\include\imgui\imgui\imstb_rectpack.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="external\include\imgui\imgui\imstb_textedit.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="external\include\imgui\imgui\imstb_truetype.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="external\include\imgui\backend\imgui_impl_glfw.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="external\include\imgui\backend\imgui_impl_opengl3.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="external\include\imgui\backend\imgui_impl_opengl3_loader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="external\include\imguiFileDialog\dirent\dirent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="external\include\imguiFileDialog\ImGuiFileDialog.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="external\include\imguiFileDialog\ImGuiFileDialogConfig.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="external\include\imguiFileDialog\stb\stb_image.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="external\include\imguiFileDialog\stb\stb_image_resize2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="external\include\concavehull\concavehull.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="external\include\concavehull\thirdparty\delaunator-header-only.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="external\include\glm\common.hpp">
@@ -1121,50 +1214,37 @@
     <ClInclude Include="external\include\glm\vector_relational.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="external\include\imgui\imgui\imconfig.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="external\include\imgui\imgui\imgui.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="external\include\imgui\imgui\imgui_internal.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="external\include\imgui\imgui\imstb_rectpack.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="external\include\imgui\imgui\imstb_textedit.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="external\include\imgui\imgui\imstb_truetype.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="external\include\imgui\backend\imgui_impl_glfw.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="external\include\imgui\backend\imgui_impl_opengl3.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="external\include\imgui\backend\imgui_impl_opengl3_loader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="external\include\imguiFileDialog\dirent\dirent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="external\include\imguiFileDialog\ImGuiFileDialog.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="external\include\imguiFileDialog\ImGuiFileDialogConfig.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="external\include\imguiFileDialog\stb\stb_image.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="external\include\imguiFileDialog\stb\stb_image_resize2.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <None Include="shaders\flattexture.vert" />
+    <None Include="shaders\flattexture.frag" />
+    <None Include="shaders\raycasting.vert" />
+    <None Include="shaders\raycasting.frag" />
+    <None Include="shaders\checkergrid.frag" />
+    <None Include="shaders\checkergrid.vert" />
+    <None Include="shaders\infinitegrid.frag" />
+    <None Include="shaders\infinitegrid.vert" />
+    <None Include="shaders\multicolor.frag" />
+    <None Include="shaders\multicolor.vert" />
+    <None Include="shaders\uniformcolor.frag" />
+    <None Include="shaders\uniformcolor.vert" />
+    <None Include="shaders\point.vert" />
+    <None Include="shaders\point.frag" />
+    <None Include="shaders\curve.vert" />
+    <None Include="shaders\curve.tesc" />
+    <None Include="shaders\bezier3.tese" />
+    <None Include="shaders\bezier2.tese" />
+    <None Include="shaders\interpolating.tesc" />
+    <None Include="shaders\interpolating.tese" />
+    <None Include="shaders\surface.tesc" />
+    <None Include="shaders\c0surface.tese" />
+    <None Include="shaders\c2surface.tese" />
+    <None Include="shaders\gregory.tesc" />
+    <None Include="shaders\gregory.tese" />
+    <None Include="shaders\trim.frag" />
+    <None Include="shaders\torus.vert" />
+    <None Include="external\include\concavehull\LICENSE" />
+    <None Include="external\include\concavehull\README.md" />
     <None Include="external\include\glm\detail\func_common.inl">
       <Filter>Header Files</Filter>
     </None>
@@ -1582,33 +1662,6 @@
     <None Include="external\include\glm\gtx\wrap.inl">
       <Filter>Header Files</Filter>
     </None>
-    <None Include="shaders\flattexture.vert" />
-    <None Include="shaders\flattexture.frag" />
-    <None Include="shaders\raycasting.vert" />
-    <None Include="shaders\raycasting.frag" />
-    <None Include="shaders\checkergrid.frag" />
-    <None Include="shaders\checkergrid.vert" />
-    <None Include="shaders\infinitegrid.frag" />
-    <None Include="shaders\infinitegrid.vert" />
-    <None Include="shaders\multicolor.frag" />
-    <None Include="shaders\multicolor.vert" />
-    <None Include="shaders\uniformcolor.frag" />
-    <None Include="shaders\uniformcolor.vert" />
-    <None Include="shaders\point.vert" />
-    <None Include="shaders\point.frag" />
-    <None Include="shaders\curve.vert" />
-    <None Include="shaders\curve.tesc" />
-    <None Include="shaders\bezier3.tese" />
-    <None Include="shaders\bezier2.tese" />
-    <None Include="shaders\interpolating.tesc" />
-    <None Include="shaders\interpolating.tese" />
-    <None Include="shaders\surface.tesc" />
-    <None Include="shaders\c0surface.tese" />
-    <None Include="shaders\c2surface.tese" />
-    <None Include="shaders\gregory.tesc" />
-    <None Include="shaders\gregory.tese" />
-    <None Include="shaders\trim.frag" />
-    <None Include="shaders\torus.vert" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="external\lib\glfw3.lib" />

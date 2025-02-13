@@ -1,8 +1,7 @@
 export module middlepoint;
 
 import std;
-
-import <glm/vec3.hpp>;
+import glm;
 
 import colors;
 import point;

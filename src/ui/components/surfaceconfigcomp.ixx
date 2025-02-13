@@ -4,7 +4,7 @@ import std;
 
 import <imgui/imgui/imgui.h>;
 
-import gui.controller;
+import :controller;
 import torus;
 
 export void GuiController::renderSurfaceConfig()

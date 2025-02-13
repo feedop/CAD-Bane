@@ -1,10 +1,7 @@
 export module math:phong;
 
-import <glm/geometric.hpp>;
-import <glm/vec3.hpp>;
-import <glm/mat4x4.hpp>;
-
 import std;
+import glm;
 
 export namespace math
 {

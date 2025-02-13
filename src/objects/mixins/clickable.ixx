@@ -1,6 +1,6 @@
 export module clickable;
 
-import <glm/vec3.hpp>;
+import glm;
 
 export class Clickable
 {

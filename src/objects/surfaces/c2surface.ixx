@@ -1,10 +1,9 @@
 export module c2surface;
 
 import std;
+import glm;
 
 import <glad/glad.h>;
-
-import <glm/vec3.hpp>;
 
 import colors;
 import glutils;
@@ -24,7 +23,7 @@ public:
 			auto offset = i * distanceX;
 			for (int j = 0; j < sizeZ; j++)
 			{
-				points.emplace_back(new Point(position + glm::vec3{ 0, offset, j * distanceZ })); // TODO : swap x and y
+				points.emplace_back(new Point(position + glm::vec3{ 0, offset, j * distanceZ }));
 			}
 		}
 		attachPoints();
@@ -304,7 +303,7 @@ public:
 		preferredShader = shader;
 	}
 
-	virtual glm::vec3 evaluate(float u, float v) const override
+	virtual glm::vec3 evaluate(float u, float v, float toolRadius) const override
 	{
 		
 		return eval(u, v, [&](int knotIndexZ, int knotIndexX, int knotCountZ, int knotCountX, int indexU, int indexV, int indexSizeZ, float newU, float newV)
@@ -323,26 +322,36 @@ public:
 					positions[indices[offset + 12 + i]] * Nv[4];
 			}
 
-			return
+			auto ret =
 				deBoors[0] * Nu[1] +
 				deBoors[1] * Nu[2] +
 				deBoors[2] * Nu[3] +
 				deBoors[3] * Nu[4];
+
+			if (toolRadius != 0.0f)
+			{
+				auto PU = derivativeU(u, v);
+				auto PV = derivativeV(u, v);
+				auto np = glm::cross(PU, PV);
+
+				ret += glm::normalize(np) * toolRadius;
+			}
+			return ret;
 		});
 	}
 
-	virtual glm::vec3 derivativeU(float u, float v) const override
+	virtual glm::vec3 derivativeU(float u, float v, float toolRadius = 0.0f) const override
 	{
 		if (u == 1.0f)
-			return derivativeU(u - math::derivativeH, v);
-		return (evaluate(u + math::derivativeH, v) - evaluate(u, v)) / math::derivativeH;
+			return derivativeU(u - math::derivativeH, v, toolRadius);
+		return (evaluate(u + math::derivativeH, v, toolRadius) - evaluate(u, v, toolRadius)) / math::derivativeH;
 	}
 
-	virtual glm::vec3 derivativeV(float u, float v) const override
+	virtual glm::vec3 derivativeV(float u, float v, float toolRadius = 0.0f) const override
 	{
 		if (v == 1.0f)
-			return derivativeV(u, v - math::derivativeH);
-		return (evaluate(u, v + math::derivativeH) - evaluate(u, v)) / math::derivativeH;
+			return derivativeV(u, v - math::derivativeH, toolRadius);
+		return (evaluate(u, v + math::derivativeH, toolRadius) - evaluate(u, v, toolRadius)) / math::derivativeH;
 	}
 
 private:
@@ -450,10 +459,10 @@ private:
 	{
 		auto indexSizeZ = cylinder ? sizeZ : sizeZ - 3;
 		float fIndexV = v * (sizeX - 3);
-		int indexV = fIndexV;
+		int indexV = static_cast<int>(fIndexV);
 		float newV = fIndexV - indexV;
 		float fIndexU = u * indexSizeZ;
-		int indexU = fIndexU;
+		int indexU = static_cast<int>(fIndexU);
 		float newU = fIndexU - indexU;
 
 		if (v >= 1.0f - math::eps)

@@ -1,10 +1,9 @@
 export module solidobject;
 
 import std;
+import glm;
 
 import <glad/glad.h>;
-
-import <glm/mat4x4.hpp>;
 
 import drawable;
 import math;

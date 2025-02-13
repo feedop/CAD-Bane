@@ -1,18 +1,18 @@
-export module gui.controller;
+export module gui:controller;
 
 import std;
+import glm;
 
 import <imgui.h>;
 import <imgui/backend/imgui_impl_glfw.h>;
 import <imgui/backend/imgui_impl_opengl3.h>;
 import <GLFW/glfw3.h>;
 
-import <glm/vec2.hpp>;
-import <glm/vec3.hpp>;
-
 import camera;
+import config;
 import ellipsoid;
 import scene;
+import paths;
 import raycaster;
 import renderer;
 import theme;
@@ -97,7 +97,21 @@ public:
             if (ImGui::Button("Close parametric view window"))
                 renderer.resetParametricViewCurve();
         }
-            
+
+        if (ImGui::Button("Generate paths"))
+        {
+            if constexpr (cfg::enablePathGeneration)
+                paths::generatePaths(scene, renderer);
+        }
+
+        /*ImGui::Text("Cursor position: ");
+        auto&& cursorPosition = scene.getCursor()->getPosition();
+        auto text = std::format("glm::vec3({}, {}, {})", cursorPosition.x, cursorPosition.y, cursorPosition.z).c_str();
+        ImGui::Text(text);
+        if (ImGui::Button("Copy"))
+        {
+            ImGui::SetClipboardText(text);
+        }*/
 
         renderTorusConfig();
         renderSurfaceConfig();

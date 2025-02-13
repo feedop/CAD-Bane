@@ -1,6 +1,7 @@
 export module mg1utils;
 
-import <glm/vec3.hpp>;
+import glm;
+
 import <Serializer/Serializer.h>;
 
 class Point;

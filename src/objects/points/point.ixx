@@ -1,8 +1,8 @@
 export module point;
 
 import std;
+import glm;
 
-import <glm/vec3.hpp>;
 import <Serializer/Serializer.h>;
 
 import clickable;
@@ -67,8 +67,11 @@ public:
 
 	virtual void translate(const glm::vec3& positionChange) override
 	{
+		if (movedThisFrame)
+			return;
 		SolidObject::translate(positionChange);
 		update();
+		movedThisFrame = true;
 	}
 
 	virtual void rotateLocal(float angleRadians, const glm::vec3& axis) override
@@ -125,9 +128,15 @@ public:
 		return id;
 	}
 
+	inline void resetMoved()
+	{
+		movedThisFrame = false;
+	}
+
 protected:
 	std::unordered_set<Shape*> attachedTo;
 	glm::vec3 lastPosition{ 0.0f, 0.0f, 0.0f };
+	bool movedThisFrame = false;
 
 	virtual void update() override;
 

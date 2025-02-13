@@ -1,8 +1,7 @@
 export module selectable;
 
 import std;
-
-import <glm/vec4.hpp>;
+import glm;
 
 import colors;
 import shader;

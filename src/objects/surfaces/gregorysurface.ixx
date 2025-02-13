@@ -1,10 +1,9 @@
 export module gregorysurface;
 
 import std;
+import glm;
 
 import <glad/glad.h>;
-
-import <glm/vec3.hpp>;
 
 import colors;
 import glutils;
@@ -47,7 +46,7 @@ public:
 		shader->setVector("color", polygonColor);
 		shader->setMatrix("model", glm::mat4{ 1.0f });
 		{
-			glDrawArrays(GL_LINES, 0, vectorPositions.size());
+			glDrawArrays(GL_LINES, 0, static_cast<GLsizei>(vectorPositions.size()));
 		}
 	}
 
@@ -60,12 +59,12 @@ public:
 		shader->setInt("reverse", false);
 		shader->setFloat("segmentCount", densityZ);
 		glPatchParameteri(GL_PATCH_VERTICES, 20);
-		glDrawArrays(GL_PATCHES, 0, positions.size());
+		glDrawArrays(GL_PATCHES, 0, static_cast<GLsizei>(positions.size()));
 
 		shader->setInt("reverse", true);
 		shader->setFloat("segmentCount", densityX);
 		glPatchParameteri(GL_PATCH_VERTICES, 20);
-		glDrawArrays(GL_PATCHES, 0, positions.size());
+		glDrawArrays(GL_PATCHES, 0, static_cast<GLsizei>(positions.size()));
 	}
 
 	virtual void update() override

@@ -7,5 +7,6 @@ export namespace cfg
 	inline constexpr int initialHeight = 800;
 
 	inline constexpr int maxAdaptationLevel = 5;
-
+	inline constexpr bool enablePathGeneration = false;
+	inline constexpr bool savePathTextures = false;
 }

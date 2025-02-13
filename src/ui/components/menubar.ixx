@@ -1,13 +1,12 @@
 export module gui:menubar;
 
-import config;
-import gui.controller;
-import scene;
-
 import std;
-
 import <imguiFileDialog/ImGuiFileDialog.h>;
 import <Serializer/Serializer.h>;
+
+import config;
+import :controller;
+import scene;
 
 enum class IoOperation
 {

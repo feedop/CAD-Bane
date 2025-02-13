@@ -180,6 +180,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="external\include\glm\detail\glm.cpp" />
+    <ClCompile Include="external\include\glm\glm.ixx" />
     <ClCompile Include="external\include\imguiFileDialog\ImGuiFileDialog.cpp" />
     <ClCompile Include="external\include\imgui\backend\imgui_impl_glfw.cpp" />
     <ClCompile Include="external\include\imgui\backend\imgui_impl_opengl3.cpp" />
@@ -220,10 +221,20 @@
     <ClCompile Include="src\objects\points\virtualpoint.ixx" />
     <ClCompile Include="src\objects\surfaces\c0surface.ixx" />
     <ClCompile Include="src\objects\surfaces\c2surface.ixx" />
+    <ClCompile Include="src\objects\surfaces\dummysurface.ixx" />
     <ClCompile Include="src\objects\surfaces\gregorystructs.ixx" />
     <ClCompile Include="src\objects\surfaces\gregorysurface.ixx" />
     <ClCompile Include="src\objects\surfaces\patch.ixx" />
     <ClCompile Include="src\objects\surfaces\surface.ixx" />
+    <ClCompile Include="src\paths\concavehull.ixx" />
+    <ClCompile Include="src\paths\detailedpath.ixx" />
+    <ClCompile Include="src\paths\pathutils.ixx" />
+    <ClCompile Include="src\paths\flatpath.ixx" />
+    <ClCompile Include="src\paths\floodfillconfig.ixx" />
+    <ClCompile Include="src\paths\intersectionconfig.ixx" />
+    <ClCompile Include="src\paths\multitexture.ixx" />
+    <ClCompile Include="src\paths\paths.ixx" />
+    <ClCompile Include="src\paths\roughpath.ixx" />
     <ClCompile Include="src\raycasting\raycastingop.ixx" />
     <ClCompile Include="src\raycasting\strategy\cpuraycasting.ixx" />
     <ClCompile Include="src\raycasting\strategy\gpuraycasting.ixx" />
@@ -250,14 +261,20 @@
     <ClCompile Include="src\rendering\renderer.ixx" />
     <ClCompile Include="src\rendering\shader.ixx" />
     <ClCompile Include="src\ui\theme.ixx" />
-    <ClCompile Include="src\utils\colors.ixx" />
-    <ClCompile Include="src\utils\glutils.ixx" />
+    <ClCompile Include="src\utils\colors\colors.ixx" />
+    <ClCompile Include="src\utils\colors\depthbmp.ixx" />
+    <ClCompile Include="src\utils\colors\floodfill.ixx" />
+    <ClCompile Include="src\utils\colors\imopen.ixx" />
+    <ClCompile Include="src\utils\glutils\glutils.ixx" />
     <ClCompile Include="src\utils\imguiext.ixx" />
     <ClCompile Include="src\utils\mg1utils.ixx" />
-    <ClCompile Include="src\utils\scopedbindarray.ixx" />
-    <ClCompile Include="src\utils\scopedlinewidth.ixx" />
+    <ClCompile Include="src\utils\glutils\scopedbindarray.ixx" />
+    <ClCompile Include="src\utils\glutils\scopeddisablecolorwrite.ixx" />
+    <ClCompile Include="src\utils\glutils\scopedlinewidth.ixx" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="external\include\concavehull\concavehull.hpp" />
+    <ClInclude Include="external\include\concavehull\thirdparty\delaunator-header-only.hpp" />
     <ClInclude Include="external\include\glad\glad.h" />
     <ClInclude Include="external\include\GLFW\glfw3.h" />
     <ClInclude Include="external\include\GLFW\glfw3native.h" />
@@ -565,6 +582,8 @@
     <ClInclude Include="external\include\KHR\khrplatform.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="external\include\concavehull\LICENSE" />
+    <None Include="external\include\concavehull\README.md" />
     <None Include="external\include\glm\detail\func_common.inl" />
     <None Include="external\include\glm\detail\func_common_simd.inl" />
     <None Include="external\include\glm\detail\func_exponential.inl" />

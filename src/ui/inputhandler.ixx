@@ -1,8 +1,8 @@
 export module inputhandler;
 
 import std;
+import glm;
 
-import <glm/gtc/constants.hpp>;
 import <GLFW/glfw3.h>;
 import <imgui/imgui/imgui.h>;
 
@@ -145,8 +145,8 @@ public:
 		int windowWidth, windowHeight;
 		glfwGetFramebufferSize(window, &windowWidth, &windowHeight);
 
-		float xDiff = dx / windowWidth * math::pi;
-		float yDiff = dy / windowHeight * math::pi;
+		float xDiff = static_cast<float>(dx) / windowWidth * math::pi;
+		float yDiff = static_cast<float>(dy) / windowHeight * math::pi;
 
 		// Cursor movement
 		if (pressedKeys.ALT)

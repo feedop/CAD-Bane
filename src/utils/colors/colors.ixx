@@ -1,7 +1,6 @@
 export module colors;
 
-import <glm/vec4.hpp>;
-import <glm/mat4x4.hpp>;
+import glm;
 
 glm::vec4 arrayToVec4(const float* arr)
 {

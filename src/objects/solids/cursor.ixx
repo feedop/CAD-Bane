@@ -1,10 +1,10 @@
 export module cursor;
 
 import std;
+import glm;
 
 import <glad/glad.h>;
-
-import <glm/vec3.hpp>;
+import <cstddef>;
 
 import glutils;
 import solidobject;

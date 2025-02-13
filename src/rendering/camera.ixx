@@ -1,11 +1,7 @@
 export module camera;
 
 import std;
-
-import <glm/vec3.hpp>;
-import <glm/mat4x4.hpp>;
-import <glm/gtc/constants.hpp>;
-import <glm/ext/matrix_clip_space.hpp>;
+import glm;
 
 import math;
 
@@ -43,13 +39,16 @@ public:
 		return front;
 	}
 
-	inline const glm::mat4& getView() const
+	inline const glm::mat4 getView() const
 	{
+		//static constexpr float scaleFactor = 1.0f / 7.5f;
+		//return math::scale({ scaleFactor, scaleFactor, scaleFactor }) * math::translate({ 0,0,-1.5f });
 		return view;
 	}
 
-	inline const glm::mat4& getProjection() const
+	inline const glm::mat4 getProjection() const
 	{
+		//return glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, -1.0f, 0.0f);
 		return projection;
 	}
 
@@ -162,7 +161,7 @@ private:
 
 	float xRotation = 0;
 	float yRotation = math::pi / 6;
-	float zoomScale = 2.0f;
+	float zoomScale = 20.0f;
 
 	float leftEye = 0.003f, rightEye = 0.003f;
 	float currentEye = 0.0f;

@@ -1,9 +1,9 @@
 export module intersectioncurve;
 
 import std;
+import glm;
 
 import <glad/glad.h>;
-import <glm/vec3.hpp>;
 
 import canvas;
 import colors;

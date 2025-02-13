@@ -1,13 +1,7 @@
 export module math:quat;
 
 import std;
-
-import <glm/vec2.hpp>;
-import <glm/vec3.hpp>;
-import <glm/vec4.hpp>;
-import <glm/mat3x3.hpp>;
-import <glm/mat4x4.hpp>;
-import <glm/gtx/matrix_operation.hpp>;
+import glm;
 
 export namespace math
 {

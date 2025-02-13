@@ -100,7 +100,7 @@ export namespace math
 				auto foundIn1 = findNode(point, border1);
 				if (foundIn1 == border1.end())
 					continue;
-				int indexIn1 = std::distance(border1.cbegin(), foundIn1);
+				int indexIn1 = static_cast<int>(std::distance(border1.cbegin(), foundIn1));
 
 				auto foundIn0Plus3 = findNode(border1[mod(indexIn1 + 3, border1.size())], border0);
 				auto foundIn0Minus3 = findNode(border1[mod(indexIn1 + 3, border1.size())], border0);

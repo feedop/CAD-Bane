@@ -1,8 +1,6 @@
 export module math:matrix;
 
-import <glm/mat4x4.hpp>;
-import <glm/gtc/matrix_transform.hpp>;
-import <glm/gtx/matrix_operation.hpp>;
+import glm;
 
 export namespace math
 {

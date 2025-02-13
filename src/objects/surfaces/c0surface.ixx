@@ -1,8 +1,8 @@
 export module c0surface;
 
 import std;
+import glm;
 
-import <glm/vec3.hpp>;
 import <Serializer/Serializer.h>;
 
 import gregorystructs;
@@ -435,26 +435,23 @@ public:
 		return border;
 	}
 
-	virtual glm::vec3 evaluate(float u, float v) const override
+	virtual glm::vec3 evaluate(float u, float v, float toolRadius) const override
 	{
-		return eval(u, v, [](float u, float v, const std::unique_ptr<Patch>& patch) { return patch->evaluate(u, v); });
+		return eval(u, v, [toolRadius](float u, float v, const std::unique_ptr<Patch>& patch) { return patch->evaluate(u, v, toolRadius); });
 	}
 
-	virtual glm::vec3 derivativeU(float u, float v) const override
+	virtual glm::vec3 derivativeU(float u, float v, float toolRadius) const override
 	{
 		if (u > 1.0f - math::derivativeH)
-			return derivativeU(u - math::derivativeH, v);
-		return (evaluate(u + math::derivativeH, v) - evaluate(u, v)) / math::derivativeH;
-		//return eval(u, v, [](float u, float v, const std::unique_ptr<Patch>& patch) { return patch->derivativeU(u, v); });
-
+			return derivativeU(u - math::derivativeH, v, toolRadius);
+		return (evaluate(u + math::derivativeH, v, toolRadius) - evaluate(u, v, toolRadius)) / math::derivativeH;
 	}
 
-	virtual glm::vec3 derivativeV(float u, float v) const override
+	virtual glm::vec3 derivativeV(float u, float v, float toolRadius) const override
 	{
 		if (v > 1.0f - math::derivativeH)
-			return derivativeV(u, v - math::derivativeH);
-		return (evaluate(u, v + math::derivativeH) - evaluate(u, v)) / math::derivativeH;
-		///return eval(u, v, [](float u, float v, const std::unique_ptr<Patch>& patch) { return patch->derivativeV(u, v); });
+			return derivativeV(u, v - math::derivativeH, toolRadius);
+		return (evaluate(u, v + math::derivativeH, toolRadius) - evaluate(u, v, toolRadius)) / math::derivativeH;
 	}
 
 private:
@@ -470,12 +467,11 @@ private:
 
 	glm::vec3 eval(float u, float v, auto func) const
 	{
-		// sizeZ <=> sizeX ?
 		float fIndexV = v * sizeX;
-		int indexV = fIndexV;
+		int indexV = static_cast<int>(fIndexV);
 		float newV = fIndexV - indexV;
 		float fIndexU = u * sizeZ;
-		int indexU = fIndexU;
+		int indexU = static_cast<int>(fIndexU);
 		float newU = fIndexU - indexU;
 
 		if (v >= 1.0f - math::eps)
@@ -488,18 +484,6 @@ private:
 			indexU = sizeZ - 1;
 			newU = 1.0f;
 		}
-
-		/*if (cylinder && newU >= 1.0f - math::eps)
-		{
-			int nextU = (indexU + 1) % sizeZ;
-			return (func(1.0f, newV, patches[indexU * sizeX + indexV]) + func(0.0f, newV, patches[nextU * sizeX + indexV])) * 0.5f;
-		}
-
-		if (cylinder && newU <= math::eps)
-		{
-			int prevU = indexU == 0 ? (sizeZ - 1) : indexU - 1;
-			return (func(0.0f, newV, patches[indexU * sizeX + indexV]) + func(1.0f, newV, patches[prevU * sizeX + indexV])) * 0.5f;
-		}*/
 
 		return func(newU, newV, patches[indexU * sizeX + indexV]);
 	}

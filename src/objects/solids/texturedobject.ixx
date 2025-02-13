@@ -1,11 +1,10 @@
 export module texturedobject;
 
 import std;
+import glm;
 
 import <glad/glad.h>;
-
-import <glm/vec2.hpp>;
-import <glm/vec3.hpp>;
+import <cstddef>;
 
 import glutils;
 import solidobject;

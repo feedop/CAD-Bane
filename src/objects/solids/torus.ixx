@@ -1,10 +1,10 @@
 export module torus;
 
 import std;
+import glm;
 
 import <glad/glad.h>;
 
-import <glm/vec4.hpp>;
 import <Serializer/Serializer.h>;
 
 import glutils;
@@ -76,7 +76,7 @@ public:
 		return (left <= r * r);
 	}
 
-	virtual glm::vec3 evaluate(float u, float v) const override
+	virtual glm::vec3 evaluate(float u, float v, float toolRadius = 0.0f) const override
 	{
 		u *= 2 * math::pi;
 		v *= 2 * math::pi;
@@ -89,7 +89,7 @@ public:
 		return model * glm::vec4{ x, y, z, 1 };
 	}
 
-	virtual glm::vec3 derivativeU(float u, float v) const override
+	virtual glm::vec3 derivativeU(float u, float v, float toolRadius = 0.0f) const override
 	{
 		u *= 2 * math::pi;
 		v *= 2 * math::pi;
@@ -102,7 +102,7 @@ public:
 		return { x, y, z};
 	}
 
-	virtual glm::vec3 derivativeV(float u, float v) const override
+	virtual glm::vec3 derivativeV(float u, float v, float toolRadius = 0.0f) const override
 	{
 		u *= 2 * math::pi;
 		v *= 2 * math::pi;

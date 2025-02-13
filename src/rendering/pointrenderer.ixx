@@ -1,11 +1,10 @@
 export module pointrenderer;
 
 import std;
+import glm;
 
 import <glad/glad.h>;
-
-import <glm/vec3.hpp>;
-import <glm/mat4x4.hpp>;
+import <cstddef>;
 
 import drawable;
 import glutils;
