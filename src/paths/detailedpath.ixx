@@ -225,6 +225,12 @@ namespace
 
 export namespace paths
 {
+	/// <summary>
+	/// Generates a detailed path for the given scene.
+	/// This method assumes that the path does not follow the terrain and is simply placed at a constant height level.
+	/// </summary>
+	/// <param name="scene">The scene object that may contain the necessary context for generating the path.</param>
+	/// <returns>A vector of 3D points representing the detailed path.</returns>
 	std::vector<glm::vec3> generateDetailedPath(Scene& scene)
 	{
 		static constexpr float toolRadius = 0.4f;
@@ -269,18 +275,13 @@ export namespace paths
 
 			auto addPoint = [&scene](const glm::vec3& p)
 			{
-				//scene.addPoint(p);
+				// For debugging
 			};
 			
 			// Find intersection
 			auto result = config.useCursor ?
 				math::calculateToolDistantIntersection(surface1, surface2, config.d, wrap, toolRadius, addPoint, config.cursorPosition) :
 				math::calculateToolDistantIntersection(surface1, surface2, config.d, wrap, toolRadius, addPoint);
-
-			for (auto&& point : std::get<0>(result)) // debug 2137
-			{
-				//scene.addPoint(point);
-			}	
 			
 			auto&& params = std::get<1>(result);
 			std::cout << "intersection size: " << params.size() << "\n";
@@ -426,7 +427,7 @@ export namespace paths
 						path.push_back(glm::vec3{ thisPoint.position.x, thisPoint.position.y, jumpHeight } - vectorModifier * dist);
 					}
 
-					path.push_back(pos); // debug 2137
+					path.push_back(pos);
 
 					prevPoint = thisPoint;
 				}
@@ -528,15 +529,12 @@ export namespace paths
 			for (int j = 0; j < params1.size(); j++)
 			{
 				auto uv1 = (params1[j] + 1.0f) * 0.5f;
-				//auto uv2 = (params2[j] + 1.0f) * 0.5f;
 				// Check whether this intersection point is millColor on the both surfaces
 				float color1 = textures[surface1].sample(uv1.x, uv1.y);
-				//float color2 = textures[surface2].sample(uv2.x, uv2.y);
 				if (color1 == millColor1)
 				{
 					auto pos = surface1->evaluate(uv1.x, uv1.y, toolRadius);
-					intersectionPath.push_back(pos);
-					//scene.addPoint(intersectionPath.back()); //2137 debug			
+					intersectionPath.push_back(pos);	
 				}				
 			}
 

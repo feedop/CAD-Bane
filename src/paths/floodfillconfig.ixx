@@ -5,6 +5,9 @@ import glm;
 
 export namespace paths
 {
+	/// <summary>
+	/// Represents the config for flood-filling a single part's parametric space.
+	/// </summary>
 	struct FloodFillConfig
 	{
 		std::vector<glm::vec2> starts;

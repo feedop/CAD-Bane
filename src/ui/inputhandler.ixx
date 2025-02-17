@@ -12,9 +12,21 @@ import raycaster;
 import renderer;
 import math;
 
+/// <summary>
+/// Handles user input (mouse, keyboard, and window events) for the application.
+/// Integrates GLFW callbacks to interact with the Camera, Scene, Raycaster, and Renderer.
+/// </summary>
 export class InputHandler
 {
 public:
+	/// <summary>
+	/// Constructor for InputHandler, registering GLFW input callbacks.
+	/// </summary>
+	/// <param name="window">Pointer to the GLFW window instance.</param>
+	/// <param name="camera">Reference to the Camera object for handling view adjustments.</param>
+	/// <param name="scene">Reference to the Scene object for object selection and transformation.</param>
+	/// <param name="raycaster">Reference to the Raycaster for updating the render process.</param>
+	/// <param name="renderer">Reference to the Renderer for managing screen size changes.</param>
 	InputHandler(GLFWwindow* window, Camera& camera, Scene& scene, Raycaster& raycaster, Renderer& renderer) :
 		camera(camera), scene(scene), raycaster(raycaster), renderer(renderer)
 	{
@@ -26,6 +38,12 @@ public:
 		glfwSetKeyCallback(window, keyboardCallback);
 	}
 
+	/// <summary>
+	/// Callback function for window resizing, updating camera aspect ratio and renderer window size.
+	/// </summary>
+	/// <param name="window">GLFW window instance.</param>
+	/// <param name="width">New width of the window.</param>
+	/// <param name="height">New height of the window.</param>
 	static void viewportCallback(GLFWwindow* window, int width, int height)
 	{
 		auto* handler = static_cast<InputHandler*>(glfwGetWindowUserPointer(window));
@@ -33,6 +51,13 @@ public:
 		handler->renderer.setWindowSize(width, height);
 	}
 
+	/// <summary>
+	/// Callback function for mouse button input. Handles object selection and camera movement initiation.
+	/// </summary>
+	/// <param name="window">GLFW window instance.</param>
+	/// <param name="button">Mouse button pressed (GLFW_MOUSE_BUTTON_LEFT, etc.).</param>
+	/// <param name="action">Action (GLFW_PRESS or GLFW_RELEASE).</param>
+	/// <param name="mods">Modifier keys (Shift, Ctrl, etc.).</param>
 	static void mouseCallback(GLFWwindow* window, int button, int action, int mods)
 	{
 		if (ImGui::GetIO().WantCaptureMouse)
@@ -42,12 +67,27 @@ public:
 		handler->handleMouseInput(window, button, action);
 	}
 
+	/// <summary>
+	/// Callback function for scroll wheel input, used for camera zooming.
+	/// </summary>
+	/// <param name="window">GLFW window instance.</param>
+	/// <param name="xoffset">Horizontal scroll offset (unused).</param>
+	/// <param name="yoffset">Vertical scroll offset (determines zoom direction).</param>
 	static void scrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 	{
 		auto* handler = static_cast<InputHandler*>(glfwGetWindowUserPointer(window));
 		handler->camera.zoom(static_cast<float>(yoffset));
 		handler->raycaster.enqueueUpdate();
 	}
+
+	/// <summary>
+	/// Callback function for keyboard input, handling key presses and releases.
+	/// </summary>
+	/// <param name="window">GLFW window instance.</param>
+	/// <param name="key">Key pressed (GLFW_KEY_A, GLFW_KEY_R, etc.).</param>
+	/// <param name="scancode">System-specific scancode of the key.</param>
+	/// <param name="action">Action (GLFW_PRESS, GLFW_RELEASE).</param>
+	/// <param name="mods">Modifier keys (Shift, Ctrl, etc.).</param>
 	static void keyboardCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 	{
 		auto* handler = static_cast<InputHandler*>(glfwGetWindowUserPointer(window));
@@ -98,7 +138,13 @@ public:
 			}
 		}
 	}
-
+	
+	// <summary>
+	/// Handles mouse button events, enabling camera and object manipulation.
+	/// </summary>
+	/// <param name="window">GLFW window instance.</param>
+	/// <param name="button">Mouse button pressed.</param>
+	/// <param name="action">Action (GLFW_PRESS or GLFW_RELEASE).</param>
 	void handleMouseInput(GLFWwindow* window, int button, int action)
 	{
 		if(action == GLFW_PRESS)
@@ -129,6 +175,10 @@ public:
 		}
 	}
 
+	/// <summary>
+	/// Processes mouse movement events to handle camera and object transformations.
+	/// </summary>
+	/// <param name="window">GLFW window instance.</param>
 	void handleMouseMovement(GLFWwindow* window)
 	{
 		if (!mouseMovingMode)

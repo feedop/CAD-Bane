@@ -28,6 +28,9 @@ inline constexpr float stereoBlueData[] =
 	0, 0, 0, 1
 };
 
+/// <summary>
+/// Predefined colors.
+/// </summary>
 export namespace colors
 {
 	inline const glm::vec4 transparent = { 0.0f, 0.0f, 0.0f, 0.0f };

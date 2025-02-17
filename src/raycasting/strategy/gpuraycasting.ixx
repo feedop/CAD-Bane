@@ -10,9 +10,18 @@ import math;
 import raycastingstrategy;
 import shader;
 
+/// <summary>
+/// A class that implements raycasting strategy using GPU shaders for rendering.
+/// </summary>
 export class GpuRaycasting : public RaycastingStrategy
 {
 public:
+	/// <summary>
+	/// Constructor for the GpuRaycasting class. Initializes the framebuffer and texture for raycasting.
+	/// </summary>
+	/// <param name="camera">The camera used for viewing the scene.</param>
+	/// <param name="ellipsoid">The ellipsoid object for the scene.</param>
+	/// <param name="canvas">The canvas used for rendering the raycast.</param>
 	GpuRaycasting(const Camera& camera, const Ellipsoid& ellipsoid, const Canvas& canvas) : RaycastingStrategy(camera, ellipsoid), canvas(canvas)
 	{
 		glGenFramebuffers(1, &framebuffer);
@@ -33,6 +42,12 @@ public:
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 
+	/// <summary>
+	/// Updates the raycasting process by rendering the raycasted image to the framebuffer.
+	/// </summary>
+	/// <param name="width">The width of the viewport or canvas.</param>
+	/// <param name="height">The height of the viewport or canvas.</param>
+	/// <param name="lightM">Phong shininess.</param>
 	virtual void update(int width, int height, int lightM) override
 	{
 		if (texture.size() < 4 *width * height)

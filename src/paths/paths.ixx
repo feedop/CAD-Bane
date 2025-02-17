@@ -11,6 +11,11 @@ import renderer;
 import config;
 import pathutils;
 
+/// <summary>
+/// Serializes a vector of 3D points into a formatted G-code style string stream.
+/// </summary>
+/// <param name="path">The vector of glm::vec3 points representing a path.</param>
+/// <returns>A stringstream containing the formatted path data.</returns>
 std::stringstream serialize(const std::vector<glm::vec3>& path)
 {
     std::stringstream ss;
@@ -24,6 +29,11 @@ std::stringstream serialize(const std::vector<glm::vec3>& path)
     return ss;
 }
 
+/// <summary>
+/// Saves a vector of 3D points to a specified file in a serialized format.
+/// </summary>
+/// <param name="path">The vector of glm::vec3 points representing a path.</param>
+/// <param name="file">The file path where the serialized data should be saved.</param>
 void saveToFile(const std::vector<glm::vec3>& path, const char* file)
 {
     std::ofstream fs;
@@ -45,6 +55,10 @@ void saveToFile(const std::vector<glm::vec3>& path, const char* file)
     }
 }
 
+/// <summary>
+/// Computes and prints the length of a given path.
+/// </summary>
+/// <param name="path">The vector of glm::vec3 points representing the path.</param>
 void printPathLen(const std::vector<glm::vec3>& path)
 {
     static int pathIndex = 0;
@@ -52,8 +66,16 @@ void printPathLen(const std::vector<glm::vec3>& path)
     std::cout << "Path " << pathIndex++ << " length = " << len << "\n";
 }
 
+/// <summary>
+/// Functions related to generating tool paths.
+/// </summary>
 export namespace paths
 {
+    /// <summary>
+    /// Generates different types of paths from a scene and saves them to files.
+    /// </summary>
+    /// <param name="scene">The reference to the Scene object.</param>
+    /// <param name="renderer">The reference to the Renderer object.</param>
 	void generatePaths(Scene& scene, const Renderer& renderer)
 	{
 		static constexpr const char* path1File = "paths/1.k16";

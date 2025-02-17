@@ -2,9 +2,14 @@ export module theme;
 
 import <imgui/imgui/imgui.h>;
 
+/// <summary>
+/// The Cinder ImGui theme.
+/// </summary>
 export namespace cinder
 {
-
+/// <summary>
+/// Sets the Cinder theme for ImGui.
+/// </summary>
 void setTheme()
 {
 	ImGuiStyle* style = &ImGui::GetStyle();

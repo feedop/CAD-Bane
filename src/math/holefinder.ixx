@@ -25,6 +25,13 @@ int mod(int val, int modVal)
 
 export namespace math
 {
+	/// <summary>
+	/// Finds the holes in the given surfaces.
+	/// </summary>
+	/// <param name="surfaces">A vector containing pointers to the surfaces to check for holes.</param>
+	/// <returns>
+	/// A vector containing the holes found in the surfaces.
+	/// </returns>
 	std::vector<Hole> findHole(const std::vector<Surface*>& surfaces)
 	{
 		for (auto&& surface : surfaces)

@@ -10,9 +10,17 @@ import glutils;
 import solidobject;
 import shader;
 
+/// <summary>
+/// A class representing a 3D textured object that can be rendered with a texture applied.
+/// It inherits from <see cref="SolidObject"/> and adds functionality for handling texture coordinates
+/// and binding texture data to the object for rendering with textures.
+/// </summary>
 export class TexturedObject : public SolidObject
 {
 protected:
+	/// <summary>
+	/// Structure representing a vertex with a position and texture coordinates.
+	/// </summary>
 	struct Vertex
 	{
 		glm::vec3 translation;
@@ -20,6 +28,12 @@ protected:
 	};
 
 public:
+	/// <summary>
+	/// Constructor that initializes the textured object with given vertices and indices.
+	/// It sets up the VAO, VBO, and EBO for rendering the object with the texture.
+	/// </summary>
+	/// <param name="vertices">The list of vertices, including positions and texture coordinates.</param>
+	/// <param name="indices">The list of indices for drawing the object using the vertex array.</param>
 	TexturedObject(const std::vector<Vertex>& vertices, const std::vector<unsigned int> indices) :
 		vertices(vertices), indices(indices)
 	{
@@ -44,6 +58,10 @@ public:
 		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, texCoords));
 	}
 
+	/// <summary>
+	/// Draws the textured object using the provided shader. 
+	/// </summary>
+	/// <param name="shader">The shader to use for rendering the object.</param>
 	virtual void draw(const Shader* shader) const override
 	{
 		ScopedBindArray ba(VAO);

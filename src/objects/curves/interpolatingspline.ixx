@@ -10,18 +10,38 @@ import glutils;
 import pointrenderer;
 import math;
 
+/// <summary>
+/// Represents an interpolating spline curve that passes through all of its control points. 
+/// The spline is defined using cubic polynomials between consecutive points.
+/// </summary>
 export class InterpolatingSpline : public Curve
 {
 public:
+	/// <summary>
+	/// Initializes an interpolating spline with the given control points.
+	/// </summary>
+	/// <param name="points">A vector of points that define the control points of the spline.</param>
 	InterpolatingSpline(const std::vector<Point*>& points) : Curve(getCurveName(), points)
 	{}
 
+	/// <summary>
+	/// Initializes an interpolating spline with the given control points using an initializer list.
+	/// </summary>
+	/// <param name="points">An initializer list of points that define the control points of the spline.</param>
 	InterpolatingSpline(std::initializer_list<Point*> points) : Curve(getCurveName(), points)
 	{}
 
+	/// <summary>
+	/// Initializes an interpolating spline with an optional custom curve name.
+	/// </summary>
+	/// <param name="curveName">The name of the spline curve.</param>
 	InterpolatingSpline(const std::string& curveName) : Curve(curveName, {})
 	{}
 
+	// <summary>
+	/// Draws the interpolating spline using a shader, rendering it as tessellated patches.
+	/// </summary>
+	/// <param name="shader">The shader used for rendering the spline.</param>
 	virtual void draw(const Shader* shader) const override
 	{
 		if (positions.size() == 0)
@@ -42,6 +62,10 @@ public:
 		}
 	}
 
+	/// <summary>
+	/// Updates the spline's positions and polynomial coefficients. 
+	/// This method is called when the spline requires an update (e.g., after adding/removing points).
+	/// </summary>
 	virtual void update() override
 	{
 		if (!scheduledToUpdate)
@@ -54,11 +78,20 @@ public:
 		scheduledToUpdate = false;
 	}
 
+	/// <summary>
+	/// Determines if the spline is an interpolating spline.
+	/// </summary>
+	/// <returns>Always returns true for interpolating splines.</returns>
 	virtual bool isInterpolating() const override
 	{
 		return true;
 	}
 
+	/// <summary>
+	/// Serializes the interpolating spline to the MG1 scene.
+	/// </summary>
+	/// <param name="mgscene">The MG1 scene where the spline is added.</param>
+	/// <param name="indices">The indices of the spline's control points.</param>
 	virtual void addToMGScene(MG1::Scene& mgscene, const std::vector<unsigned int>& indices) const override
 	{
 		MG1::InterpolatedC2 curve;
@@ -81,6 +114,9 @@ protected:
 	std::vector<float> beta;
 	std::vector<float> scratch;
 
+	/// <summary>
+	/// Fills the positions vector with the control points of the spline, ensuring that points are not too close to each other.
+	/// </summary>
 	virtual void fillPositions() override
 	{
 		positions.clear();
@@ -100,6 +136,9 @@ protected:
 		}
 	}
 
+	/// <summary>
+	/// Calculates the coefficients for the cubic spline, based on the positions of the control points.
+	/// </summary>
 	void calculateCoefficients()
 	{
 		auto N = positions.size();
@@ -174,6 +213,10 @@ private:
 		return std::format("{} {}", "Interpolating spline", instanceCount++);
 	}
 
+	// <summary>
+	/// Solves the tridiagonal system of equations using the Thomas algorithm.
+	/// </summary>
+	/// <param name="X">The size of the system to solve (number of segments minus one).</param>
 	void solve(int X)
 	{
 		// Tridiagonal matrix algorithm (Thomas algorithm)

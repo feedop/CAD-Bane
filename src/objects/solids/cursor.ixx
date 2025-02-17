@@ -11,8 +11,16 @@ import solidobject;
 import shader;
 import math;
 
+/// <summary>
+/// Represents a cursor object in 3D space, visualized as three orthogonal colored lines 
+/// emanating from the origin (0, 0, 0). This object is primarily used for visualizing the position
+/// of a cursor in 3D environments, such as in 3D editors or interactive applications.
+/// </summary>
 export class Cursor : public SolidObject
 {
+	/// <summary>
+	/// Represents a vertex containing a position and color.
+	/// </summary>
 	struct Vertex
 	{
 		glm::vec3 translation;
@@ -20,6 +28,10 @@ export class Cursor : public SolidObject
 	};
 
 public:
+	/// <summary>
+	/// Constructor that sets up the necessary OpenGL buffers (VAO, VBO, EBO) for the cursor's geometry and color.
+	/// The cursor consists of 3 orthogonal lines representing the X, Y, and Z axes, each with a different color.
+	/// </summary>
 	Cursor()
 	{
 		glGenVertexArrays(1, &VAO);
@@ -46,6 +58,11 @@ public:
 		update();
 	}
 
+	/// <summary>
+	/// Draws the cursor object using the specified shader. The cursor is rendered as lines, with each line representing
+	/// one of the X, Y, or Z axes in different colors.
+	/// </summary>
+	/// <param name="shader">The shader program used for drawing the cursor.</param>
 	virtual void draw(const Shader* shader) const override
 	{
 		ScopedBindArray ba(VAO);

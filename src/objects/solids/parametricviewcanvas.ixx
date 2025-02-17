@@ -13,9 +13,21 @@ import floodfill;
 
 inline constexpr int size = 512;
 
+/// <summary>
+/// A canvas that renders a parametric view of a 3D object to a texture, using a framebuffer and shader. 
+/// It adapts a set of 3D positions into a texture, allowing for parametric visualization of a surface or curve.
+/// </summary>
 export class ParametricViewCanvas : public Canvas
 {
 public:
+	/// <summary>
+	/// Constructor that initializes the canvas by setting up a framebuffer, texture, and rendering a parametric view 
+	/// of a 3D object. The texture is created and the positions of the 3D points are adapted and drawn to the texture 
+	/// using the provided shader.
+	/// </summary>
+	/// <param name="positions">A vector of 3D positions representing the parametric curve or surface.</param>
+	/// <param name="shader">The shader used to render the positions to the texture.</param>
+	/// <param name="texture">The texture that will hold the rendered parametric view.</param>
 	ParametricViewCanvas(const std::vector<glm::vec3>& positions, const Shader* shader, unsigned int& texture) : Canvas()
 	{
 		glGenFramebuffers(1, &framebuffer);
@@ -68,12 +80,19 @@ public:
 		texture = createTrimmingTexture();
 	}
 
+	/// <summary>
+	/// Destructor that cleans up the OpenGL resources used by the framebuffer and texture.
+	/// </summary>
 	virtual ~ParametricViewCanvas()
 	{
 		glDeleteTextures(1, &texId);
 		glDeleteFramebuffers(1, &framebuffer);
 	}
 
+	/// <summary>
+	/// Draws the parametric view texture onto the canvas using the specified shader.
+	/// </summary>
+	/// <param name="shader">The shader used for rendering the canvas.</param>
 	virtual void draw(const Shader* shader) const override
 	{
 		glBindTexture(GL_TEXTURE_2D, texId);
@@ -84,6 +103,11 @@ private:
 	unsigned int framebuffer = 0;
 	unsigned int texId = 0;
 
+	// <summary>
+	/// Creates a trimming texture by reading the texture data, applying a flood fill algorithm, 
+	/// and generating a new texture with the filled data.
+	/// </summary>
+	/// <returns>The generated trimming texture ID.</returns>
 	unsigned int createTrimmingTexture()
 	{
 		std::vector<glm::vec4> data(size * size);

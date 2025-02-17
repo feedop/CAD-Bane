@@ -32,6 +32,15 @@ export class Renderer
 public:
 	friend class GuiController;
 
+	/// <summary>
+	/// Initializes the Renderer with the specified window dimensions, camera, point renderer, scene, and raycaster.
+	/// </summary>
+	/// <param name="windowWidth">The width of the rendering window in pixels.</param>
+	/// <param name="windowHeight">The height of the rendering window in pixels.</param>
+	/// <param name="camera">Reference to the Camera object used for rendering.</param>
+	/// <param name="pointRenderer">Reference to the PointRenderer responsible for drawing points.</param>
+	/// <param name="scene">Reference to the Scene containing renderable objects.</param>
+	/// <param name="raycaster">Reference to the Raycaster used for raycasting operations.</param>
 	Renderer(int windowWidth, int windowHeight, Camera& camera, PointRenderer& pointRenderer,
 			Scene& scene, Raycaster& raycaster) :
 		windowWidth(windowWidth), windowHeight(windowHeight),
@@ -52,7 +61,7 @@ public:
 	}
 
 	/// <summary>
-	/// Render the scene
+	/// Renders all elements to the screen
 	/// </summary>
 	void draw() const
 	{
@@ -109,6 +118,11 @@ public:
 		raycaster.draw(flatTextureShader.get());
 	}
 
+	/// <summary>
+	/// Sets the window size and updates the OpenGL viewport.
+	/// </summary>
+	/// <param name="width">The new width of the window in pixels.</param>
+	/// <param name="height">The new height of the window in pixels.</param>
 	void setWindowSize(int width, int height)
 	{
 		windowWidth = width;
@@ -117,6 +131,12 @@ public:
 		raycaster.setTextureSize(windowWidth, windowHeight);
 	}
 
+	/// <summary>
+	/// Selects an object from the screen based on the given screen coordinates.
+	/// </summary>
+	/// <param name="x">The X coordinate of the click position in screen space.</param>
+	/// <param name="y">The Y coordinate of the click position in screen space.</param>
+	/// <param name="selectMultiple">Determines whether multiple objects can be selected.</param>
 	void selectObjectFromScreen(double x, double y, bool selectMultiple)
 	{
 		fillClickDepthBuffer();
@@ -129,21 +149,38 @@ public:
 		scene.selectObjectFromScreen(objcoord, selectMultiple);
 	}
 
+	/// <summary>
+	/// Retrieves the canvas used for parametric view rendering.
+	/// </summary>
+	/// <returns>A pointer to the Canvas object used for the parametric view.</returns>
 	const Canvas* getParametricViewCanvas() const
 	{
 		return parametricViewCanvas.get();
 	}
 
+	/// <summary>
+	/// Sets the parametric view curve to display in the parametric view canvas.
+	/// </summary>
+	/// <param name="curve">Pointer to the IntersectionCurve object.</param>
+	/// <param name="firstSurface">Indicates whether the first surface should be used.</param>
 	void setParametricViewCurve(IntersectionCurve* curve, bool firstSurface)
 	{
 		parametricViewCanvas = curve->getParametricViewCanvas(firstSurface);
 	}
 
+	/// <summary>
+	/// Resets the parametric view curve by clearing the canvas reference.
+	/// </summary>
 	void resetParametricViewCurve()
 	{
 		parametricViewCanvas.reset();
 	}
 
+	/// <summary>
+	/// Gets the raw data of the model's height map as seen from the front.
+	/// </summary>
+	/// <param name="size">Texture size.</param>
+	/// <returns></returns>
 	std::vector<float> getPathHeightMap(int size) const
 	{
 		static constexpr float scaleFactor = 1.0f / 7.5f;
@@ -225,6 +262,10 @@ private:
 
 	std::shared_ptr<Canvas> parametricViewCanvas;
 
+	/// <summary>
+	/// Draw the 3D scene using the given projection matrix.
+	/// </summary>
+	/// <param name="projection">The projection matrix used to render the scene.</param>
 	void drawScene(const glm::mat4& projection) const
 	{
 		glEnable(GL_DEPTH_TEST);
@@ -327,7 +368,9 @@ private:
 		}
 	}
 
-	// Fill depth buffer with only torus and point data without actually rendering
+	/// <summary>
+	/// Fill depth buffer with only torus and point data without actually rendering
+	/// </summary>
 	void fillClickDepthBuffer()
 	{
 		glEnable(GL_DEPTH_TEST);

@@ -14,14 +14,26 @@ import raycastingop;
 import raycastingstrategy;
 import shader;
 
+/// <summary>
+/// A class that performs raycasting operations and manages rendering strategies.
+/// </summary>
 export class Raycaster
 {
 public:
 	friend class GuiController;
 
+	/// <summary>
+	/// Constructs a Raycaster object with the given camera and ellipsoid.
+	/// </summary>
+	/// <param name="camera">The camera used for viewing the scene.</param>
+	/// <param name="ellipsoid">The ellipsoid object used in the raycasting process.</param>
 	Raycaster(const Camera& camera, const Ellipsoid& ellipsoid) : ellipsoid(ellipsoid), camera(camera)
 	{}
 
+	/// <summary>
+	/// Enqueues an update operation for raycasting.
+	/// This method clears the operation queue and repopulates it based on the selected adaptation level.
+	/// </summary>
 	void enqueueUpdate()
 	{
 		if (!enabled)
@@ -43,6 +55,10 @@ public:
 		}		
 	}
 
+	/// <summary>
+	/// Draws the raycasted scene using the specified shader.
+	/// </summary>
+	/// <param name="shader">The shader to be used for rendering.</param>
 	inline void draw(const Shader* shader)
 	{
 		if (!enabled)
@@ -62,6 +78,11 @@ public:
 		canvas.draw(shader);
 	}
 
+	/// <summary>
+	/// Sets the texture size for raycasting and triggers an update.
+	/// </summary>
+	/// <param name="width">The desired width of the texture.</param>
+	/// <param name="height">The desired height of the texture.</param>
 	inline void setTextureSize(int width, int height)
 	{
 		maxTexWidth = width;
@@ -69,6 +90,10 @@ public:
 		enqueueUpdate();
 	}
 
+	/// <summary>
+	/// Sets the rendering mode to either GPU or CPU and triggers an update.
+	/// </summary>
+	/// <param name="gpuRender">A boolean value indicating whether GPU rendering should be enabled.</param>
 	inline void setMode(bool gpuRender)
 	{
 		if (gpuRender)

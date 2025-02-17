@@ -31,6 +31,15 @@ ImGuiIO& createImguiContext()
 export class GuiController
 {
 public:
+    /// <summary>
+    /// Initializes the GUI controller with ImGui settings and integrates it with OpenGL and GLFW.
+    /// </summary>
+    /// <param name="window">Pointer to the GLFW window instance.</param>
+    /// <param name="camera">Reference to the Camera object.</param>
+    /// <param name="scene">Reference to the Scene object.</param>
+    /// <param name="raycaster">Reference to the Raycaster object.</param>
+    /// <param name="renderer">Reference to the Renderer object.</param>
+    /// <param name="ellipsoid">Reference to the Ellipsoid object.</param>
     GuiController(GLFWwindow* window, Camera& camera, Scene& scene, Raycaster& raycaster, Renderer& renderer, Ellipsoid& ellipsoid) :
         io(createImguiContext()), camera(camera), scene(scene), raycaster(raycaster), renderer(renderer), ellipsoid(ellipsoid)
     {
@@ -52,6 +61,9 @@ public:
         ImGui_ImplOpenGL3_Init("#version 420");
     }
 
+    /// <summary>
+    /// Draws the UI.
+    /// </summary>
     void draw()
     {
         ImGui_ImplOpenGL3_NewFrame();

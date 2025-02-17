@@ -2,6 +2,13 @@ export module depthbmp;
 
 import std;
 
+/// <summary>
+/// Saves the depth map to a BMP file.
+/// </summary>
+/// <param name="depthData">Raw depth map data.</param>
+/// <param name="width">Texture width.</param>
+/// <param name="height">Texture height.</param>
+/// <param name="filename">The BMP file name.</param>
 export void saveDepthBmp(const std::vector<float>& depthData, int width, int height, const char* filename)
 {
 	if (depthData.size() == 0)

@@ -17,7 +17,17 @@ int getIndex(int x, int y, int cols)
     return y * cols + x;
 }
 
-// Perform erosion on the image
+/// <summary>
+/// Performs morphological erosion on an image using a given structuring element.
+/// Erosion shrinks bright regions by applying the minimum value from the structuring element.
+/// </summary>
+/// <param name="image">The input image to be processed.</param>
+/// <param name="structElem">The structuring element used for erosion.</param>
+/// <param name="rows">The number of rows in the image.</param>
+/// <param name="cols">The number of columns in the image.</param>
+/// <param name="elemCenterX">The x-coordinate of the structuring element's center.</param>
+/// <param name="elemCenterY">The y-coordinate of the structuring element's center.</param>
+/// <returns>Returns the image after morphological erosion.</returns>
 Image erode(const Image& image, const std::vector<std::vector<int>>& structElem, int rows, int cols, int elemCenterX, int elemCenterY)
 {
     int elemRows = structElem.size();
@@ -58,7 +68,17 @@ Image erode(const Image& image, const std::vector<std::vector<int>>& structElem,
     return result;
 }
 
-// Perform dilation on the image
+/// <summary>
+/// Performs morphological dilation on an image using a given structuring element.
+/// Dilation expands bright regions by applying the maximum value from the structuring element.
+/// </summary>
+/// <param name="image">The input image to be processed.</param>
+/// <param name="structElem">The structuring element used for dilation.</param>
+/// <param name="rows">The number of rows in the image.</param>
+/// <param name="cols">The number of columns in the image.</param>
+/// <param name="elemCenterX">The x-coordinate of the structuring element's center.</param>
+/// <param name="elemCenterY">The y-coordinate of the structuring element's center.</param>
+/// <returns>Returns the image after morphological dilation.</returns>
 Image dilate(const Image& image, const std::vector<std::vector<int>>& structElem, int rows, int cols, int elemCenterX, int elemCenterY)
 {
     int elemRows = structElem.size();
@@ -95,7 +115,15 @@ Image dilate(const Image& image, const std::vector<std::vector<int>>& structElem
 
 export namespace colors
 {
-    // Morphological opening: Erosion followed by Dilation
+    /// <summary>
+    /// Performs morphological opening on an image using a given structuring element.
+    /// Opening is defined as erosion followed by dilation.
+    /// </summary>
+    /// <param name="image">The input image to be processed.</param>
+    /// <param name="structElem">The structuring element used for morphological operations.</param>
+    /// <param name="rows">The number of rows in the image.</param>
+    /// <param name="cols">The number of columns in the image.</param>
+    /// <returns>Returns the image after morphological opening.</returns>
     Image imopen(const Image& image, const std::vector<std::vector<int>>& structElem, int rows, int cols)
     {
         int elemCenterX = structElem[0].size() / 2;

@@ -12,15 +12,25 @@ import middlepoint;
 import point;
 import shader;
 
+/// <summary>
+/// A renderer for drawing points in OpenGL.
+/// </summary>
 export class PointRenderer : public Drawable
 {
 public:
+	/// <summary>
+	/// Constructs a new PointRenderer, initializing OpenGL buffers.
+	/// </summary>
 	PointRenderer()
 	{
 		glGenVertexArrays(1, &VAO);
 		glGenBuffers(1, &VBO);
 	}
 
+	/// <summary>
+	/// Updates the point positions in the renderer without including the selected middle point.
+	/// </summary>
+	/// <param name="points">A collection of points to be rendered.</param>
 	void updateSoft(const std::vector<std::unique_ptr<Point>>& points)
 	{
 		positions.clear();
@@ -32,6 +42,10 @@ public:
 		uploadPositions();
 	}
 
+	/// <summary>
+	/// Updates the point positions in the renderer, including the selected middle point.
+	/// </summary>
+	/// <param name="points">A collection of points to be rendered.</param>
 	void update(const std::vector<std::unique_ptr<Point>>& points)
 	{
 		positions.clear();
@@ -46,6 +60,10 @@ public:
 		uploadPositions();
 	}
 
+	/// <summary>
+	/// Draws the points using the specified shader.
+	/// </summary>
+	/// <param name="shader">The shader used for rendering.</param>
 	virtual void draw(const Shader* shader) const override
 	{
 		ScopedBindArray ba(VAO);
@@ -53,9 +71,11 @@ public:
 	}
 
 private:
-
 	std::vector<Point::Vertex> positions;
 
+	/// <summary>
+	/// Uploads point positions to the GPU.
+	/// </summary>
 	void uploadPositions()
 	{
 		if (positions.size() == 0)

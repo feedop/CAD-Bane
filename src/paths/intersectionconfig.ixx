@@ -18,6 +18,9 @@ export namespace paths
 		return false;
 	}
 
+	/// <summary>
+	/// Represents the config for a single intersection between two parts of the model.
+	/// </summary>
 	struct IntersectionConfig
 	{
 		float d;

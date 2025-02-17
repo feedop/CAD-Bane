@@ -15,10 +15,16 @@ import parametric;
 import point;
 import shader;
 
+/// <summary>
+/// Class representing a single Bezier patch, which is a part of a C0 surface.
+/// </summary>
 export class Patch : public Drawable, public Parametric
 {
 public:
-
+	/// <summary>
+	/// Constructor to create a patch with a list of points.
+	/// </summary>
+	/// <param name="pointList">A list of points that define the patch's geometry.</param>
 	Patch(const std::vector<Point*>& pointList)
 	{
 		glGenVertexArrays(1, &VAO);
@@ -34,6 +40,9 @@ public:
 		update();
 	}
 
+	/// <summary>
+	/// Destructor to clean up resources used by the Patch.
+	/// </summary>
 	virtual ~Patch()
 	{
 		ScopedBindArray ba(transposedVAO);
@@ -44,6 +53,10 @@ public:
 		glDeleteVertexArrays(1, &transposedVAO);
 	}
 
+	// <summary>
+	/// Draw the patch using the specified shader.
+	/// </summary>
+	/// <param name="shader">The shader to be used for rendering the patch.</param>
 	virtual void draw(const Shader* shader) const override
 	{
 		ScopedBindArray ba(VAO);
@@ -51,6 +64,9 @@ public:
 		glDrawArrays(GL_PATCHES, 0, positions.size());
 	}
 
+	/// <summary>
+	/// Update the patch's geometry by refreshing the positions of its points.
+	/// </summary>
 	void update()
 	{
 		for (int i = 0; i < points.size(); i++)
@@ -80,6 +96,10 @@ public:
 		}
 	}
 
+	// <summary>
+	/// Draw the polygonal representation of the patch using the specified shader.
+	/// </summary>
+	/// <param name="shader">The shader to be used for rendering the polygonal representation.</param>
 	void drawPolygon(const Shader* shader) const
 	{
 		shader->setVector("color", polygonColor);
@@ -102,6 +122,11 @@ public:
 		}	
 	}
 
+	/// <summary>
+	/// Serialize the patch to a Bezier surface in the MG1 system.
+	/// </summary>
+	/// <param name="surface">The Bezier surface to which the patch will be added.</param>
+	/// <param name="allPoints">All points available for the surface.</param>
 	void addToMGSurface(MG1::BezierSurfaceC0& surface, const std::vector<std::unique_ptr<Point>>& allPoints) const
 	{
 		auto find = [&](const Point* point)
@@ -126,6 +151,11 @@ public:
 		surface.patches.push_back(bp);
 	}
 
+	/// <summary>
+	/// Replace a point in the patch with a new point.
+	/// </summary>
+	/// <param name="oldPoint">The point to be replaced.</param>
+	/// <param name="newPoint">The point to replace the old one.</param>
 	void replacePoint(const Point* oldPoint, Point* newPoint)
 	{
 		auto it = std::find(points.begin(), points.end(), oldPoint);
@@ -133,11 +163,22 @@ public:
 			*it = newPoint;
 	}
 
+	/// <summary>
+	/// Get the list of points that define the patch.
+	/// </summary>
+	/// <returns>A constant reference to the list of points.</returns>
 	inline const auto& getPoints() const
 	{
 		return points;
 	}
 
+	/// <summary>
+	/// Evaluates the surface at the given parameters (u, v) and with an optional tool radius.
+	/// </summary>
+	/// <param name="u">U parameter for the surface evaluation.</param>
+	/// <param name="v">V parameter for the surface evaluation.</param>
+	/// <param name="toolRadius">The surface's offset along its normal vector.</param>
+	/// <returns>The 3D point corresponding to the (u, v) parameter on the surface.</returns>
 	virtual glm::vec3 evaluate(float u, float v, float toolRadius) const override
 	{
 		glm::vec3 bernsteins[4];
@@ -164,19 +205,15 @@ public:
 		return ret;
 	}
 
+	/// <summary>
+	/// Calculates the derivative of the surface in the U direction at the given parameters (u, v).
+	/// </summary>
+	/// <param name="u">U parameter for the derivative calculation.</param>
+	/// <param name="v">V parameter for the derivative calculation.</param>
+	/// <param name="toolRadius">The surface's offset along its normal vector.</param>
+	/// <returns>The 3D vector representing the derivative in the U direction.</returns>
 	virtual glm::vec3 derivativeU(float u, float v, float toolRadius = 0.0f) const override
 	{
-		/*if (u < math::eps)
-		{
-			auto len = glm::length(derivativeU(2 * math::eps, v, toolRadius));
-			return glm::vec3{ 0, 1, 0 } *len;
-		}
-		if (u > 1.0f - math::derivativeH)
-		{
-			auto len = glm::length(derivativeU(u - math::derivativeH, v, toolRadius));
-			return glm::vec3{ 0, 1, 0 } * len;
-		}*/
-
 		if (u > 1.0f - math::derivativeH)
 			return derivativeU(u - math::derivativeH, v, toolRadius);
 		return (evaluate(u + math::derivativeH, v, toolRadius) - evaluate(u, v, toolRadius)) / math::derivativeH;
@@ -196,34 +233,18 @@ public:
 		return math::deCasteljau3Derivative(bernsteins[0], bernsteins[1], bernsteins[2], bernsteins[3], u);*/
 	}
 
+	/// <summary>
+	/// Calculates the derivative of the surface in the V direction at the given parameters (u, v).
+	/// </summary>
+	/// <param name="u">U parameter for the derivative calculation.</param>
+	/// <param name="v">V parameter for the derivative calculation.</param>
+	/// <param name="toolRadius">The surface's offset along its normal vector.</param>
+	/// <returns>The 3D vector representing the derivative in the V direction.</returns>
 	virtual glm::vec3 derivativeV(float u, float v, float toolRadius = 0.0f) const override
 	{
-		/*if (v < math::eps)
-		{
-			auto len = glm::length(derivativeV(u, 2 * math::eps, toolRadius));
-			return glm::vec3{ 0, 1, 0 } *len;
-		}
-		if (v > 1.0f - math::derivativeH)
-		{
-			auto len = glm::length(derivativeV(u, v - math::derivativeH, toolRadius));
-			return glm::vec3{ 0, 1, 0 } *len;
-		}*/
-
 		if (v > 1.0f - math::derivativeH)
 			return derivativeV(u, v - math::derivativeH, toolRadius);
 		return (evaluate(u, v + math::derivativeH, toolRadius) - evaluate(u, v, toolRadius)) / math::derivativeH;
-		/*glm::vec3 bernsteins[4];
-		for (int i = 0; i < 4; i++)
-		{
-			bernsteins[i] = math::deCasteljau3Derivative(
-				points[i]->getPosition(),
-				points[4 + i]->getPosition(),
-				points[8 + i]->getPosition(),
-				points[12 + i]->getPosition(),
-				v
-			);
-		}
-		return math::deCasteljau3(bernsteins[0], bernsteins[1], bernsteins[2], bernsteins[3], u);*/
 	}
 
 private:

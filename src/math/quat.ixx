@@ -5,6 +5,11 @@ import glm;
 
 export namespace math
 {
+	/// <summary>
+	/// A class representing a quaternion for 3D rotations. This class supports various operations on quaternions, including 
+	/// multiplication, normalization, conversion to matrix form, and more. Quaternions are often used in 3D graphics and physics 
+	/// to represent rotations because they avoid issues like gimbal lock that can occur with Euler angles.
+	/// </summary>
 	class Quat
 	{
 	private:
@@ -14,16 +19,40 @@ export namespace math
 		float z = 0.0f;
 
 	public:
+		/// <summary>
+		/// Default constructor for a quaternion. Initializes to the identity quaternion (w = 1, x = 0, y = 0, z = 0).
+		/// </summary>
 		Quat() = default;
+
+		/// <summary>
+		/// Constructs a quaternion from the given components.
+		/// </summary>
+		/// <param name="w">The scalar component of the quaternion.</param>
+		/// <param name="x">The x-component of the vector part of the quaternion.</param>
+		/// <param name="y">The y-component of the vector part of the quaternion.</param>
+		/// <param name="z">The z-component of the vector part of the quaternion.</param>
 		Quat(float w, float x, float y, float z) : w(w), x(x), y(y), z(z)
 		{}
 
+		/// <summary>
+		/// Constructs a quaternion from a scalar and a 3D vector.
+		/// </summary>
+		/// <param name="w">The scalar component of the quaternion.</param>
+		/// <param name="xyz">The 3D vector part of the quaternion.</param>
 		Quat(float w, const glm::vec3& xyz) : Quat(w, xyz.x, xyz.y, xyz.z)
 		{}
 
+		/// <summary>
+		/// Constructs a quaternion from a 4D vector (w, x, y, z).
+		/// </summary>
+		/// <param name="wxyz">The 4D vector representing the quaternion components.</param>
 		Quat(const glm::vec4& wxyz) : Quat(wxyz.w, wxyz.x, wxyz.y, wxyz.z)
 		{}
 
+		/// <summary>
+		/// Constructs a quaternion from Euler angles (roll, pitch, yaw).
+		/// </summary>
+		/// <param name="rpy">The Euler angles (roll, pitch, yaw) in radians.</param>
 		Quat(const glm::vec3& rpy)
 		{
 			glm::vec3 c = glm::cos(rpy * 0.5f);
@@ -35,6 +64,11 @@ export namespace math
 			this->z = c.x * c.y * s.z - s.x * s.y * c.z;
 		}
 
+		/// <summary>
+		/// Multiplies this quaternion with another quaternion and returns the result.
+		/// </summary>
+		/// <param name="other">The other quaternion to multiply with.</param>
+		/// <returns>A new quaternion resulting from the multiplication of this and the other quaternion.</returns>
 		Quat operator*(const Quat& other) const
 		{
 			float newW = w * other.w - x * other.x - y * other.y - z * other.z;
@@ -44,12 +78,21 @@ export namespace math
 			return Quat(newW, newX, newY, newZ);
 		}
 
+		/// <summary>
+		/// Multiplies this quaternion with another quaternion in-place.
+		/// </summary>
+		/// <param name="other">The other quaternion to multiply with.</param>
+		/// <returns>This quaternion after the multiplication.</returns>
 		Quat& operator*=(const Quat& other)
 		{
 			*this *= other;
 			return *this;
 		}
 
+		/// <summary>
+		/// Converts the quaternion to a 4x4 matrix.
+		/// </summary>
+		/// <returns>A 4x4 matrix representing the rotation of this quaternion.</returns>
 		glm::mat4 toMatrix() const
 		{
 			glm::mat3 result{ 1.0f };
@@ -78,11 +121,19 @@ export namespace math
 			return glm::mat4(result);
 		}
 
+		/// <summary>
+		/// Returns the length (magnitude) of the quaternion.
+		/// </summary>
+		/// <returns>The length of the quaternion.</returns>
 		float length() const
 		{
 			return std::sqrtf(w * w + x * x + y * y + z * z);
 		}
 
+		/// <summary>
+		/// Returns a normalized version of this quaternion.
+		/// </summary>
+		/// <returns>The normalized quaternion.</returns>
 		Quat normalized() const
 		{
 			float len = length();
@@ -92,11 +143,21 @@ export namespace math
 			return Quat(w * oneOverLen, x * oneOverLen, y * oneOverLen, z * oneOverLen);
 		}
 
+		/// <summary>
+		/// Converts the quaternion to Euler angles (roll, pitch, yaw).
+		/// </summary>
+		/// <returns>A 3D vector representing the Euler angles (roll, pitch, yaw) in radians.</returns>
 		glm::vec3 rpy() const
 		{
 			return glm::vec3{ pitch(), yaw(), roll() };
 		}
 
+		/// <summary>
+		/// Creates a quaternion from an axis and an angle of rotation.
+		/// </summary>
+		/// <param name="angle">The angle of rotation in radians.</param>
+		/// <param name="axis">The axis of rotation represented as a 3D vector.</param>
+		/// <returns>A quaternion representing the rotation.</returns>
 		static Quat angleAxis(float angle, const glm::vec3& axis)
 		{
 			float const a(angle);
@@ -106,6 +167,10 @@ export namespace math
 		}
 
 	private:
+		// <summary>
+		/// Calculates the roll (rotation around the x-axis) from the quaternion.
+		/// </summary>
+		/// <returns>The roll angle in radians.</returns>
 		float roll() const
 		{
 			float yy = 2.0f * (x * y + w * z);
@@ -117,6 +182,10 @@ export namespace math
 			return atan2(yy, xx);
 		}
 
+		/// <summary>
+		/// Calculates the pitch (rotation around the y-axis) from the quaternion.
+		/// </summary>
+		/// <returns>The pitch angle in radians.</returns>
 		float pitch() const
 		{
 			float yy = 2.0f * (y * z + w * x);
@@ -128,6 +197,10 @@ export namespace math
 			return atan2(yy, xx);
 		}
 
+		/// <summary>
+		/// Calculates the yaw (rotation around the z-axis) from the quaternion.
+		/// </summary>
+		/// <returns>The yaw angle in radians.</returns>
 		float yaw() const
 		{
 			return asin(std::clamp(-2.0f * (x * z - w * y), -1.0f, 1.0f));

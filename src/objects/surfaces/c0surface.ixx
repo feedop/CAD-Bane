@@ -13,9 +13,18 @@ import mg1utils;
 
 using namespace Gregory;
 
+/// <summary>
+/// Class representing a C0 surface consisting of multiple Bezier patches.
+/// </summary>
 export class C0Surface : public Surface
 {
 public:
+	/// <summary>
+	/// Constructor to create a C0 surface from a position and grid size.
+	/// </summary>
+	/// <param name="position">The position of the surface in 3D space.</param>
+	/// <param name="sizeX">The number of patches in the X direction.</param>
+	/// <param name="sizeZ">The number of patches in the Z direction.</param>
 	C0Surface(const glm::vec3& position, int sizeX, int sizeZ) : Surface(getSurfaceName(), sizeX, sizeZ)
 	{
 		std::vector<Point*> tempPoints;
@@ -94,6 +103,13 @@ public:
 		attachPoints();
 	}
 
+	/// <summary>
+	/// Constructor to create a C0 cylinder from a position
+	/// and a specified radius for a cylindrical surface.
+	/// </summary>
+	/// <param name="position">The position of the surface in 3D space.</param>
+	/// <param name="sizeX">The number of patches in the X direction.</param>
+	/// <param name="radius">The radius of the cylinder.</param>
 	C0Surface(const glm::vec3& position, int sizeX, float radius) : Surface(getSurfaceName(), sizeX, std::max(3, static_cast<int>(2 * math::pi * radius / patchSizeZ)), true)
 	{
 		int pointCountZ = 4 + 3 * (sizeZ - 2) + 2;
@@ -213,6 +229,11 @@ public:
 		attachPoints();
 	}
 
+	/// <summary>
+	/// Constructor to deserialize a C0 surface from an existing MG1 Bezier surface.
+	/// </summary>
+	/// <param name="other">The Bezier surface to copy from.</param>
+	/// <param name="allPoints">The collection of all points in the scene.</param>
 	C0Surface(const MG1::BezierSurfaceC0& other, const std::vector<std::unique_ptr<Point>>& allPoints) : Surface(other.name, other.size.x, other.size.y, other.vWrapped)
 	{
 		instanceCount++;
@@ -242,6 +263,10 @@ public:
 		attachPoints();
 	}
 
+	/// <summary>
+	/// Draw the surface using a given shader, rendering the patches of the surface.
+	/// </summary>
+	/// <param name="shader">The shader to be used for rendering.</param>
 	virtual void drawPolygon(const Shader* shader) const override
 	{
 		for (auto&& patch : patches)
@@ -250,6 +275,10 @@ public:
 		}
 	}
 
+	// <summary>
+	/// Render the entire surface with the specified shader.
+	/// </summary>
+	/// <param name="shader">The shader to be used for rendering.</param>
 	virtual void draw(const Shader* shader) const override
 	{
 		setColor(shader);
@@ -274,6 +303,9 @@ public:
 		}
 	}
 
+	/// <summary>
+	/// Update the surface if scheduled for an update.
+	/// </summary>
 	virtual void update() override
 	{
 		if (!scheduledToUpdate)
@@ -287,6 +319,11 @@ public:
 		scheduledToUpdate = false;
 	}
 
+	/// <summary>
+	/// Serialize the C0 surface to the provided MG1 scene.
+	/// </summary>
+	/// <param name="mgscene">The scene to which the surface should be added.</param>
+	/// <param name="allPoints">The collection of all points in the scene.</param>
 	virtual void addToMGScene(MG1::Scene& mgscene, const std::vector<std::unique_ptr<Point>>& allPoints) const override
 	{
 		MG1::BezierSurfaceC0 surface;
@@ -306,16 +343,30 @@ public:
 		mgscene.surfacesC0.push_back(surface);
 	}
 
+	/// <summary>
+	/// Get the preferred shader for rendering this surface.
+	/// </summary>
+	/// <returns>The preferred shader.</returns>
 	virtual Shader* getPreferredShader() const
 	{
 		return preferredShader;
 	}
 
+	/// <summary>
+	/// Set the preferred shader to be used for rendering C0Surface objects.
+	/// </summary>
+	/// <param name="shader">The shader to be set as the preferred shader.</param>
 	inline static void setPreferredShader(Shader* shader)
 	{
 		preferredShader = shader;
 	}
 
+	/// <summary>
+	/// Collapse two points into a new point.
+	/// </summary>
+	/// <param name="oldPoint1">The first point.</param>
+	/// <param name="oldPoint2">The second point.</param>
+	/// <param name="newPoint">The new point after collapse.</param>
 	virtual void collapsePoints(const Point* oldPoint1, const Point* oldPoint2, Point* newPoint) override
 	{
 		Shape::collapsePoints(oldPoint1, oldPoint2, newPoint);
@@ -325,6 +376,10 @@ public:
 		}
 	}
 
+	/// <summary>
+	/// Get the border of the C0 surface.
+	/// </summary>
+	/// <returns>The border of the surface.</returns>
 	Border getBorder() const
 	{
 		if (sizeX == 0 || sizeZ == 0)
@@ -435,11 +490,25 @@ public:
 		return border;
 	}
 
+	/// <summary>
+	/// Evaluates the surface at the given parameters (u, v) and with an optional tool radius.
+	/// </summary>
+	/// <param name="u">U parameter for the surface evaluation.</param>
+	/// <param name="v">V parameter for the surface evaluation.</param>
+	/// <param name="toolRadius">The surface's offset along its normal vector.</param>
+	/// <returns>The 3D point corresponding to the (u, v) parameter on the surface.</returns>
 	virtual glm::vec3 evaluate(float u, float v, float toolRadius) const override
 	{
 		return eval(u, v, [toolRadius](float u, float v, const std::unique_ptr<Patch>& patch) { return patch->evaluate(u, v, toolRadius); });
 	}
 
+	/// <summary>
+	/// Calculates the derivative of the surface in the U direction at the given parameters (u, v).
+	/// </summary>
+	/// <param name="u">U parameter for the derivative calculation.</param>
+	/// <param name="v">V parameter for the derivative calculation.</param>
+	/// <param name="toolRadius">The surface's offset along its normal vector.</param>
+	/// <returns>The 3D vector representing the derivative in the U direction.</returns>
 	virtual glm::vec3 derivativeU(float u, float v, float toolRadius) const override
 	{
 		if (u > 1.0f - math::derivativeH)
@@ -447,6 +516,13 @@ public:
 		return (evaluate(u + math::derivativeH, v, toolRadius) - evaluate(u, v, toolRadius)) / math::derivativeH;
 	}
 
+	/// <summary>
+	/// Calculates the derivative of the surface in the V direction at the given parameters (u, v).
+	/// </summary>
+	/// <param name="u">U parameter for the derivative calculation.</param>
+	/// <param name="v">V parameter for the derivative calculation.</param>
+	/// <param name="toolRadius">The surface's offset along its normal vector.</param>
+	/// <returns>The 3D vector representing the derivative in the V direction.</returns>
 	virtual glm::vec3 derivativeV(float u, float v, float toolRadius) const override
 	{
 		if (v > 1.0f - math::derivativeH)
@@ -465,6 +541,13 @@ private:
 		return std::format("{} {}", "C0 Surface", instanceCount++);
 	}
 
+	/// <summary>
+	/// A helper that evaluates a function for the given parameters.
+	/// </summary>
+	/// <param name="u">The u parameter.</param>
+	/// <param name="v">The v parameter.</param>
+	/// <param name="func">The function to evaluate.</param>
+	/// <returns></returns>
 	glm::vec3 eval(float u, float v, auto func) const
 	{
 		float fIndexV = v * sizeX;

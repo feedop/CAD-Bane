@@ -10,9 +10,18 @@ import ellipsoid;
 import math;
 import raycastingstrategy;
 
+/// <summary>
+/// Class that implements the raycasting strategy using the CPU for rendering the ellipsoid to a texture.
+/// </summary>
 export class CpuRaycasting : public RaycastingStrategy
 {
 public:
+	/// <summary>
+	/// Constructor that initializes the CPU raycasting strategy with the given camera and ellipsoid.
+	/// It also sets up the texture for raycasting.
+	/// </summary>
+	/// <param name="camera">The camera used for rendering the raycast.</param>
+	/// <param name="ellipsoid">The ellipsoid geometry to be used in raycasting.</param>
 	CpuRaycasting(const Camera& camera, const Ellipsoid& ellipsoid) : RaycastingStrategy(camera, ellipsoid)
 	{
 		glGenTextures(1, &texId);
@@ -25,6 +34,13 @@ public:
 		//glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 	}
 
+	/// <summary>
+	/// Updates the raycasting texture based on the width, height, and shininess.
+	/// This method will parallelize the computation of each pixel.
+	/// </summary>
+	/// <param name="width">The width of the texture.</param>
+	/// <param name="height">The height of the texture.</param>
+	/// <param name="lightM">Phoneg shininess.</param>
 	virtual void update(int width, int height, int lightM) override
 	{
 		if (texture.size() < width * height)
@@ -43,9 +59,13 @@ private:
 	std::vector<glm::vec4> texture;
 
 	/// <summary>
-	/// Executed for each texture pixel, preferably in parallel
+	/// This method is executed for each pixel in the texture, calculating the color for that pixel
+	/// based on the raycasting technique.
 	/// </summary>
-	/// <param name="i">Pixel index</param>
+	/// <param name="i">The index of the pixel being processed.</param>
+	/// <param name="width">The width of the texture.</param>
+	/// <param name="height">The height of the texture.</param>
+	/// <param name="lightM">Phong shininess.</param>
 	void perPixel(int i, int width, int height, int lightM)
 	{
 		int screenX = i / width;
@@ -87,8 +107,13 @@ private:
 	}
 
 	/// <summary>
-	/// Whether z1 is closer to the camera than z2 with set x and y
+	/// Determines whether z1 is closer to the camera than z2, based on the set x and y coordinates.
 	/// </summary>
+	/// <param name="x">The x-coordinate of the pixel.</param>
+	/// <param name="y">The y-coordinate of the pixel.</param>
+	/// <param name="z1">The first z-value.</param>
+	/// <param name="z2">The second z-value.</param>
+	/// <returns>True if z1 is closer to the camera than z2, otherwise false.</returns>
 	inline bool closer(float x, float y, float z1, float z2) const
 	{
 		if (z1 == z2)
@@ -98,11 +123,23 @@ private:
 		return glm::length(glm::vec3{ x , y, z1 }) < glm::length(glm::vec3{ x, y, z2 });
 	}
 
+	/// <summary>
+	/// Converts the screen-space x-coordinate to the normalized device coordinate (view space).
+	/// </summary>
+	/// <param name="pixel">The screen-space x-coordinate of the pixel.</param>
+	/// <param name="width">The width of the screen or viewport.</param>
+	/// <returns>The x-coordinate in normalized device coordinates (-1 to 1).</returns>
 	inline float xScreen2View(int pixel, int width) const
 	{
 		return static_cast<float>(pixel) / width * 2 - 1.0f;
 	}
 
+	/// <summary>
+	/// Converts the screen-space y-coordinate to the normalized device coordinate (view space).
+	/// </summary>
+	/// <param name="pixel">The screen-space y-coordinate of the pixel.</param>
+	/// <param name="height">The height of the screen or viewport.</param>
+	/// <returns>The y-coordinate in normalized device coordinates (-1 to 1).</returns>
 	inline float yScreen2View(int pixel, int height) const
 	{
 		return -(static_cast<float>(pixel) / height * 2 - 1.0f);

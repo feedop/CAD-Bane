@@ -10,19 +10,33 @@ import glutils;
 import point;
 import shader;
 
+/// <summary>
+/// Represents a C0 Bezier curve, inheriting from the Curve class.
+/// </summary>
 export class C0Bezier : public Curve
 {
 public:
+	/// <summary>
+	/// Constructs a C0 Bezier curve with the given control points.
+	/// </summary>
+	/// <param name="points">A vector of pointers to Point objects representing control points.</param>
 	C0Bezier(const std::vector<Point*>& points) : Curve(getCurveName(), points)
 	{
 		genBuffers();
 	}
 
+	/// <summary>
+	/// Constructs a C0 Bezier curve with an initializer list of control points.
+	/// </summary>
+	/// <param name="points">An initializer list of Point pointers.</param>
 	C0Bezier(std::initializer_list<Point*> points) : Curve(getCurveName(), points)
 	{
 		genBuffers();
 	}
 
+	/// <summary>
+    /// Destructor that cleans up OpenGL buffer objects.
+    /// </summary>
 	virtual ~C0Bezier()
 	{
 		{
@@ -43,6 +57,10 @@ public:
 		}
 	}
 
+	// <summary>
+	/// Draws the quadratic segment of the curve.
+	/// </summary>
+	/// <param name="shader">Pointer to the shader program used for rendering.</param>
 	virtual void drawQuadratic(const Shader* shader) const override
 	{
 		if (positionsQuadratic.size() == 0)
@@ -54,6 +72,10 @@ public:
 		glDrawArrays(GL_PATCHES, 0, positionsQuadratic.size());
 	}
 
+	// <summary>
+	/// Draws the line segment of the curve.
+	/// </summary>
+	/// <param name="shader">Pointer to the shader program used for rendering.</param>
 	virtual void drawLines(const Shader* shader) const override
 	{
 		if (positionsLine.size() == 0)
@@ -64,6 +86,9 @@ public:
 		glDrawArrays(GL_LINES, 0, positionsLine.size());
 	}
 
+	/// <summary>
+	/// Updates the curve's vertex data and uploads it to the GPU.
+	/// </summary>
 	virtual void update() override
 	{
 		if (!scheduledToUpdate)
@@ -75,6 +100,11 @@ public:
 		scheduledToUpdate = false;
 	}
 
+	/// <summary>
+	/// Serializes the Bezier curve to an MG1 scene.
+	/// </summary>
+	/// <param name="mgscene">Reference to the MG1 scene object.</param>
+	/// <param name="indices">Indices of control points in the scene.</param>
 	virtual void addToMGScene(MG1::Scene& mgscene, const std::vector<unsigned int>& indices) const override
 	{
 		MG1::BezierC0 curve;
@@ -97,6 +127,9 @@ private:
 		return std::format("{} {}", "C0 Bezier", instanceCount++);
 	}
 
+	/// <summary>
+	/// Generates OpenGL buffers for rendering.
+	/// </summary>
 	virtual void genBuffers() override
 	{
 		glGenVertexArrays(1, &quadraticVAO);
@@ -105,6 +138,9 @@ private:
 		glGenBuffers(1, &linesVBO);
 	}
 
+	/// <summary>
+	/// Populates position arrays for rendering different representations of the curve.
+	/// </summary>
 	virtual void fillPositions() override
 	{
 		positions.clear();
@@ -168,6 +204,9 @@ private:
 		}
 	}
 
+	/// <summary>
+	/// Uploads the computed positions to OpenGL buffers.
+	/// </summary>
 	virtual void uploadPositions() override
 	{
 		Curve::uploadPositions();
@@ -201,5 +240,4 @@ private:
 			}
 		}
 	}
-
 };

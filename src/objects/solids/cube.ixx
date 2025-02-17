@@ -6,9 +6,16 @@ import glm;
 import shader;
 import texturedobject;
 
+/// <summary>
+/// Represents a 3D cube object with texture mapping. 
+/// The cube is defined by 8 vertices and 12 triangles to form a closed cube in 3D space.
+/// </summary>
 export class Cube : public TexturedObject
 {
 public:
+	/// <summary>
+	/// Constructor for the Cube class that initializes the cube object with vertices and indices to form a textured cube.
+	/// </summary>
 	Cube() : TexturedObject(createVertices(), createIndices())
 	{}
 

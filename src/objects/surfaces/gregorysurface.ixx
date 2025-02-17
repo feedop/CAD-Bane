@@ -16,9 +16,16 @@ import surface;
 using namespace math;
 using namespace Gregory;
 
+/// <summary>
+/// Class representing a Gregory Surface, a specific type of surface defined by a hole.
+/// </summary>
 export class GregorySurface : public Surface
 {
 public:
+	/// <summary>
+	/// Constructor to create a Gregory surface from a specified hole.
+	/// </summary>
+	/// <param name="hole">The hole that defines the surface geometry.</param>
 	GregorySurface(const Hole& hole) : Surface(getSurfaceName(), 1, 1), hole(hole)
 	{
 		genBuffers();
@@ -30,6 +37,9 @@ public:
 		update();
 	}
 
+	/// <summary>
+	/// Destructor to clean up resources used by the Gregory surface.
+	/// </summary>
 	virtual ~GregorySurface()
 	{
 		ScopedBindArray ba(vectorVAO);
@@ -40,6 +50,10 @@ public:
 		glDeleteVertexArrays(1, &vectorVAO);
 	}
 
+	/// <summary>
+	/// Draw the surface as polygons using the specified shader.
+	/// </summary>
+	/// <param name="shader">The shader to be used for rendering.</param>
 	virtual void drawPolygon(const Shader* shader) const override
 	{
 		ScopedBindArray ba(vectorVAO);
@@ -50,7 +64,10 @@ public:
 		}
 	}
 
-
+	/// <summary>
+	/// Draw the surface using the specified shader.
+	/// </summary>
+	/// <param name="shader">The shader to be used for rendering.</param>
 	virtual void draw(const Shader* shader) const override
 	{
 		ScopedBindArray ba(VAO);
@@ -67,6 +84,9 @@ public:
 		glDrawArrays(GL_PATCHES, 0, static_cast<GLsizei>(positions.size()));
 	}
 
+	// <summary>
+	/// Update the surface's geometry if it is scheduled for an update.
+	/// </summary>
 	virtual void update() override
 	{
 		if (!scheduledToUpdate)
@@ -78,16 +98,27 @@ public:
 		scheduledToUpdate = false;
 	}
 
+	/// <summary>
+	/// Not serializable
+	/// </summary>
 	virtual void addToMGScene(MG1::Scene& mgscene, const std::vector<std::unique_ptr<Point>>& allPoints) const override
 	{
-		throw std::logic_error("Not implemented");
+		
 	}
 
+	/// <summary>
+	/// Get the preferred shader for rendering this surface.
+	/// </summary>
+	/// <returns>The preferred shader.</returns>
 	virtual Shader* getPreferredShader() const
 	{
 		return preferredShader;
 	}
 
+	/// <summary>
+	/// Set the preferred shader to be used for rendering GregorySurface objects.
+	/// </summary>
+	/// <param name="shader">The shader to be set as the preferred shader.</param>
 	inline static void setPreferredShader(Shader* shader)
 	{
 		preferredShader = shader;
@@ -109,6 +140,9 @@ private:
 		return std::format("{} {}", "Gregory Patch", instanceCount++);
 	}
 
+	/// <summary>
+	/// Generate OpenGL buffers for the surface's geometry and vectors.
+	/// </summary>
 	void genBuffers()
 	{
 		glGenVertexArrays(1, &VAO);
@@ -119,6 +153,9 @@ private:
 		glGenBuffers(1, &vectorVBO);
 	}
 
+	/// <summary>
+	/// Fill the points for the Gregory surface based on the hole.
+	/// </summary>
 	void fillPoints()
 	{
 		for (int i = 0; i < 4; i++)
@@ -141,6 +178,9 @@ private:
 		}
 	}
 
+	/// <summary>
+	/// Upload the calculated positions to OpenGL buffers.
+	/// </summary>
 	void uploadPositions()
 	{
 		{
@@ -159,6 +199,9 @@ private:
 		}
 	}
 
+	/// <summary>
+	/// Calculate the positions of the surface's vertices.
+	/// </summary>
 	void calculatePositions()
 	{
 		auto side0 = deCasteljauSplit3(

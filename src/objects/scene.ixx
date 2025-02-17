@@ -30,18 +30,26 @@ import pointrenderer;
 import torus;
 import mg1utils;
 
-
+/// <summary>
+/// Represents a 3D scene that contains various objects such as points, curves, surfaces, and tori. 
+/// This class allows manipulation and interaction with these objects within the scene, including 
+/// transformations like moving, rotating, and scaling
 export class Scene
 {
 public:
+	/// <summary>
+	/// Initializes the scene with some predefined objects
+	/// </summary>
 	void init()
 	{
-		/*MG1::SceneSerializer serializer;
-		serializer.LoadScene("examples/FISH/everything_final.json");
-		auto& mgscene = MG1::Scene::Get();
-		deserialize(mgscene);*/
+		// Your init code
 	}
 
+	/// <summary>
+	/// Constructs a Scene object with the specified camera and point renderer.
+	/// </summary>
+	/// <param name="camera">The camera that controls the view of the scene.</param>
+	/// <param name="pointRenderer">The point renderer that handles rendering of points.</param>
 	Scene(const Camera& camera, PointRenderer& pointRenderer) : camera(camera), pointRenderer(pointRenderer)
 	{
 		// Cursor
@@ -50,71 +58,129 @@ public:
 		pointRenderer.update(points);
 	}
 
+	/// <summary>
+	/// Gets the grid object in the scene.
+	/// </summary>
+	/// <returns>The grid object.</returns>
 	inline const SolidObject* getGrid() const
 	{
 		return grid.get();
 	}
 
+	/// <summary>
+	/// Gets the cursor object in the scene.
+	/// </summary>
+	/// <returns>The cursor object.</returns>
 	inline const SolidObject* getCursor() const
 	{
 		return cursor.get();
 	}
 
+	/// <summary>
+	/// Gets the list of tori in the scene.
+	/// </summary>
+	/// <returns>A reference to a vector of unique pointers to Torus objects.</returns>
 	inline const std::vector<std::unique_ptr<Torus>>& getTori() const
 	{
 		return tori;
 	}
 
+	/// <summary>
+	/// Gets the list of selected tori in the scene.
+	/// </summary>
+	/// <returns>A reference to a vector of raw pointers to selected Torus objects.</returns>
 	inline const std::vector<Torus*>& getSelectedTori() const
 	{
 		return selectedTori;
 	}
 
+	/// <summary>
+	/// Gets the list of selected surfaces in the scene.
+	/// </summary>
+	/// <returns>A reference to a vector of pointers to selected Surface objects.</returns>
 	inline const std::vector<Surface*>& getSelectedSurfaces() const
 	{
 		return selectedSurfaces;
 	}
 
+	/// <summary>
+	/// Gets the list of selected points in the scene.
+	/// </summary>
+	/// <returns>A reference to a vector of pointers to selected Point objects.</returns>
 	inline const std::vector<Point*>& getSelectedPoints() const
 	{
 		return selectedPoints;
 	}
 
+	/// <summary>
+	/// Gets the list of points in the scene.
+	/// </summary>
+	/// <returns>A reference to a vector of unique pointers to Point objects.</returns>
 	inline const std::vector<std::unique_ptr<Point>>& getPoints() const
 	{
 		return points;
 	}
 
+	/// <summary>
+	/// Gets the list of curves in the scene.
+	/// </summary>
+	/// <returns>A reference to a vector of Curve objects.</returns>
 	inline const auto& getCurves() const
 	{
 		return curves;
 	}
 
+	/// <summary>
+	/// Gets the list of approximating curves in the scene (curves that are not interpolating).
+	/// </summary>
+	/// <returns>A filtered range of curves that are approximating.</returns>
 	inline auto getApproximatingCurves() const
 	{
 		return std::ranges::views::filter(curves, [](auto& curve) { return !(curve->isInterpolating()); });
 	}
 
+	/// <summary>
+	/// Gets the list of interpolating curves in the scene.
+	/// </summary>
+	/// <returns>A filtered range of curves that are interpolating.</returns>
 	inline auto getInterpolatingCurves() const
 	{
 		return std::ranges::views::filter(curves, [](auto& curve) { return curve->isInterpolating(); });
 	}
 
+	/// <summary>
+	/// Gets the list of surfaces in the scene.
+	/// </summary>
+	/// <returns>A reference to a vector of Surface objects.</returns>
 	inline const auto& getSurfaces() const
 	{
 		return surfaces;
 	}
 
+	/// <summary>
+	/// Gets the list of surface types in the scene.
+	/// </summary>
+	/// <returns>A reference to a vector of surface types.</returns>
 	inline const auto& getSurfaceTypes() const
 	{
 		return surfaceTypes;
 	}
 
+	/// <summary>
+	/// Moves the cursor by the specified differences in x and y coordinates.
+	/// </summary>
+	/// <param name="xDiff">The difference in the x-coordinate for moving the cursor.</param>
+	/// <param name="yDiff">The difference in the y-coordinate for moving the cursor.</param>
 	void moveCursor(float xDiff, float yDiff)
 	{
 		cursor->translate(getTranslationFromMouse(xDiff, yDiff));
 	}
 
+	/// <summary>
+	/// Moves selected objects by the specified differences in x and y coordinates.
+	/// </summary>
+	/// <param name="xDiff">The difference in the x-coordinate for moving the cursor.</param>
+	/// <param name="yDiff">The difference in the y-coordinate for moving the cursor.</param>
 	void moveObjects(float xDiff, float yDiff)
 	{
 		auto translation = getTranslationFromMouse(xDiff, yDiff);
@@ -152,6 +218,11 @@ public:
 		}
 	}
 
+	/// <summary>
+	/// Rotates selected objects by the specified differences in x and y coordinates.
+	/// </summary>
+	/// <param name="xDiff">The difference in the x-coordinate for moving the cursor.</param>
+	/// <param name="yDiff">The difference in the y-coordinate for moving the cursor.</param>
 	void rotateObjects(float xDiff, float yDiff)
 	{
 		float angleRadians = std::sqrtf(xDiff * xDiff + yDiff * yDiff);
@@ -184,6 +255,11 @@ public:
 		pointRenderer.update(points);
 	}
 
+	/// <summary>
+	/// Scales selected objects by the specified differences in x and y coordinates.
+	/// </summary>
+	/// <param name="xDiff">The difference in the x-coordinate for moving the cursor.</param>
+	/// <param name="yDiff">The difference in the y-coordinate for moving the cursor.</param>
 	void scaleObjects(float xDiff, float yDiff)
 	{
 		float coeff = 0.5f * std::sqrtf(xDiff * xDiff + yDiff * yDiff);
@@ -216,16 +292,26 @@ public:
 		pointRenderer.update(points);
 	}
 
+	/// <summary>
+	/// Adds a new torus at cursor position.
+	/// </summary>
 	void addTorus()
 	{
 		tori.emplace_back(new Torus(cursor->getPosition()));
 	}
-
+	
+	/// <summary>
+	/// Adds a new torus at given position.
+	/// </summary>
+	/// <param name="position">The position of the new torus.</param>
 	void addTorus(const glm::vec3& position)
 	{
 		tori.emplace_back(new Torus(position));
 	}
 
+	/// <summary>
+	/// Removes selected objects
+	/// </summary>
 	void removeObjects()
 	{
 		// Curves need to be removed before points so that every object is deleted in the same frame
@@ -267,6 +353,11 @@ public:
 		pointRenderer.update(points);
 	}
 
+	/// <summary>
+	/// Selects a torus and adds it to the list of selected tori.
+	/// Also recalculates the middle point based on the selected tori and points.
+	/// </summary>
+	/// <param name="torus">The torus to be selected.</param>
 	void selectTorus(Torus* torus)
 	{
 		selectedTori.push_back(torus);
@@ -274,6 +365,11 @@ public:
 		pointRenderer.update(points);
 	}
 
+	/// <summary>
+	/// Deselects a torus and removes it from the list of selected tori.
+	/// Also recalculates the middle point based on the selected tori and points.
+	/// </summary>
+	/// <param name="torus">The torus to be selected.</param>
 	void deselectTorus(const Torus* torus)
 	{
 		selectedTori.erase(std::find(selectedTori.begin(), selectedTori.end(), torus));
@@ -281,6 +377,10 @@ public:
 		pointRenderer.update(points);
 	}
 
+	/// <summary>
+	/// Adds a new point at given position.
+	/// </summary>
+	/// <param name="position">The position of the new point</param>
 	void addPoint(const glm::vec3& position)
 	{
 		points.emplace_back(new Point(position));
@@ -292,11 +392,19 @@ public:
 		pointRenderer.update(points);
 	}
 
+	/// <summary>
+	/// Adds a new point at cursor position.
+	/// </summary>
 	void addPoint()
 	{
 		addPoint(cursor->getPosition());
 	}
 
+	/// <summary>
+	/// Selects a point and adds it to the list of selected points.
+	/// Also recalculates the middle point based on the selected tori and points.
+	/// </summary>
+	/// <param name="point">The point to be selected.</param>
 	void selectPoint(Point* point)
 	{
 		selectedPoints.push_back(point);
@@ -304,6 +412,11 @@ public:
 		pointRenderer.update(points);
 	}
 
+	/// <summary>
+	/// Deselects a point by removing it from the list of selected points.
+	/// Also recalculates the middle point based on the selected tori and points.
+	/// </summary>
+	/// <param name="point">The point to be deselected.</param>
 	void deselectPoint(const Point* point)
 	{
 		selectedPoints.erase(std::find(selectedPoints.begin(), selectedPoints.end(), point));
@@ -311,6 +424,11 @@ public:
 		pointRenderer.update(points);
 	}
 
+	/// <summary>
+	/// Adds a new curve to the scene using the selected points.
+	/// The curve is of type T, which must be a subclass of the Curve class.
+	/// </summary>
+	/// <typeparam name="T">The type of curve to be added (must be a subclass of Curve).</typeparam>
 	template <class T>
 	requires std::is_base_of<Curve, T>::value
 	void addCurve()
@@ -318,6 +436,12 @@ public:
 		curves.emplace_back(new T(selectedPoints));
 	}
 
+	/// <summary>
+	/// Adds a new surface to the scene using the provided arguments.
+	/// The surface is of type T, which must be a subclass of the Surface class.
+	/// </summary>
+	/// <typeparam name="T">The type of surface to be added (must be a subclass of Surface).</typeparam>
+	/// <param name="args">The arguments for constructing the surface.</param>
 	template <class T, class... Us>
 	requires std::is_base_of<Surface, T>::value
 	void addSurface(Us... args)
@@ -331,6 +455,10 @@ public:
 		updateSurfaceTypes();
 	}
 
+	/// <summary>
+	/// Adds a Gregory surface (patch) to the scene based on the selected surfaces.
+	/// </summary>
+	/// <param name="backGregory">A flag indicating whether to add the second hole.</param>
 	void addGregoryPatch(bool backGregory = false)
 	{
 		auto&& holes = math::findHole(selectedSurfaces);
@@ -351,26 +479,45 @@ public:
 		updateSurfaceTypes();
 	}
 
+	/// <summary>
+	/// Selects a curve and adds it to the list of selected curves.
+	/// </summary>
+	/// <param name="curve">The curve to be selected.</param>
 	void selectCurve(Curve* curve)
 	{
 		selectedCurves.push_back(curve);
 	}
 
+	/// <summary>
+	/// Selects a surface and adds it to the list of selected surfaces.
+	/// </summary>
+	/// <param name="surface">The surface to be selected.</param>
 	void selectSurface(Surface* surface)
 	{
 		selectedSurfaces.push_back(surface);
 	}
 
+	/// <summary>
+	/// Deselects a curve by removing it from the list of selected curves.
+	/// </summary>
+	/// <param name="curve">The curve to be deselected.</param>
 	void deselectCurve(const Curve* curve)
 	{
 		selectedCurves.erase(std::find(selectedCurves.begin(), selectedCurves.end(), curve));
 	}
 
+	/// <summary>
+	/// Deselects a surface by removing it from the list of selected surfaces.
+	/// </summary>
+	/// <param name="surface">The surface to be deselected.</param>
 	void deselectSurface(const Surface* surface)
 	{
 		selectedSurfaces.erase(std::find(selectedSurfaces.begin(), selectedSurfaces.end(), surface));
 	}
 
+	/// <summary>
+	/// Adds the selected points to the selected curves.
+	/// </summary>
 	void addToCurves()
 	{
 		for (auto&& curve : selectedCurves)
@@ -379,6 +526,9 @@ public:
 		}
 	}
 
+	/// <summary>
+	/// Removes the selected points from the selected curves.
+	/// </summary>
 	void removeFromCurves()
 	{
 		for (auto&& curve : selectedCurves)
@@ -387,6 +537,9 @@ public:
 		}
 	}
 
+	/// <summary>
+	/// Collapses selected points into a single point.
+	/// </summary>
 	void collapsePoints()
 	{
 		if (selectedPoints.size() != 2)
@@ -416,6 +569,13 @@ public:
 		pointRenderer.update(points);
 	}
 
+	/// <summary>
+	/// Selects an object from the screen based on its screen coordinates.
+	/// Optionally allows multiple objects to be selected at once.
+	/// </summary>
+	/// <param name="objcoord">The 3D coordinates of the object to be selected.</param>
+	/// <param name="selectMultiple">A flag that indicates whether multiple objects can be selected at the same time. 
+	/// If true, multiple objects can be selected, otherwise only one object is selected.</param>
 	void selectObjectFromScreen(const glm::vec3& objcoord, bool selectMultiple)
 	{
 		// Check points
@@ -501,6 +661,10 @@ public:
 		pointRenderer.update(points);
 	}
 
+	/// <summary>
+	/// Updates all the objects in the scene that need to be recalculated.
+	/// This method checks each curve and surface and updates them accordingly.
+	/// </summary>
 	void updateObjects()
 	{
 		// returns immediately unless the curve needs to be recalculated;
@@ -515,6 +679,10 @@ public:
 		}
 	}
 
+	/// <summary>
+	/// Clears all objects and selections from the scene, resetting everything to its initial state.
+	/// This includes clearing curves, surfaces, tori, points, and selected objects.
+	/// </summary>
 	void clear()
 	{
 		curves.clear();
@@ -534,6 +702,10 @@ public:
 		pointRenderer.update(points);
 	}
 
+	/// <summary>
+	/// Deserializes from a MG1 scene.
+	/// </summary>
+	/// <param name="mgscene">The scene to deserialize from.</param>
 	void deserialize(MG1::Scene& mgscene)
 	{
 		clear();
@@ -595,6 +767,10 @@ public:
 		pointRenderer.update(points);
 	}
 
+	/// <summary>
+	/// Serializes into a MG1 scene.
+	/// </summary>
+	/// <param name="mgscene">The scene to serialize to.</param>
 	void serialize(MG1::Scene& mgscene)
 	{
 		auto addCurveToMGScene = [&](const auto& curve)
@@ -619,17 +795,6 @@ public:
 
 		for (auto&& point : points)
 		{
-			////  ------------ REMOVE ------------
-			/*auto newPosition = point->getPosition() * 2.0f;
-			newPosition = newPosition + glm::vec3{-5.5f, 0.0f, 1.5f};
-			point->setPosition(newPosition);*/
-
-			/*auto newPosition = point->getPosition();
-			newPosition.x *= 1.1f;
-			newPosition.y *= 1.2f;
-			point->setPosition(newPosition);*/
-			////  ------------ REMOVE ------------
-
 			mgscene.points.emplace_back(*point);
 		}
 
@@ -649,12 +814,23 @@ public:
 		}
 	}
 
+	/// <summary>
+	/// Determines whether an intersection operation can be performed.
+	/// </summary>
+	/// <returns>
+	/// True if the number of selected tori and surfaces is greater than 0 and at most 2, otherwise false.
+	/// </returns>
 	bool intersectable() const
 	{
 		int size = selectedTori.size() + selectedSurfaces.size();
 		return size > 0 && size <= 2;
 	}
 
+	// <summary>
+	/// Performs an intersection operation based on the selected tori and surfaces.
+	/// </summary>
+	/// <param name="d">A parameter controlling the depth or density of the intersection calculation.</param>
+	/// <param name="cursorInitial">Indicates whether the cursor is used as the initial reference for the intersection.</param>
 	void intersect(float d, bool cursorInitial)
 	{
 		if (selectedTori.size() + selectedSurfaces.size() == 1)
@@ -702,6 +878,10 @@ public:
 		}
 	}
 
+	// <summary>
+	/// Converts an intersection curve into an interpolating spline.
+	/// </summary>
+	/// <param name="intersectionCurve">The intersection curve to be converted.</param>
 	void convertCurve(const IntersectionCurve* intersectionCurve)
 	{
 		auto foundCurve = std::find_if(curves.begin(), curves.end(), [&](auto&& curve) { return curve.get() == intersectionCurve; });
@@ -738,6 +918,12 @@ public:
 		}
 	}
 
+	/// <summary>
+	/// Retrieves the shader used for constructing parametric views.
+	/// </summary>
+	/// <returns>
+	/// A pointer to the parametric view shader used for creating intersection curves.
+	/// </returns>
 	inline const Shader* getIntersectionShader() const
 	{
 		return parametricViewShader.get();
@@ -767,11 +953,22 @@ private:
 
 	std::unique_ptr<Shader> parametricViewShader = std::make_unique<UniformColorShader>();
 
+	/// <summary>
+	/// Calculates the translation vector based on mouse movement.
+	/// </summary>
+	/// <param name="xDiff">The horizontal difference in mouse movement.</param>
+	/// <param name="yDiff">The vertical difference in mouse movement.</param>
+	/// <returns>
+	/// A translation vector derived from the mouse movement and camera orientation.
+	/// </returns>
 	inline glm::vec3 getTranslationFromMouse(float xDiff, float yDiff) const
 	{
 		return 0.25f / camera.getZoomScale().y * (xDiff * camera.getRight() - yDiff * camera.getUp());
 	}
 
+	/// <summary>
+	/// Deselects all objects.
+	/// </summary>
 	void deselectAll()
 	{
 		selectedTori.clear();
@@ -799,6 +996,9 @@ private:
 		}
 	}
 
+	/// <summary>
+	/// Updates the mapping of surfaces to their preferred shaders.
+	/// </summary>
 	void updateSurfaceTypes()
 	{
 		surfaceTypes.clear();
@@ -816,6 +1016,14 @@ private:
 		}
 	}
 
+	/// <summary>
+	/// Computes the intersection between two parametric surfaces and stores the resulting intersection curve.
+	/// </summary>
+	/// <param name="surface1">The first parametric surface.</param>
+	/// <param name="surface2">The second parametric surface.</param>
+	/// <param name="d">The precision or density factor for the intersection calculation.</param>
+	/// <param name="wrap">A vector specifying the wrapping behavior of the intersection computation.</param>
+	/// <param name="cursorInitial">Indicates whether the cursor's position should be used as the starting point.</param>
 	void calculateIntersection(Parametric* surface1, Parametric* surface2, float d, const glm::vec4& wrap, bool cursorInitial)
 	{
 		std::unique_ptr<IntersectionCurve> curve;

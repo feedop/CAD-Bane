@@ -3,6 +3,9 @@ export module dummysurface;
 import std;
 import parametric;
 
+/// <summary>
+/// A flat plane used as the base in path generation.
+/// </summary>
 export class DummySurface : public Parametric
 {
 public:

@@ -5,7 +5,11 @@ import glm;
 
 import <glad/glad.h>;
 
-
+/// <summary>
+/// Reads shader code from a file.
+/// </summary>
+/// <param name="filePath">The path to the shader file.</param>
+/// <returns></returns>
 std::string getShaderCode(const std::string& filePath)
 {
     std::string shaderCode;
@@ -32,6 +36,12 @@ std::string getShaderCode(const std::string& filePath)
     return shaderCode;
 }
 
+/// <summary>
+/// Compiles the GLSL shader.
+/// </summary>
+/// <param name="type">Type of the shader.</param>
+/// <param name="shaderCode">The shader's code.</param>
+/// <returns></returns>
 GLuint compileShader(GLuint type, const char* shaderCode)
 {
     int success;
@@ -57,17 +67,18 @@ GLuint compileShader(GLuint type, const char* shaderCode)
 export class Shader
 {
 public:
-    // the program ID
     unsigned int id = 0;
-    // use/activate the shader
     virtual ~Shader() = default;
 
+    /// <summary>
+    /// use/activate the shader
+    /// </summary>
     inline void use() const
     {
         glUseProgram(id);
     }
 
-    // utility uniform functions
+    // Utility uniform functions
     void setFloat(const char* name, float value) const
     {
         int location = glGetUniformLocation(id, name);
@@ -99,9 +110,11 @@ public:
     }
 
 protected:
+    /// <summary>
+    /// Print linking errors if any.
+    /// </summary>
     void checkShaderErrors()
     {
-        // print linking errors if any
         int success;
         char infoLog[512];
 
@@ -114,6 +127,9 @@ protected:
     }
 };
 
+/// <summary>
+/// A standard `vertex shader -> fragment shader` pipeline.
+/// </summary>
 export class VertFragShader : public Shader
 {
 public:
@@ -141,6 +157,9 @@ public:
     }
 };
 
+/// <summary>
+/// A `vertex shader -> tesselation -> fragment shader` pipeline.
+/// </summary>
 export class VertFragTessShader : public Shader
 {
 public:
@@ -175,6 +194,8 @@ public:
         glDeleteShader(tese);
     }
 };
+
+// Various specialized shaders
 
 export class FlatTextureShader : public VertFragShader
 {

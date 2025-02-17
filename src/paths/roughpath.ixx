@@ -7,7 +7,15 @@ import scene;
 import renderer;
 import pathutils;
 
-// Function to find the maximum value within a square of side length `r` centered at (x, y)
+/// <summary>
+/// Finds the maximum value within a square of side length `r` centered at (x, y) in the height map.
+/// </summary>
+/// <param name="heightMap">A 1D vector representing the height map data.</param>
+/// <param name="size">The width (and height) of the height map (assumed to be square).</param>
+/// <param name="r">The radius defining the side length of the square to search.</param>
+/// <param name="x">The x-coordinate of the center of the square.</param>
+/// <param name="y">The y-coordinate of the center of the square.</param>
+/// <returns>The maximum value found within the square.</returns>
 float findMaxInSquare(const std::vector<float>& heightMap, int size, int r, int x, int y)
 {
 	// Calculate half of the side length
@@ -31,6 +39,14 @@ float findMaxInSquare(const std::vector<float>& heightMap, int size, int r, int 
 
 export namespace paths
 {
+	/// <summary>
+	/// Generates a rough path based on the provided scene and height map data.
+	/// The path is created by sampling the height map and constructing a path with low-level detail.
+	/// </summary>
+	/// <param name="scene">The scene object that may be used to retrieve scene-specific data (e.g., camera position, lights, etc.).</param>
+	/// <param name="heightMap">The height map data represented as a 1D vector of floats.</param>
+	/// <param name="heightSize">The size of the height map, assuming it is square (heightSize x heightSize).</param>
+	/// <returns>A vector of 3D points representing the rough path generated from the height map.</returns>
 	std::vector<glm::vec3> generateRoughPath(const Scene& scene, const std::vector<float>& heightMap, int heightSize)
 	{
 		static constexpr float radius = 0.8f;

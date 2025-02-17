@@ -10,11 +10,23 @@ import glutils;
 import floodfill;
 import imopen;
 
+// <summary>
+/// A class that manages an OpenGL texture with framebuffer support supporting multiple stacked draws.
+/// It allows rendering intersections, performing flood fill operations, and 
+/// applying morphological opening operations.
+/// </summary>
 export class MultiTexture
 {
 public:
+	/// <summary>
+	/// Default constructor for MultiTexture.
+	/// </summary>
 	MultiTexture() = default;
 
+	/// <summary>
+	/// Constructs a MultiTexture with the specified size and initializes OpenGL resources.
+	/// </summary>
+	/// <param name="size">The size of the texture (width and height in pixels).</param>
 	MultiTexture(int size) : size(size)
 	{
 		data = std::vector<float>(size * size);
@@ -41,6 +53,9 @@ public:
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 
+	/// <summary>
+	/// Destructor that cleans up OpenGL resources.
+	/// </summary>
 	~MultiTexture()
 	{
 		glDeleteFramebuffers(1, &framebuffer);
@@ -49,6 +64,13 @@ public:
 		glDeleteVertexArrays(1, &VAO);
 	}
 
+	/// <summary>
+	/// Adds intersection points to the texture using OpenGL rendering.
+	/// </summary>
+	/// <param name="positions">A vector of 3D positions representing the intersection.</param>
+	/// <param name="shader">Pointer to the shader used for rendering.</param>
+	/// <param name="tolU">Tolerance for the U coordinate.</param>
+	/// <param name="tolV">Tolerance for the V coordinate.</param>
 	void addIntersection(const std::vector<glm::vec3>& positions, const Shader* shader, float tolU, float tolV)
 	{
 		if (positions.size() <= 1)
@@ -80,6 +102,12 @@ public:
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 
+	/// <summary>
+	/// Performs a flood-fill operation starting at the given (x, y) coordinates.
+	/// </summary>
+	/// <param name="startX">The starting x-coordinate.</param>
+	/// <param name="startY">The starting y-coordinate.</param>
+	/// <param name="dummy">If true, the function returns without performing any operations.</param>
 	void floodFill(int startX, int startY, bool dummy = false)
 	{
 		if (texId == 0)
@@ -103,6 +131,9 @@ public:
 		floodFillBlack(data, start % size, start / size, size);	
 	}
 
+	/// <summary>
+	/// Performs morphological opening on the texture using a predefined structuring element.
+	/// </summary>
 	void imopen()
 	{
 		static const std::vector<std::vector<int>> structElem = {
@@ -118,11 +149,21 @@ public:
 		}
 	}
 
+	/// <summary>
+	/// Gets the texture data as a vector of floating-point values.
+	/// </summary>
+	/// <returns>A reference to the vector containing the texture data.</returns>
 	inline const std::vector<float>& getData() const
 	{	
 		return data;
 	}
 
+	/// <summary>
+	/// Samples the texture at a given (u, v) coordinate.
+	/// </summary>
+	/// <param name="u">The normalized u-coordinate (0 to 1).</param>
+	/// <param name="v">The normalized v-coordinate (0 to 1).</param>
+	/// <returns>The sampled value from the texture.</returns>
 	float sample(float u, float v)
 	{
 		std::clamp(u, 0.0f, 1.0f);

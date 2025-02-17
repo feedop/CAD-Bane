@@ -147,6 +147,12 @@ namespace
 
 export namespace paths
 {
+	/// <summary>
+	/// Generates a flat path for the given scene. The path is generated with all points at the same height (flat).
+	/// This method assumes that the path does not follow the terrain and is simply placed at a constant height level.
+	/// </summary>
+	/// <param name="scene">The scene object that may contain the necessary context for generating the path.</param>
+	/// <returns>A vector of 3D points representing the flat path.</returns>
 	std::vector<glm::vec3> generateFlatPath(Scene& scene)
 	{
 		static constexpr float toolRadius = 0.5f;
@@ -190,7 +196,7 @@ export namespace paths
 
 			auto addPoint = [&scene](const glm::vec3& p)
 			{
-				//scene.addPoint(p);
+				// For debugging
 			};
 
 			// Find intersection
@@ -200,10 +206,6 @@ export namespace paths
 
 			auto&& intersection = std::get<0>(result);
 			fullIntersection.insert(fullIntersection.end(), intersection.begin(), intersection.end());
-			//for (auto&& point : std::get<0>(result)) // DEBUG
-			//{
-			//	scene.addPoint(point);
-			//}
 
 			auto&& params = std::get<1>(result);
 			std::cout << "intersection size: " << params.size() << "\n";
@@ -220,10 +222,6 @@ export namespace paths
 
 		// Add the intersection
 		auto hull = getConcaveHullOfFilteredPoints(fullIntersection);
-		//for (auto&& point : hull) // DEBUG
-		//{
-		//	scene.addPoint(point);
-		//}
 
 		path.emplace_back(path.back().x, path.back().y, 5.15f);
 		path.emplace_back(-8.5f, -3.1f, 5.15f);

@@ -11,9 +11,18 @@ import math;
 import surface;
 import mg1utils;
 
+// <summary>
+/// Represents a C2 continuous parametric surface.
+/// </summary>
 export class C2Surface : public Surface
 {
 public:
+	/// <summary>
+	/// Constructs a C2Surface with a rectangular grid of control points.
+	/// </summary>
+	/// <param name="position">The initial position of the surface.</param>
+	/// <param name="sizeX">The number of control points in the X direction.</param>
+	/// <param name="sizeZ">The number of control points in the Z direction.</param>
 	C2Surface(const glm::vec3& position, int sizeX, int sizeZ) : Surface(getSurfaceName(), sizeX, sizeZ)
 	{
 		genBuffers();
@@ -30,6 +39,12 @@ public:
 		update();
 	}
 
+	/// <summary>
+	/// Constructs a C2Surface with a cylindrical arrangement of control points.
+	/// </summary>
+	/// <param name="position">The initial position of the surface.</param>
+	/// <param name="sizeX">The number of control points in the X direction.</param>
+	/// <param name="radius">The radius of the cylindrical surface.</param>
 	C2Surface(const glm::vec3& position, int sizeX, float radius) : Surface(getSurfaceName(), sizeX, std::max(3, static_cast<int>(2 * math::pi * radius / distanceZ)), true)
 	{
 		genBuffers();
@@ -49,7 +64,11 @@ public:
 		update();
 	}
 
-
+	/// <summary>
+	/// Deserializes a C2Surface from a MG1 definition.
+	/// </summary>
+	/// <param name="other">The MG1 surface to copy from.</param>
+	/// <param name="allPoints">A collection of all control points int the scene.</param>
 	C2Surface(const MG1::BezierSurfaceC2& other, const std::vector<std::unique_ptr<Point>>& allPoints) :
 		Surface(other.name, other.size.x + 3, other.size.y, other.vWrapped)
 	{
@@ -109,6 +128,10 @@ public:
 		update();
 	}
 
+	/// <summary>
+	/// Draw the surface using a given shader, rendering the patches of the surface.
+	/// </summary>
+	/// <param name="shader">The shader to be used for rendering.</param>
 	virtual void drawPolygon(const Shader* shader) const override
 	{
 		shader->setVector("color", polygonColor);
@@ -121,6 +144,10 @@ public:
 		}
 	}
 
+	// <summary>
+	/// Render the entire surface with the specified shader.
+	/// </summary>
+	/// <param name="shader">The shader to be used for rendering.</param>
 	virtual void draw(const Shader* shader) const override
 	{
 		ScopedBindArray ba(VAO);
@@ -153,6 +180,9 @@ public:
 		}
 	}
 
+	/// <summary>
+	/// Update the surface if scheduled for an update.
+	/// </summary>
 	virtual void update() override
 	{
 		if (!scheduledToUpdate)
@@ -173,6 +203,11 @@ public:
 		scheduledToUpdate = false;
 	}
 
+	/// <summary>
+	/// Serialize the C2 surface to the provided MG1 scene.
+	/// </summary>
+	/// <param name="mgscene">The scene to which the surface should be added.</param>
+	/// <param name="allPoints">The collection of all points in the scene.</param>
 	virtual void addToMGScene(MG1::Scene& mgscene, const std::vector<std::unique_ptr<Point>>& allPoints) const override
 	{
 		auto find = [&](const Point* point)
@@ -293,16 +328,31 @@ public:
 		mgscene.surfacesC2.push_back(surface);
 	}
 
+	/// <summary>
+	/// Get the preferred shader for rendering this surface.
+	/// </summary>
+	/// <returns>The preferred shader.</returns>
 	virtual Shader* getPreferredShader() const
 	{
 		return preferredShader;
 	}
 
+	/// <summary>
+	/// Set the preferred shader to be used for rendering C0Surface objects.
+	/// </summary>
+	/// <param name="shader">The shader to be set as the preferred shader.</param>
 	inline static void setPreferredShader(Shader* shader)
 	{
 		preferredShader = shader;
 	}
 
+	/// <summary>
+	/// Evaluates the surface at the given parameters (u, v) and with an optional tool radius.
+	/// </summary>
+	/// <param name="u">U parameter for the surface evaluation.</param>
+	/// <param name="v">V parameter for the surface evaluation.</param>
+	/// <param name="toolRadius">The surface's offset along its normal vector.</param>
+	/// <returns>The 3D point corresponding to the (u, v) parameter on the surface.</returns>
 	virtual glm::vec3 evaluate(float u, float v, float toolRadius) const override
 	{
 		
@@ -340,6 +390,13 @@ public:
 		});
 	}
 
+	/// <summary>
+	/// Calculates the derivative of the surface in the U direction at the given parameters (u, v).
+	/// </summary>
+	/// <param name="u">U parameter for the derivative calculation.</param>
+	/// <param name="v">V parameter for the derivative calculation.</param>
+	/// <param name="toolRadius">The surface's offset along its normal vector.</param>
+	/// <returns>The 3D vector representing the derivative in the U direction.</returns>
 	virtual glm::vec3 derivativeU(float u, float v, float toolRadius = 0.0f) const override
 	{
 		if (u == 1.0f)
@@ -347,6 +404,13 @@ public:
 		return (evaluate(u + math::derivativeH, v, toolRadius) - evaluate(u, v, toolRadius)) / math::derivativeH;
 	}
 
+	/// <summary>
+	/// Calculates the derivative of the surface in the V direction at the given parameters (u, v).
+	/// </summary>
+	/// <param name="u">U parameter for the derivative calculation.</param>
+	/// <param name="v">V parameter for the derivative calculation.</param>
+	/// <param name="toolRadius">The surface's offset along its normal vector.</param>
+	/// <returns>The 3D vector representing the derivative in the V direction.</returns>
 	virtual glm::vec3 derivativeV(float u, float v, float toolRadius = 0.0f) const override
 	{
 		if (v == 1.0f)
@@ -373,6 +437,9 @@ private:
 		return std::format("{} {}", "C2 Surface", instanceCount++);
 	}
 
+	/// <summary>
+	/// Generate OpenGL buffers.
+	/// </summary>
 	void genBuffers()
 	{
 		glGenVertexArrays(1, &VAO);
@@ -455,6 +522,13 @@ private:
 		polygonIndexCount = polygonIndices.size();
 	}
 
+	/// <summary>
+	/// A helper that evaluates a function for the given parameters.
+	/// </summary>
+	/// <param name="u">The u parameter.</param>
+	/// <param name="v">The v parameter.</param>
+	/// <param name="func">The function to evaluate.</param>
+	/// <returns></returns>
 	glm::vec3 eval(float u, float v, auto func) const
 	{
 		auto indexSizeZ = cylinder ? sizeZ : sizeZ - 3;

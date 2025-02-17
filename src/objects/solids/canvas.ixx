@@ -7,9 +7,16 @@ import shader;
 
 import texturedobject;
 
+// <summary>
+/// Represents a 2D canvas object in 3D space, typically used to display textures or images. 
+/// The canvas is a quadrilateral defined by four vertices and two triangles for its surface.
+/// </summary>
 export class Canvas : public TexturedObject
 {
 public:
+	/// <summary>
+	/// Constructor for the Canvas class that initializes the canvas object with vertices and indices for a quadrilateral.
+	/// </summary>
 	Canvas() : TexturedObject(createVertices(), createIndices())
 	{}
 

@@ -11,19 +11,33 @@ import pointrenderer;
 import math;
 import virtualpoint;
 
+/// <summary>
+/// Represents a C2 B-spline curve, inheriting from the Curve class.
+/// </summary>
 export class C2Bezier : public Curve
 {
 public:
+	/// <summary>
+	/// Constructs a C2 B-spline curve with the given control points.
+	/// </summary>
+	/// <param name="points">A vector of pointers to Point objects representing control points.</param>
 	C2Bezier(const std::vector<Point*>& points) : Curve(getCurveName(), points)
 	{
 		genBuffers();
 	}
 
+	/// <summary>
+	/// Constructs a C2 B-spline curve with an initializer list of control points.
+	/// </summary>
+	/// <param name="points">An initializer list of Point pointers.</param>
 	C2Bezier(std::initializer_list<Point*> points) : Curve(getCurveName(), points)
 	{
 		genBuffers();
 	}
 
+	/// <summary>
+	/// Destructor that cleans up OpenGL buffer objects.
+	/// </summary>
 	virtual ~C2Bezier()
 	{
 		ScopedBindArray ba(bSplineVAO);
@@ -34,11 +48,19 @@ public:
 		glDeleteVertexArrays(1, &bSplineVAO);
 	}
 
+	// <summary>
+	/// Draws additional (non-control) points for this curve.
+	/// </summary>
+	/// <param name="shader">Pointer to the shader program used for rendering.</param>
 	virtual inline void drawAdditionalPoints(const Shader* shader) const override
 	{
 		pointRenderer.draw(shader);
 	}
 
+	// <summary>
+	/// Draws the curve as a polygon on control points.
+	/// </summary>
+	/// <param name="shader">Pointer to the shader program used for rendering.</param>
 	virtual void drawPolygon(const Shader* shader) const
 	{
 		shader->setVector("color", bSplineColor);
@@ -49,6 +71,9 @@ public:
 		Curve::drawPolygon(shader);
 	}
 
+	/// <summary>
+	/// Updates the curve's vertex data and uploads it to the GPU.
+	/// </summary>
 	virtual void update() override
 	{
 		if (!scheduledToUpdate)
@@ -68,16 +93,28 @@ public:
 		scheduledToUpdate = false;
 	}
 
+	/// <summary>
+	/// Gets this curve's virtual points.
+	/// </summary>
+	/// <returns></returns>
 	virtual inline const std::vector<std::unique_ptr<Point>>& getVirtualPoints() const override
 	{
 		return virtualPoints;
 	}
 
+	/// <summary>
+	/// Updates the local point renderer.
+	/// </summary>
 	virtual inline void updateRenderer() override
 	{
 		pointRenderer.updateSoft(virtualPoints);
 	}
 
+	/// <summary>
+	/// Serializes the B-spline curve to an MG1 scene.
+	/// </summary>
+	/// <param name="mgscene">Reference to the MG1 scene object.</param>
+	/// <param name="indices">Indices of control points in the scene.</param>
 	virtual void addToMGScene(MG1::Scene& mgscene, const std::vector<unsigned int>& indices) const override
 	{
 		MG1::BezierC2 curve;
@@ -106,12 +143,18 @@ private:
 		return std::format("{} {}", "C2 Bezier", instanceCount++);
 	}
 
+	/// <summary>
+	/// Generates OpenGL buffers for rendering.
+	/// </summary>
 	virtual void genBuffers() override
 	{
 		glGenVertexArrays(1, &bSplineVAO);
 		glGenBuffers(1, &bSplineVBO);
 	}
 
+	/// <summary>
+	/// Populates position arrays for rendering.
+	/// </summary>
 	virtual void fillPositions() override
 	{
 		positions.clear();
@@ -146,6 +189,9 @@ private:
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
 	}
 
+	/// <summary>
+	/// Changes curve representation from the B-spline basis to the Bernstein basis.
+	/// </summary>
 	void bSplineToBezier()
 	{
 		bool hardUpdate = points.size() != lastPointsSize;
@@ -206,6 +252,9 @@ private:
 		lastPointsSize = points.size();
 	}
 
+	/// <summary>
+	/// Changes curve representation from the Bernstein basis to the B-spline basis.
+	/// </summary>
 	void bezierToBSpline()
 	{
 		auto&& invokerTranslation = updateInvoker->getLastTranslation();
