@@ -2,7 +2,7 @@
 
 Author: Filip Skrzeczkowski
 
-An 3D modeling CAD software made in C++ 23 with OpenGL and ImGui.
+A 3D modeling CAD software made in C++ 23 with OpenGL and ImGui.
 Supports file saving and loading, manipulating objects such as parametric surfaces and curves in 3D space.
 Includes algorithms such as filling holes using Gregory patches, finding surface intersections and generating real tool paths for selected models.
 
