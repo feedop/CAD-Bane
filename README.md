@@ -11,6 +11,8 @@ Includes algorithms such as filling holes using Gregory patches, finding surface
 The package contains a Visual Studio 2022 .sln file. Use it to build and launch the project.
 When starting, please make sure that the directory containing the solution file and all the resources is the working directory.
 
+## Gallery
+
 ![obraz](https://github.com/user-attachments/assets/f95e2cf3-2adf-408c-8585-4838d8745f07)
 
 ![obraz](https://github.com/user-attachments/assets/7898e34d-b604-425c-a8d5-62b94dada317)
